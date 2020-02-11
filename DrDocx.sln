@@ -1,0 +1,43 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29613.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DrDocx-Models", "DrDocx-Models\DrDocx-Models.csproj", "{D07AC4D2-1E71-40C7-9135-17484F6A1833}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DrDocx-Core", "DrDocx-Core\DrDocx-Core.csproj", "{376C95AB-9BCE-4664-AFC5-89731C7BA0C6}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DrDocx-ReportGenCLI", "..\DrDocx-ReportGeneratorV2\DrDocx-ReportGenCLI.csproj", "{30275018-4130-4CE2-A77D-6A585EF607D9}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DrDocx-WordDocEditing", "..\DrDocx-WordDocEditing\DrDocx-WordDocEditing.csproj", "{988C6EA6-73D0-43E2-B8F0-CC071DFCE7CA}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D07AC4D2-1E71-40C7-9135-17484F6A1833}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D07AC4D2-1E71-40C7-9135-17484F6A1833}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D07AC4D2-1E71-40C7-9135-17484F6A1833}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D07AC4D2-1E71-40C7-9135-17484F6A1833}.Release|Any CPU.Build.0 = Release|Any CPU
+		{376C95AB-9BCE-4664-AFC5-89731C7BA0C6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{376C95AB-9BCE-4664-AFC5-89731C7BA0C6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{376C95AB-9BCE-4664-AFC5-89731C7BA0C6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{376C95AB-9BCE-4664-AFC5-89731C7BA0C6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{30275018-4130-4CE2-A77D-6A585EF607D9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{30275018-4130-4CE2-A77D-6A585EF607D9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{30275018-4130-4CE2-A77D-6A585EF607D9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{30275018-4130-4CE2-A77D-6A585EF607D9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{988C6EA6-73D0-43E2-B8F0-CC071DFCE7CA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{988C6EA6-73D0-43E2-B8F0-CC071DFCE7CA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{988C6EA6-73D0-43E2-B8F0-CC071DFCE7CA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{988C6EA6-73D0-43E2-B8F0-CC071DFCE7CA}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {9229D39B-426C-4696-B3B1-CB2079C21A42}
+	EndGlobalSection
+EndGlobal
