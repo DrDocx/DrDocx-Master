@@ -32,6 +32,8 @@ git commit -m "[DrDocx-Master] You should prefix all your commits like that so w
 git subrepo push DrDocx-Models
 ```
 
+NOTE: Subrepo pushing takes a long time for some reason, it's (probably) not frozen if it sits there for a while.
+
 Obviously, you don't need to do the first command if you've already committed your most recent changes. What the subrepo push command will do is push all the changes you've made in the DrDocx-Models that represents the DrDocx-Models subrepo to the remote DrDocx-Models repo.
 
 - To pull in changes you made directly on a subrepo (e.g. making a change on ``DrDocx-Models`` directly on the repo instead of through ``DrDocx-Master``), just do the following once those changes are pushed to GitHub:
