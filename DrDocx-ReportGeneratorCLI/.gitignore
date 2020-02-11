@@ -1,0 +1,8 @@
+.vs/
+*.docx
+*.dotx
+*.png
+*.jpeg
+*.jpg
+bin/
+obj/
