@@ -9,7 +9,8 @@ This is the repository that contains all of the projects that make up the DrDocx
 I recommend you read up on [``git-subrepo``](https://github.com/ingydotnet/git-subrepo) briefly at this point. It's pretty straightforward but it'll help going forward. Here's an abbreviated installation guide pulled from their readme:
 
 >``git clone https://github.com/ingydotnet/git-subrepo /path/to/git-subrepo``
-``echo 'source /path/to/git-subrepo/.rc' >> ~/.bashrc``
+
+>``echo 'source /path/to/git-subrepo/.rc' >> ~/.bashrc``
 
 NOTE: The path you use should be absolute or relative to your user directory or subsequent shells won't be able to find where you've put git-subrepo.
 
