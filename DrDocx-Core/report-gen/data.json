@@ -1,0 +1,54 @@
+{
+   "First Group":[
+      {
+         "RawScore":1,
+         "ScaledScore":1,
+         "ZScore":-1,
+         "Percentile":33,
+         "RelatedTest":{
+            "Name":"hi",
+            "Description":null,
+            "Id":1
+         },
+         "ID":1
+      },
+      {
+         "RawScore":2,
+         "ScaledScore":2,
+         "ZScore":0,
+         "Percentile":50,
+         "RelatedTest":{
+            "Name":"hola",
+            "Description":null,
+            "Id":2
+         },
+         "ID":2
+      }
+   ],
+   "Second Group":[
+      {
+         "RawScore":1,
+         "ScaledScore":1,
+         "ZScore":-1,
+         "Percentile":33,
+         "RelatedTest":{
+            "Name":"hi",
+            "Description":null,
+            "Id":1
+         },
+         "ID":1
+      },
+      {
+         "RawScore":2,
+         "ScaledScore":2,
+         "ZScore":0,
+         "Percentile":50,
+         "RelatedTest":{
+            "Name":"hola",
+            "Description":null,
+            "Id":2
+         },
+         "ID":2
+      }
+   ]
+}

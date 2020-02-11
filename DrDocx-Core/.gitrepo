@@ -1,0 +1,12 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = https://github.com/DrDocx/DrDocx-Core
+	branch = master
+	commit = 10270bd8e164dc2587bfa8c472e4d3511b65ff62
+	parent = 0b2365e85f67fa6e359062490aa679c554746d4f
+	method = merge
+	cmdver = 0.4.1
