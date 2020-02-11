@@ -1,0 +1,12 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = https://github.com/DrDocx/DrDocx-WordDocEditing
+	branch = master
+	commit = c2bc43f95b0ae81fc736232bf23c2da2f1f17bf4
+	parent = ac0c3bf0c5926cb308c5da73abc602d5fb7760cc
+	method = merge
+	cmdver = 0.4.1
