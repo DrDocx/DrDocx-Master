@@ -40,12 +40,7 @@ git-subrepo is great and handles pretty much everything for us. We can make chan
 git commit -m "[DrDocx-Master] You should prefix all your commits like that so we know where they came from when we push everything around"
 git subrepo push DrDocx-Models
 ```
-
-<<<<<<< HEAD
-NOTE: Subrepo pushing takes a long time for some reason, it's (probably) not frozen if it sits there for a while.
-=======
 NOTE: Subrepo pushing takes a long time for some unknown reason, it's (probably) not frozen if it sits there for a while.
->>>>>>> 61127afe98512dd722d613fabd4ae1ce635f40d4
 
 Obviously, you don't need to do the first command if you've already committed your most recent changes. What the subrepo push command will do is push all the changes you've made in the DrDocx-Models that represents the DrDocx-Models subrepo to the remote DrDocx-Models repo.
 
