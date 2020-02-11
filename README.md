@@ -9,11 +9,14 @@ This is the repository that contains all of the projects that make up the DrDocx
 I recommend you read up on [``git-subrepo``](https://github.com/ingydotnet/git-subrepo) briefly at this point. It's pretty straightforward but it'll help going forward. Here's an abbreviated installation guide pulled from their readme:
 
 >``git clone https://github.com/ingydotnet/git-subrepo /path/to/git-subrepo``
-``echo 'source /path/to/git-subrepo/.rc' >> ~/.bashrc``
 
-NOTE: The path you use should be absolute or relative to your user directory or subsequent shells won't be able to find where you've put git-subrepo.
+Then, cd into the directory that you just cloned ``git-subrepo`` into and run the following:
 
-Make sure you replace that path with wherever you actually want to clone it, then use that path in the echo command.  Once you do that, restart your cmd/bash window, and typing ``git subrepo`` should yield something.
+>``make install``
+
+NOTE: You may need to run this with ``sudo``/run cmd as an administrator to have permission to do this.
+
+Make sure you replace that path with wherever you actually want to clone it.  Once you do that, restart your cmd/bash window, and typing ``git subrepo`` should yield something.
 
 ### Setting up DrDocx-Master
 
@@ -23,6 +26,8 @@ To clone this repository, simply run this command in the directory you want to p
 git clone https://github.com/DrDocx/DrDocx-Master
 ```
 
+### Using git-subrepo
+
 git-subrepo is great and handles pretty much everything for us. We can make changes on the actual subrepos and then pull them into the master repo, or we can make changes in the subrepo directory on the master repo and then push it to the actual subrepo using just a command. Here's a couple examples:
 
 - When you want to push the changes you've made on ``DrDocx-Master`` to ``DrDocx-Models`` for example, do the following:
@@ -31,6 +36,8 @@ git-subrepo is great and handles pretty much everything for us. We can make chan
 git commit -m "[DrDocx-Master] You should prefix all your commits like that so we know where they came from when we push everything around"
 git subrepo push DrDocx-Models
 ```
+
+NOTE: Subrepo pushing takes a long time for some unknown reason, it's (probably) not frozen if it sits there for a while.
 
 Obviously, you don't need to do the first command if you've already committed your most recent changes. What the subrepo push command will do is push all the changes you've made in the DrDocx-Models that represents the DrDocx-Models subrepo to the remote DrDocx-Models repo.
 
