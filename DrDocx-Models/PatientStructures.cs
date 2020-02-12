@@ -11,7 +11,8 @@ namespace DrDocx.Models
     /// Summary description for Patient
     /// </summary>
     ///
-    /// THIS WILL NOT WORK TIL EVERYTHINGS IN A PROJECT BECAUSE C# IS SPECIAL 
+    
+    //TODO: Remove all of these members of the Patient class (except name) and refactor them into a default FieldValueGroup.
     public class Patient
     {
         public List<TestResultGroup> ResultGroups { get; set; }

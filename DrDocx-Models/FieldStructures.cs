@@ -7,7 +7,7 @@ namespace DrDocx.Models
     public class Field
     {
         public int Id { get; set; }
-        public int FieldGroupId { get; set; }
+        public FieldGroup FieldGroup { get; set; }
         public string Name { get; set; }
         public string MatchText { get; set; }
         public string DefaultText { get; set; }
@@ -25,16 +25,16 @@ namespace DrDocx.Models
     public class FieldValue
     {
         public int Id { get; set; }
-        public int FieldId { get; set; }
-        public int FieldValueGroupId { get; set; }
+        public Field Field { get; set; }
+        public FieldValueGroup FieldValueGroup { get; set; }
         public string FieldTextValue { get; set; }
     }
 
     public class FieldValueGroup
     {
         public int Id { get; set; }
-        public int FieldGroupId { get; set; }
-        public int PatientId { get; set; }
+        public FieldGroup FieldGroup { get; set; }
+        public Patient Patient { get; set; }
         public List<FieldValue> FieldValues { get; set; }
     }
 }

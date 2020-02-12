@@ -9,44 +9,20 @@ namespace DrDocx.Models
 {
     public class Test
     {
+        public int Id { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
         [JsonIgnore]
         public List<TestGroupTest> TestGroupTests { get; set; }
-        public int Id { get; set; }
-
-        /*public Test(string name, string description)
-        {
-            Name = name;
-            Description = description;
-        }*/
     }
 
     public class TestGroup
     {
+        public int Id { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
         [JsonIgnore]
         public List<TestGroupTest> TestGroupTests { get; set; }
-
-        public int Id { get; set; }
-
-         /*This can be used for when a test group doesn't have tests ready to populate it with
-        public TestGroup(string name, string description, int id)
-        {
-            Name = name;
-            Description = description;
-            Tests = null;
-            Id = id;
-        }
-
-        public TestGroup(string name, string description, List<DTest> tests, int id)
-        {
-            Name = name;
-            Description = description;
-            Tests = tests;
-            Id = id;
-        }*/
     }
 
     public class TestGroupTest
@@ -61,20 +37,18 @@ namespace DrDocx.Models
     
     public class TestResultGroup
     {
+        public int Id { get; set; }
         public TestGroup TestGroupInfo { get; set; }
         public List<TestResult> Tests { get; set; }
-
-        public int Id { get; set; }
     }
 
     public class TestResult
     {
+        public int Id { get; set; }
         public int RawScore { get; set; }
         public int ScaledScore { get; set; }
         public int ZScore { get; set; }
         public int Percentile { get; set; }
         public Test RelatedTest { get; set; }
-
-        public int Id { get; set; }
     }
 }
