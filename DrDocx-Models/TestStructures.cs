@@ -46,9 +46,9 @@ namespace DrDocx.Models
     {
         public int Id { get; set; }
         public int RawScore { get; set; }
-        public int ScaledScore { get; set; }
+        public int StandardizedScore { get; set; }
         public int ZScore { get; set; }
-        public int Percentile { get; set; }
+        public int Percentile { get; set; } //TODO: Calculate automatically based on conversion from standardized score.
         public Test RelatedTest { get; set; }
     }
 }
