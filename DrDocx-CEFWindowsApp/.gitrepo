@@ -1,0 +1,12 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = https://github.com/DrDocx/DrDocx-CEFWindowsApp.git
+	branch = master
+	commit = d47349996db36b096a14debd131adeab59e08d04
+	parent = 7bfa7d985c7f8c69a809f5dfef8e17ff1ac86b98
+	method = merge
+	cmdver = 0.4.1
