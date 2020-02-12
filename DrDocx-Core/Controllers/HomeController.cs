@@ -5,17 +5,17 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using DrDocx_Core;
-using DrDocxModels;
+using DrDocx.Core;
+using DrDocx.Models;
 
-namespace DrDocx_Core.Controllers
+namespace DrDocx.Core.Controllers
 {
     public class HomeViewModel
     {
-        public IEnumerable<DrDocxModels.Patient> Patients;
-        public IEnumerable<DrDocxModels.TestGroup> TestGroups;
-        public IEnumerable<DrDocxModels.TestGroupTest> TestGroupTests;
-        public IEnumerable<DrDocxModels.Test> Tests;
+        public IEnumerable<Patient> Patients;
+        public IEnumerable<TestGroup> TestGroups;
+        public IEnumerable<TestGroupTest> TestGroupTests;
+        public IEnumerable<Test> Tests;
     }
 
     public class HomeController : Controller

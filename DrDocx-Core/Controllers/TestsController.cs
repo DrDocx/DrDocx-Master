@@ -5,8 +5,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using DrDocx_Core;
-using DrDocxModels;
+using DrDocx.Core;
+using DrDocx.Models;
 
 namespace DrDocx_Core.Controllers
 {

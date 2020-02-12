@@ -5,12 +5,12 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using DrDocx_Core;
-using DrDocxModels;
+using DrDocx.Core;
+using DrDocx.Models;
 using System.IO;
 using System.Text.Json;
 
-namespace DrDocx_Core.Controllers
+namespace DrDocx.Core.Controllers
 {
     public struct PatientViewModel
     {

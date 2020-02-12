@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using DrDocx_Core.Models;
 
-namespace DrDocx_Core
+namespace DrDocx.Core
 {
     public class Startup
     {

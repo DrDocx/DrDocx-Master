@@ -5,13 +5,13 @@ using System.Collections.Generic;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing;
-using DrDocxModels;
+using DrDocx.Models;
 using System.Threading.Tasks;
 using A = DocumentFormat.OpenXml.Drawing;
 using DW = DocumentFormat.OpenXml.Drawing.Wordprocessing;
 using PIC = DocumentFormat.OpenXml.Drawing.Pictures;
 
-namespace ReportGen
+namespace DrDocx.ReportGen
 {
     static class ReportGen
     {

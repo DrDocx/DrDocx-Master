@@ -8,7 +8,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
 
-namespace DrDocx_Core
+namespace DrDocx.Core
 {
     public class Program
     {

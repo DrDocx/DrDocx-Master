@@ -5,9 +5,9 @@ using System.Threading.Tasks;
 using System.IO;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using DrDocx_Core.Models;
+using DrDocx.Core;
 using System.Text.Json;
-using ReportGen;
+using DrDocx.ReportGen;
 
 namespace DrDocx_Core.Controllers
 {

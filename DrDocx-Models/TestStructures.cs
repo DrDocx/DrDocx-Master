@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace DrDocxModels
+namespace DrDocx.Models
 {
     public class Test
     {
