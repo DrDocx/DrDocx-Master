@@ -7,9 +7,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DrDocx-Models", "DrDocx-Mod
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DrDocx-Core", "DrDocx-Core\DrDocx-Core.csproj", "{376C95AB-9BCE-4664-AFC5-89731C7BA0C6}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DrDocx-ReportGenCLI", "..\DrDocx-ReportGeneratorV2\DrDocx-ReportGenCLI.csproj", "{30275018-4130-4CE2-A77D-6A585EF607D9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DrDocx-ReportGenCLI", "DrDocx-ReportGeneratorCLI\DrDocx-ReportGenCLI.csproj", "{2D8FC5F1-775B-4B55-904D-26E20E78985A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DrDocx-WordDocEditing", "..\DrDocx-WordDocEditing\DrDocx-WordDocEditing.csproj", "{988C6EA6-73D0-43E2-B8F0-CC071DFCE7CA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DrDocx-WordDocEditing", "DrDocx-WordDoc-Editing\DrDocx-WordDocEditing.csproj", "{FC0C852E-8FBB-47F1-8F33-3B50A32A7A0E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -25,14 +25,14 @@ Global
 		{376C95AB-9BCE-4664-AFC5-89731C7BA0C6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{376C95AB-9BCE-4664-AFC5-89731C7BA0C6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{376C95AB-9BCE-4664-AFC5-89731C7BA0C6}.Release|Any CPU.Build.0 = Release|Any CPU
-		{30275018-4130-4CE2-A77D-6A585EF607D9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{30275018-4130-4CE2-A77D-6A585EF607D9}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{30275018-4130-4CE2-A77D-6A585EF607D9}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{30275018-4130-4CE2-A77D-6A585EF607D9}.Release|Any CPU.Build.0 = Release|Any CPU
-		{988C6EA6-73D0-43E2-B8F0-CC071DFCE7CA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{988C6EA6-73D0-43E2-B8F0-CC071DFCE7CA}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{988C6EA6-73D0-43E2-B8F0-CC071DFCE7CA}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{988C6EA6-73D0-43E2-B8F0-CC071DFCE7CA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2D8FC5F1-775B-4B55-904D-26E20E78985A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2D8FC5F1-775B-4B55-904D-26E20E78985A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2D8FC5F1-775B-4B55-904D-26E20E78985A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2D8FC5F1-775B-4B55-904D-26E20E78985A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FC0C852E-8FBB-47F1-8F33-3B50A32A7A0E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FC0C852E-8FBB-47F1-8F33-3B50A32A7A0E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FC0C852E-8FBB-47F1-8F33-3B50A32A7A0E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FC0C852E-8FBB-47F1-8F33-3B50A32A7A0E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

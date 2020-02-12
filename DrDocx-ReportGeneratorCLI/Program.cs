@@ -8,10 +8,10 @@ using Entry = Microcharts.Entry;
 
 using SkiaSharp;
 
-using DrDocxModels;
-using static WordDocEditing.WordAPI;
+using DrDocx.Models;
+using static DrDocx.WordDocEditing.WordAPI;
 
-namespace ReportGenCLI
+namespace DrDocx.ReportGenCLI
 {
 	static class Program
 	{

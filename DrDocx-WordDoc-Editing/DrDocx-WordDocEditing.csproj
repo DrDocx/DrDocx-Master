@@ -10,7 +10,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DrDocxModels\DrDocx-Models.csproj" />
+    <ProjectReference Include="..\DrDocx-Models\DrDocx-Models.csproj" />
   </ItemGroup>
 
 </Project>

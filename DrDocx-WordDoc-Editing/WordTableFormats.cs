@@ -6,7 +6,7 @@ using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing;
 
-namespace WordDocEditing
+namespace DrDocx.WordDocEditing
 {
 	static class WordTableFormats
 	{

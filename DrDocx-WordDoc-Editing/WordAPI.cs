@@ -11,9 +11,9 @@ using A = DocumentFormat.OpenXml.Drawing;
 using DW = DocumentFormat.OpenXml.Drawing.Wordprocessing;
 using PIC = DocumentFormat.OpenXml.Drawing.Pictures;
 
-using DrDocxModels;
+using DrDocx.Models;
 
-namespace WordDocEditing
+namespace DrDocx.WordDocEditing
 {
 	public static class WordAPI
 	{

@@ -8,7 +8,7 @@ using System.Xml;
 using System.Xml.Linq;
 using DocumentFormat.OpenXml.Packaging;
 
-namespace WordDocEditing
+namespace DrDocx.WordDocEditing
 {
     // Credit: http://www.ericwhite.com/blog/search-and-replace-text-in-an-open-xml-wordprocessingml-document/
 
