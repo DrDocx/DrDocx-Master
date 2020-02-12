@@ -25,25 +25,8 @@ namespace DrDocx.Models
         public string Notes { get; set; }
         public int MedicalRecordNumber { get; set; }
         public int AgeAtTesting { get; set; }
+        
+        public List<FieldValueGroup> FieldValueGroups { get; set; }
         public int Id { get; set; }
-    }
-
-    public class TestResultGroup
-    {
-        public TestGroup TestGroupInfo { get; set; }
-        public List<TestResult> Tests { get; set; }
-
-        public int Id { get; set; }
-    }
-
-    public class TestResult
-    {
-        public int RawScore { get; set; }
-        public int ScaledScore { get; set; }
-        public int ZScore { get; set; }
-        public int Percentile { get; set; }
-        public Test RelatedTest { get; set; }
-
-        public int ID { get; set; }
     }
 }
