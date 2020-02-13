@@ -36,16 +36,18 @@ namespace DrDocx.WordDocEditing
 			return hex;
 		}
 
-		private static void RotateAndSaveImage(string fileName)
+		static void RotateAndSaveImage(String input, String output)
 		{
   			//create an object that we can use to examine an image file
-			Image img = Image.FromFile(fileName);
+			Image img = Image.FromFile(input);
 
    			//rotate the picture by 90 degrees
 			img.RotateFlip(RotateFlipType.Rotate90FlipNone);
 
     		//re-save the picture as a Jpeg
 			img.Save(fileName, System.Drawing.Imaging.ImageFormat.Jpeg);
+
+			img.Save(output, System.Drawing.Imaging.ImageFormat.Jpeg);
 
     		//tidy up after we've finished
 			img.Dispose();
