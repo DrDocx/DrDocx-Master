@@ -119,10 +119,10 @@ namespace DrDocx.WordDocEditing
             return isMatchInParagraph;
         }
 
-        // <summary>
-        // This method takes in the paragraph after the text has been chopped into char runs and runs the
-        // main search and replace algorithm
-        // </summary>
+        /// <summary>
+        /// Takes in a paragraph that has been chopped into character runs and replaces all string matches
+        /// using the main search and replace algorithm
+        /// </summary>
         private void SearchAndReplaceCharRunsParagraph(XmlElement paragraph, string search, string replace,
             XmlDocument xmlDoc)
         {
