@@ -18,13 +18,10 @@ namespace DrDocx.WordDocEditing
             string replace, bool matchCase)
         {
             if (HasTrackedRevisions(wordDoc))
-                throw new SearchAndReplaceException(
-                    "Search and replace will not work with documents " +
-                    "that contain revision tracking.");
-
-            XmlDocument xmlDoc;
-            xmlDoc = GetXmlDocument(wordDoc.MainDocumentPart.DocumentSettingsPart);
-            XmlNamespaceManager nsmgr = new XmlNamespaceManager(xmlDoc.NameTable);
+                throw new SearchAndReplaceException("Search and replace will not work with documents that contain revision tracking.");
+            
+            var xmlDoc = GetXmlDocument(wordDoc.MainDocumentPart.DocumentSettingsPart);
+            var nsmgr = new XmlNamespaceManager(xmlDoc.NameTable);
             nsmgr.AddNamespace("w",
                 "http://schemas.openxmlformats.org/wordprocessingml/2006/main");
             XmlNodeList trackedRevisions =
@@ -33,16 +30,14 @@ namespace DrDocx.WordDocEditing
                 throw new SearchAndReplaceException(
                     "Revision tracking is turned on for document.");
 
-            xmlDoc = GetXmlDocument(wordDoc.MainDocumentPart);
-            SearchAndReplaceInXmlDocument(xmlDoc, search, replace, matchCase);
-            PutXmlDocument(wordDoc.MainDocumentPart, xmlDoc);
-
             void SearchAndReplaceInDocPart(OpenXmlPart docPart)
             {
                 xmlDoc = GetXmlDocument(docPart);
                 SearchAndReplaceInXmlDocument(xmlDoc, search, replace, matchCase);
                 PutXmlDocument(docPart, xmlDoc);
             }
+
+            SearchAndReplaceInDocPart(wordDoc.MainDocumentPart);
 
             foreach (var part in wordDoc.MainDocumentPart.HeaderParts)
                 SearchAndReplaceInDocPart(part);
