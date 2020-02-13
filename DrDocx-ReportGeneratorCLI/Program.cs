@@ -10,31 +10,12 @@ using SkiaSharp;
 
 using DrDocx.Models;
 using static DrDocx.WordDocEditing.WordAPI;
+using static DrDocx.WordDocEditing.ChartAPI;
 
 namespace DrDocx.ReportGenCLI
 {
 	static class Program
 	{
-
-		static int[] ColorInterpolation(int[] c1,int[] c2,double interp){
-			int[] newcol = new int[3];
-			for (int i = 0; i < 3; i++){
-				newcol[i] = (int)(interp*(c2[i]-c1[i])) + c1[i];
-			}
-			return newcol;
-		}
-
-		static string ColToHex(int[] col){
-			string hex = "#";
-			for (int i = 0; i < 3;i++){
-				if(col[i] < 16){
-					hex += "0";
-				}
-				hex += col[i].ToString("X");
-			}
-			return hex;
-		}
-
 		static void Main(string[] args)
 		{
 			
@@ -60,28 +41,21 @@ namespace DrDocx.ReportGenCLI
 			Patient johnDoe = new Patient(){
 				Name = "John Doe",
 				PreferredName = "Johnny",
-				DateOfBirth = new DateTime(628243894905389400),
+				DateOfBirth = new DateTime(620243894905389400),
 				DateOfTesting = new DateTime(628243894905389400),
 				MedicalRecordNumber = 123456,
+				Address = "4831 Washington Avenue",
+				Medications = "Flovent",
 				ResultGroups = resultGroups
 			};
 
 			Patient patient = johnDoe;
 
-			Console.WriteLine(patient.DateOfBirth);
-			
+			string templatePath = @"templates\report_template.docx";
+			string newfilePath = @"generated_reports\" + patient.Name + ".docx";
 
-			string templatePath = @"Reports\ReportTemplate\Report_Template.dotx";
-			string newfilePath = @"Reports\GeneratedReports\" + patient.Name + ".docx";
-			string vizPath = @"Reports\GeneratedReports\Visualization.docx";
-			string imagePath = @"Reports\GeneratedReports\renderedVisualization2.png";
-
-			if (File.Exists(newfilePath))
-			{
-				File.Delete(newfilePath);
-			}
-
-			File.Copy(templatePath, newfilePath);
+			GenerateReport(patient,templatePath,newfilePath);
+			Console.WriteLine("Report generated at " + newfilePath);
 
 			var entries = new List<Entry>();
 			int[] green = new int[]{0,255,0};
@@ -90,37 +64,26 @@ namespace DrDocx.ReportGenCLI
 			double interp;
 			string hexcol;
 			int percentile;
-			
-			using(WordprocessingDocument myDoc = WordprocessingDocument.Open(newfilePath,true)){
 
-				myDoc.ChangeDocumentType(DocumentFormat.OpenXml.WordprocessingDocumentType.Document);
-				InsertPatientData(myDoc,patient);
-				foreach(TestResultGroup testResultGroup in patient.ResultGroups){
-					DisplayTestGroup(myDoc,testResultGroup);
-
-					foreach(TestResult result in testResultGroup.Tests){
-						interp = 2*Math.Abs(0.01 * (double)result.Percentile - 0.5);
-						if(interp < 0.5){
-							hexcol = ColToHex(ColorInterpolation(green,yellow,2*interp));
-						} else {
-							hexcol = ColToHex(ColorInterpolation(yellow,red,2*(interp-0.5)));
-						}
-						if(result.Percentile == 0){
-							percentile = 1;
-						} else {
-							percentile = result.Percentile;
-						}
-						entries.Add(new Entry(percentile){
-							Label = result.RelatedTest.Name,
-							ValueLabel = result.Percentile.ToString(),
-							Color = SKColor.Parse(hexcol)
-							});
+			foreach(var testResultGroup in patient.ResultGroups){
+				foreach(TestResult result in testResultGroup.Tests){
+					interp = 2*Math.Abs(0.01 * (double)result.Percentile - 0.5);
+					if(interp < 0.5){
+						hexcol = ColToHex(ColorInterpolation(green,yellow,2*interp));
+					} else {
+						hexcol = ColToHex(ColorInterpolation(yellow,red,2*(interp-0.5)));
 					}
+					if(result.Percentile == 0){
+						percentile = 1;
+					} else {
+						percentile = result.Percentile;
+					}
+					entries.Add(new Entry(percentile){
+						Label = result.RelatedTest.Name,
+						ValueLabel = result.Percentile.ToString(),
+						Color = SKColor.Parse(hexcol)
+						});
 				}
-				PageBreak(myDoc);
-				//InsertPicturePng(myDoc, imagePath,7,1.2);
-				//JoinFile(myDoc,vizPath);
-
 			}
 
 			var chart = new BarChart() {
@@ -150,9 +113,10 @@ namespace DrDocx.ReportGenCLI
 
 			using(WordprocessingDocument myDoc = WordprocessingDocument.Open(newfilePath,true)){
 				InsertPicturePng(myDoc, "one.png",6,3);
+				AddParagraph(myDoc, "Lipid Diagnosis",bold: true,fontsize: 16,alignment: "center");
 			}
 
-			//Console.WriteLine("Modified");
+			Console.WriteLine("Modified");
 
 		}
 	}
