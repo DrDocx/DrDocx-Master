@@ -4,18 +4,18 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 
-using DrDocx.Models;
-
 using Microcharts;
 using Entry = Microcharts.Entry;
 
 using SkiaSharp;
 
+using DrDocx.Models;
+
 namespace DrDocx.WordDocEditing
 {
 	public static class ChartAPI
 	{
-		public static int[] ColorInterpolation(int[] c1,int[] c2,double interp)
+		private static int[] LinearInterpolation(int[] c1,int[] c2,double interp)
 		{
 			int[] newcol = new int[3];
 			for (int i = 0; i < 3; i++){
@@ -24,7 +24,7 @@ namespace DrDocx.WordDocEditing
 			return newcol;
 		}
 
-		public static string ColToHex(int[] col)
+		private static string ColToHex(int[] col)
 		{
 			string hex = "#";
 			for (int i = 0; i < 3;i++){
@@ -66,9 +66,9 @@ namespace DrDocx.WordDocEditing
 			foreach(TestResult result in testResultGroup.Tests){
 				interp = 0.01 * (double)result.Percentile;
 				if(interp < 0.5){
-					hexcol = ColToHex(ColorInterpolation(red,yellow,2*interp));
+					hexcol = ColToHex(LinearInterpolation(red,yellow,2*interp));
 				} else {
-					hexcol = ColToHex(ColorInterpolation(yellow,green,2*(interp-0.5)));
+					hexcol = ColToHex(LinearInterpolation(yellow,green,2*(interp-0.5)));
 				}
 				if(result.Percentile == 0){
 					percentile = 1;
@@ -81,7 +81,7 @@ namespace DrDocx.WordDocEditing
 					Color = SKColor.Parse(hexcol)
 					});
 			}
-			
+
 			var chart = new BarChart() {
 				Entries = entries,
 				MaxValue = 100,

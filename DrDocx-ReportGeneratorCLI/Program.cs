@@ -60,7 +60,6 @@ namespace DrDocx.ReportGenCLI
 			wordAPI.Close();
 
 			Console.WriteLine("Modified");
-
 		}
 	}
 }

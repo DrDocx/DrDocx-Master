@@ -12,6 +12,7 @@ using DW = DocumentFormat.OpenXml.Drawing.Wordprocessing;
 using PIC = DocumentFormat.OpenXml.Drawing.Pictures;
 
 using DrDocx.Models;
+using static DrDocx.WordDocEditing.ChartAPI;
 
 namespace DrDocx.WordDocEditing
 {
