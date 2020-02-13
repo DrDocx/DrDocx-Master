@@ -18,12 +18,13 @@ namespace DrDocx.WordDocEditing
 	// TODO: Stop using these methods directly from ReportGeneratorCLI so we can make them private as they should be.
 	public class WordAPI
 	{
-		private WordprocessingDocument WordDoc { get; set; }
-
 		public WordAPI(WordprocessingDocument myDoc)
 		{
 			WordDoc = myDoc;
 		}
+
+		private WordprocessingDocument WordDoc { get; set; }
+
 		public void FindAndReplace(Dictionary<string, string> findReplacePairs, bool matchCase)
 		{
 			WordFindAndReplace findAndReplacer = new WordFindAndReplace(WordDoc, matchCase);
