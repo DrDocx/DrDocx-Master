@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Collections.Generic;
 using System.Globalization;
+
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing;
@@ -41,7 +42,6 @@ namespace DrDocx.WordDocEditing
 		private string DocPath { get; set; }
 		private WordprocessingDocument WordDoc { get; set; }
 
-		
 		public void GenerateReport(Patient patient)
 		{
 			
@@ -323,7 +323,6 @@ namespace DrDocx.WordDocEditing
 			.ShapeProperties.Transform2D.Extents.Cy = finalHeight;
 
 			// Append the reference to body, the element should be in a Run.
-
 			WordDoc.MainDocumentPart.Document.Body.AppendChild(new Paragraph(
 				new ParagraphProperties(new Justification() { Val = JustificationValues.Center }),
 				new Run(element)

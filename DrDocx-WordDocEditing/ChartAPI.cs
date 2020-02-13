@@ -3,7 +3,6 @@ using System.IO;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
-
 using Microcharts;
 using Entry = Microcharts.Entry;
 
@@ -50,7 +49,6 @@ namespace DrDocx.WordDocEditing
     		//tidy up after we've finished
 			img.Dispose();
 		}
-
 		
 		public static void MakePatientPercentileChart(TestResultGroup testResultGroup,string fileName)
 		{
