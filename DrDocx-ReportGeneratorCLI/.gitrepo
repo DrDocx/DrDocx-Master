@@ -6,7 +6,7 @@
 [subrepo]
 	remote = https://github.com/DrDocx/DrDocx-ReportGeneratorCLI
 	branch = master
-	commit = 2ec647a9b03c4815ffaf058d2ca0f52df99410f0
-	parent = fee7686d8ce462780d2eecd60e495ab073e34757
+	commit = e13c755169a5ef66981148c16e3fd21fe2f03f28
+	parent = 9ba81dcc3673ca26400963a26772f07caa9359f3
 	method = merge
 	cmdver = 0.4.1
