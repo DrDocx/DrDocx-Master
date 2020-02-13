@@ -4,9 +4,9 @@
 ; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
 ;
 [subrepo]
-	remote = https://github.com/DrDocx/DrDocx-ReportGeneratorCLI
+	remote = https://github.com/DrDocx/DrDocx-Tests
 	branch = master
-	commit = e13c755169a5ef66981148c16e3fd21fe2f03f28
-	parent = 9ba81dcc3673ca26400963a26772f07caa9359f3
+	commit = 2968341552f61b2cf89bdd671639cb2ea8707af5
 	method = merge
 	cmdver = 0.4.1
+	parent = cb9786a258a10244c3ddf7d3faf612571e2ccc0a
