@@ -27,6 +27,7 @@ namespace DrDocx.WordDocEditing
 
 		public void FindAndReplace(Dictionary<string, string> findReplacePairs, bool matchCase)
 		{
+			// TODO: Wrap all keys of dictionary in {{ }}
 			WordFindAndReplace findAndReplacer = new WordFindAndReplace(WordDoc, matchCase);
 			findAndReplacer.SearchAndReplace(findReplacePairs);
 		}
