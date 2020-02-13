@@ -15,11 +15,14 @@ using DrDocx.Models;
 
 namespace DrDocx.WordDocEditing
 {
+	// TODO: Make this not a static class anymore
 	public static class WordAPI
 	{
-		public static void FindAndReplace(WordprocessingDocument myDoc, string search, string replace, bool matchCase)
+		public static void FindAndReplace(WordprocessingDocument myDoc,
+			Dictionary<string, string> findReplacePairs, bool matchCase)
 		{
-			WordFindAndReplace.SearchAndReplace(myDoc, search, replace, matchCase);
+			WordFindAndReplace findAndReplacer = new WordFindAndReplace(myDoc, matchCase);
+			findAndReplacer.SearchAndReplace(findReplacePairs);
 		}
 
 		public static void PageBreak(WordprocessingDocument myDoc)
