@@ -129,9 +129,9 @@ namespace Microcharts
                                 text = text.Substring(0, Math.Min(3, text.Length));
                                 paint.MeasureText(text, ref bounds);
                             }
-                            canvas.RotateDegrees(90, point.X - (bounds.Height / 2), height - this.Margin + (this.LabelTextSize / 2) - 50);
-                            canvas.DrawText(text, point.X - (bounds.Height / 2), height - this.Margin + (this.LabelTextSize / 2) - 50, paint);
-                            canvas.RotateDegrees(-90, point.X - (bounds.Height / 2), height - this.Margin + (this.LabelTextSize / 2) - 50);
+                            canvas.RotateDegrees(-90, point.X + (bounds.Height / 2), height + this.Margin + (this.LabelTextSize / 2) - 50);
+                            canvas.DrawText(text, point.X + (bounds.Height / 2), height + this.Margin + (this.LabelTextSize / 2) - 50, paint);
+                            canvas.RotateDegrees(90, point.X + (bounds.Height / 2), height + this.Margin + (this.LabelTextSize / 2) - 50);
                         } else {
                             if (bounds.Width > itemSize.Width)
                             {
@@ -215,11 +215,16 @@ namespace Microcharts
                                 var bounds = new SKRect();
                                 var text = entry.ValueLabel;
                                 paint.MeasureText(text, ref bounds);
-
-                                canvas.RotateDegrees(90);
-                                canvas.Translate(this.Margin, -point.X + (bounds.Height / 2));
-
-                                canvas.DrawText(text, 0, 0, paint);
+                                if(this.LabelOrientation == Orientation.Vertical)
+                                {
+                                    canvas.RotateDegrees(270);
+                                    canvas.Translate(this.Margin, -point.X + (bounds.Height / 2));
+                                    canvas.DrawText(text, 0, 0, paint);
+                                } else {
+                                    canvas.RotateDegrees(90);
+                                    canvas.Translate(this.Margin, -point.X + (bounds.Height / 2));
+                                    canvas.DrawText(text, 0, 0, paint);
+                                }
                             }
                         }
                     }

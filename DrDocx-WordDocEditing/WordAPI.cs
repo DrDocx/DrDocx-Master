@@ -13,6 +13,7 @@ using DW = DocumentFormat.OpenXml.Drawing.Wordprocessing;
 using PIC = DocumentFormat.OpenXml.Drawing.Pictures;
 
 using DrDocx.Models;
+using static DrDocx.WordDocEditing.ChartAPI;
 
 namespace DrDocx.WordDocEditing
 {
@@ -27,6 +28,8 @@ namespace DrDocx.WordDocEditing
 
 			File.Copy(templatePath, newFilePath);
 
+			MakePatientPercentileChart(patient,patient.Name + "1");
+
 			using (WordprocessingDocument myDoc = WordprocessingDocument.Open(newFilePath, true))
 			{
 				InsertPatientData(myDoc,patient);
@@ -35,6 +38,9 @@ namespace DrDocx.WordDocEditing
 				{
 					DisplayTestGroup(myDoc,testResultGroup);
 				}
+				
+				InsertPicturePng(myDoc, patient.Name + "1.png",6,3);
+				AddParagraph(myDoc, "Lipid Diagnosis",bold: true,fontsize: 16,alignment: "center");
 			}
 		}
 
