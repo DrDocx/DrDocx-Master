@@ -12,9 +12,9 @@ namespace DrDocx.WordDocEditing
 {
     // Credit: http://www.ericwhite.com/blog/search-and-replace-text-in-an-open-xml-wordprocessingml-document/
 
-    static class WordFindAndReplace
+    internal static class WordFindAndReplace
     {
-        
+
         public static void SearchAndReplace(WordprocessingDocument wordDoc, string search,
             string replace, bool matchCase)
         {
@@ -37,34 +37,27 @@ namespace DrDocx.WordDocEditing
             xmlDoc = GetXmlDocument(wordDoc.MainDocumentPart);
             SearchAndReplaceInXmlDocument(xmlDoc, search, replace, matchCase);
             PutXmlDocument(wordDoc.MainDocumentPart, xmlDoc);
-            foreach (var part in wordDoc.MainDocumentPart.HeaderParts)
+
+            void SearchAndReplaceInDocPart(OpenXmlPart docPart)
             {
-                xmlDoc = GetXmlDocument(part);
+                xmlDoc = GetXmlDocument(docPart);
                 SearchAndReplaceInXmlDocument(xmlDoc, search, replace, matchCase);
-                PutXmlDocument(part, xmlDoc);
+                PutXmlDocument(docPart, xmlDoc);
             }
+
+            foreach (var part in wordDoc.MainDocumentPart.HeaderParts)
+                SearchAndReplaceInDocPart(part);
 
             foreach (var part in wordDoc.MainDocumentPart.FooterParts)
-            {
-                xmlDoc = GetXmlDocument(part);
-                SearchAndReplaceInXmlDocument(xmlDoc, search, replace, matchCase);
-                PutXmlDocument(part, xmlDoc);
-            }
+                SearchAndReplaceInDocPart(part);
 
             if (wordDoc.MainDocumentPart.EndnotesPart != null)
-            {
-                xmlDoc = GetXmlDocument(wordDoc.MainDocumentPart.EndnotesPart);
-                SearchAndReplaceInXmlDocument(xmlDoc, search, replace, matchCase);
-                PutXmlDocument(wordDoc.MainDocumentPart.EndnotesPart, xmlDoc);
-            }
+                SearchAndReplaceInDocPart(wordDoc.MainDocumentPart.EndnotesPart);
 
             if (wordDoc.MainDocumentPart.FootnotesPart != null)
-            {
-                xmlDoc = GetXmlDocument(wordDoc.MainDocumentPart.FootnotesPart);
-                SearchAndReplaceInXmlDocument(xmlDoc, search, replace, matchCase);
-                PutXmlDocument(wordDoc.MainDocumentPart.FootnotesPart, xmlDoc);
-            }
+                SearchAndReplaceInDocPart(wordDoc.MainDocumentPart.FootnotesPart);
         }
+
         private static void SearchAndReplaceInXmlDocument(XmlDocument xmlDocument, string search,
             string replace, bool matchCase)
         {
@@ -79,67 +72,143 @@ namespace DrDocx.WordDocEditing
         static void SearchAndReplaceInParagraph(XmlElement paragraph, string search,
             string replace, bool matchCase)
         {
-            XmlDocument xmlDoc = paragraph.OwnerDocument;
-            string wordNamespace =
-                "http://schemas.openxmlformats.org/wordprocessingml/2006/main";
+            
+            XmlNamespaceManager nsmgr = GetNsmgrForParagraph(paragraph, out var xmlDoc, out var wordNamespace);
+
+            // Get all the text nodes of the paragraph
+            XmlNodeList paragraphText = paragraph.SelectNodes("descendant::w:t", nsmgr);
+            
+            var isMatchInParagraph = IsMatchInParagraph(search, matchCase, paragraphText);
+            if (!isMatchInParagraph) 
+                return;
+
+            SplitTextRunsIntoCharacterRuns(paragraph, nsmgr, xmlDoc, wordNamespace);
+
+            SearchAndReplaceCharRunsParagraph(paragraph, search, replace, matchCase, nsmgr, xmlDoc, wordNamespace);
+
+            ConsolidateRunsWithSameProperties(paragraph, nsmgr, xmlDoc, wordNamespace);
+
+            SearchAndReplaceInTextBoxes(paragraph, search, replace, matchCase, nsmgr);
+        }
+
+        private static XmlNamespaceManager GetNsmgrForParagraph(XmlElement paragraph, out XmlDocument xmlDoc,
+            out string wordNamespace)
+        {
+            xmlDoc = paragraph.OwnerDocument;
+            // TODO: Figure out if these namespaces are necessary. Reeks of cargo cult programming.
+            wordNamespace = "http://schemas.openxmlformats.org/wordprocessingml/2006/main";
             XmlNamespaceManager nsmgr =
                 new XmlNamespaceManager(xmlDoc.NameTable);
             nsmgr.AddNamespace("w", wordNamespace);
-            XmlNodeList paragraphText = paragraph.SelectNodes("descendant::w:t", nsmgr);
+            return nsmgr;
+        }
+
+        private static bool IsMatchInParagraph(string search, bool matchCase, XmlNodeList paragraphText)
+        {
+            // First we just mash all the text together and check for a match before we go any further.
+            // If we know there's no match, then we don't have to go through the effort of screwing with
+            // the runs to replace text while maintaining the document's structural integrity.
             StringBuilder sb = new StringBuilder();
             foreach (XmlNode text in paragraphText)
                 sb.Append(((XmlElement) text).InnerText);
-            if (sb.ToString().Contains(search) ||
-                (!matchCase && sb.ToString().ToUpper().Contains(search.ToUpper())))
+            bool isMatchInParagraph = sb.ToString().Contains(search) ||
+                                      !matchCase && sb.ToString().ToUpper().Contains(search.ToUpper());
+            return isMatchInParagraph;
+        }
+
+        private static void SearchAndReplaceCharRunsParagraph(XmlElement paragraph, string search, string replace,
+            bool matchCase, XmlNamespaceManager nsmgr, XmlDocument xmlDoc, string wordNamespace)
+        {
+            XmlNodeList runs;
+            while (true)
             {
-                XmlNodeList runs = paragraph.SelectNodes("child::w:r", nsmgr);
-                foreach (XmlElement run in runs)
+                bool cont = false;
+                runs = paragraph.SelectNodes("child::w:r", nsmgr);
+                for (int i = 0; i <= runs.Count - search.Length; ++i)
                 {
-                    XmlNodeList childElements = run.SelectNodes("child::*", nsmgr);
-                    if (childElements.Count > 0)
+                    bool match = true;
+                    for (int charIndex = 0; charIndex < search.Length; charIndex++)
                     {
-                        XmlElement last = (XmlElement) childElements[childElements.Count - 1];
-                        for (int c = childElements.Count - 1; c >= 0; --c)
+                        // Look through text nodes. If we find something that doesn't match with the string
+                        // we're looking for, then there is no match and we break. Otherwise, keep going.
+                        XmlElement textElement =
+                            (XmlElement) runs[i + charIndex].SelectSingleNode("child::w:t", nsmgr);
+                        if (textElement == null)
                         {
-                            if (childElements[c].Name == "w:rPr")
-                                continue;
-                            if (childElements[c].Name == "w:t")
-                            {
-                                string textElementString = childElements[c].InnerText;
-                                for (int i = textElementString.Length - 1; i >= 0; --i)
-                                {
-                                    XmlElement newRun =
-                                        xmlDoc.CreateElement("w:r", wordNamespace);
-                                    XmlElement runProps =
-                                        (XmlElement) run.SelectSingleNode("child::w:rPr", nsmgr);
-                                    if (runProps != null)
-                                    {
-                                        XmlElement newRunProps =
-                                            (XmlElement) runProps.CloneNode(true);
-                                        newRun.AppendChild(newRunProps);
-                                    }
+                            match = false;
+                            break;
+                        }
 
-                                    XmlElement newTextElement =
-                                        xmlDoc.CreateElement("w:t", wordNamespace);
-                                    XmlText newText =
-                                        xmlDoc.CreateTextNode(textElementString[i].ToString());
-                                    newTextElement.AppendChild(newText);
-                                    if (textElementString[i] == ' ')
-                                    {
-                                        XmlAttribute xmlSpace = xmlDoc.CreateAttribute(
-                                            "xml", "space",
-                                            "http://www.w3.org/XML/1998/namespace");
-                                        xmlSpace.Value = "preserve";
-                                        newTextElement.Attributes.Append(xmlSpace);
-                                    }
+                        if (textElement.InnerText == search[charIndex].ToString())
+                            continue;
+                        if (!matchCase &&
+                            textElement.InnerText.ToUpper() == search[charIndex].ToString().ToUpper())
+                            continue;
+                        match = false;
+                        break;
+                    }
 
-                                    newRun.AppendChild(newTextElement);
-                                    paragraph.InsertAfter(newRun, run);
-                                }
-                            }
-                            else
+                    if (match)
+                    {
+                        XmlElement runProps =
+                            (XmlElement) runs[i].SelectSingleNode("descendant::w:rPr", nsmgr);
+                        XmlElement newRun = xmlDoc.CreateElement("w:r", wordNamespace);
+                        if (runProps != null)
+                        {
+                            XmlElement newRunProps = (XmlElement) runProps.CloneNode(true);
+                            newRun.AppendChild(newRunProps);
+                        }
+
+                        XmlElement newTextElement =
+                            xmlDoc.CreateElement("w:t", wordNamespace);
+                        XmlText newText = xmlDoc.CreateTextNode(replace);
+                        newTextElement.AppendChild(newText);
+                        if (replace[0] == ' ' || replace[replace.Length - 1] == ' ')
+                        {
+                            XmlAttribute xmlSpace = xmlDoc.CreateAttribute("xml", "space",
+                                "http://www.w3.org/XML/1998/namespace");
+                            // Let's not accidentally delete any whitespace.
+                            xmlSpace.Value = "preserve";
+                            newTextElement.Attributes.Append(xmlSpace);
+                        }
+
+                        newRun.AppendChild(newTextElement);
+                        paragraph.InsertAfter(newRun, (XmlNode) runs[i]);
+                        for (int c = 0; c < search.Length; ++c)
+                            paragraph.RemoveChild(runs[i + c]);
+                        cont = true;
+                        break;
+                    }
+                }
+
+                if (!cont)
+                    break;
+            }
+        }
+
+        private static void SplitTextRunsIntoCharacterRuns(XmlElement paragraph, XmlNamespaceManager nsmgr,
+            XmlDocument xmlDoc, string wordNamespace)
+        {
+            XmlNodeList runs = paragraph.SelectNodes("child::w:r", nsmgr);
+            foreach (XmlElement run in runs)
+            {
+                XmlNodeList childElements = run.SelectNodes("child::*", nsmgr);
+                if (childElements.Count > 0)
+                {
+                    XmlElement last = (XmlElement) childElements[childElements.Count - 1];
+                    for (int c = childElements.Count - 1; c >= 0; --c)
+                    {
+                        if (childElements[c].Name == "w:rPr")
+                            continue;
+                        // If this run has text in it, we're going to split it up into a run for every
+                        // character. Performance! Efficiency! We shall have none of it!
+                        if (childElements[c].Name == "w:t")
+                        {
+                            string textElementString = childElements[c].InnerText;
+                            for (int i = textElementString.Length - 1; i >= 0; --i)
                             {
-                                XmlElement newRun = xmlDoc.CreateElement("w:r", wordNamespace);
+                                XmlElement newRun =
+                                    xmlDoc.CreateElement("w:r", wordNamespace);
                                 XmlElement runProps =
                                     (XmlElement) run.SelectSingleNode("child::w:rPr", nsmgr);
                                 if (runProps != null)
@@ -149,168 +218,149 @@ namespace DrDocx.WordDocEditing
                                     newRun.AppendChild(newRunProps);
                                 }
 
-                                XmlElement newChildElement =
-                                    (XmlElement) childElements[c].CloneNode(true);
-                                newRun.AppendChild(newChildElement);
+                                XmlElement newTextElement =
+                                    xmlDoc.CreateElement("w:t", wordNamespace);
+                                XmlText newText =
+                                    xmlDoc.CreateTextNode(textElementString[i].ToString());
+                                newTextElement.AppendChild(newText);
+                                if (textElementString[i] == ' ')
+                                {
+                                    XmlAttribute xmlSpace = xmlDoc.CreateAttribute(
+                                        "xml", "space",
+                                        "http://www.w3.org/XML/1998/namespace");
+                                    xmlSpace.Value = "preserve";
+                                    newTextElement.Attributes.Append(xmlSpace);
+                                }
+
+                                newRun.AppendChild(newTextElement);
                                 paragraph.InsertAfter(newRun, run);
                             }
                         }
-
-                        paragraph.RemoveChild(run);
-                    }
-                }
-
-                while (true)
-                {
-                    bool cont = false;
-                    runs = paragraph.SelectNodes("child::w:r", nsmgr);
-                    for (int i = 0; i <= runs.Count - search.Length; ++i)
-                    {
-                        bool match = true;
-                        for (int c = 0; c < search.Length; ++c)
+                        else
                         {
-                            XmlElement textElement =
-                                (XmlElement) runs[i + c].SelectSingleNode("child::w:t", nsmgr);
-                            if (textElement == null)
-                            {
-                                match = false;
-                                break;
-                            }
-
-                            if (textElement.InnerText == search[c].ToString())
-                                continue;
-                            if (!matchCase &&
-                                textElement.InnerText.ToUpper() == search[c].ToString().ToUpper())
-                                continue;
-                            match = false;
-                            break;
-                        }
-
-                        if (match)
-                        {
-                            XmlElement runProps =
-                                (XmlElement) runs[i].SelectSingleNode("descendant::w:rPr", nsmgr);
                             XmlElement newRun = xmlDoc.CreateElement("w:r", wordNamespace);
+                            XmlElement runProps =
+                                (XmlElement) run.SelectSingleNode("child::w:rPr", nsmgr);
                             if (runProps != null)
                             {
-                                XmlElement newRunProps = (XmlElement) runProps.CloneNode(true);
+                                XmlElement newRunProps =
+                                    (XmlElement) runProps.CloneNode(true);
                                 newRun.AppendChild(newRunProps);
                             }
 
-                            XmlElement newTextElement =
-                                xmlDoc.CreateElement("w:t", wordNamespace);
-                            XmlText newText = xmlDoc.CreateTextNode(replace);
-                            newTextElement.AppendChild(newText);
-                            if (replace[0] == ' ' || replace[replace.Length - 1] == ' ')
-                            {
-                                XmlAttribute xmlSpace = xmlDoc.CreateAttribute("xml", "space",
-                                    "http://www.w3.org/XML/1998/namespace");
-                                xmlSpace.Value = "preserve";
-                                newTextElement.Attributes.Append(xmlSpace);
-                            }
-
-                            newRun.AppendChild(newTextElement);
-                            paragraph.InsertAfter(newRun, (XmlNode) runs[i]);
-                            for (int c = 0; c < search.Length; ++c)
-                                paragraph.RemoveChild(runs[i + c]);
-                            cont = true;
-                            break;
+                            XmlElement newChildElement =
+                                (XmlElement) childElements[c].CloneNode(true);
+                            newRun.AppendChild(newChildElement);
+                            paragraph.InsertAfter(newRun, run);
                         }
                     }
 
-                    if (!cont)
-                        break;
+                    paragraph.RemoveChild(run);
                 }
-
-                // Now that we've found and replaced everything we needed to, let's glue this document back together by
-                // consolidating runs with identical properties into one.
-                XmlNodeList children = paragraph.SelectNodes("child::*", nsmgr);
-                List<int> matchId = new List<int>();
-                int numMatchRuns = 0;
-                for (int ch = 0; ch < children.Count; ch++)
-                {
-                    if (ch == 0)
-                    {
-                        matchId.Add(numMatchRuns);
-                        continue;
-                    }
-                    // If these are both text nodes and actually contain text
-                    if (children[ch].Name == "w:r" &&
-                        children[ch - 1].Name == "w:r" &&
-                        children[ch].SelectSingleNode("w:t", nsmgr) != null &&
-                        children[ch - 1].SelectSingleNode("w:t", nsmgr) != null)
-                    {
-                        XmlElement runProps =
-                            (XmlElement) children[ch].SelectSingleNode("w:rPr", nsmgr);
-                        XmlElement lastRunProps =
-                            (XmlElement) children[ch - 1].SelectSingleNode("w:rPr", nsmgr);
-                        // If only one of these runs has properties, then we can just mash them together
-                        // using the properties of the one that does
-                        if ((runProps == null && lastRunProps != null) ||
-                            (runProps != null && lastRunProps == null))
-                        {
-                            matchId.Add(id++);
-                            continue;
-                        }
-                        // If both have properties, we can only consolidate them if they have the same properties.
-                        if (runProps != null && runProps.InnerXml != lastRunProps.InnerXml)
-                        {
-                            matchId.Add(id++);
-                            continue;
-                        }
-
-                        matchId.Add(id);
-                        continue;
-                    }
-
-                    matchId.Add(id++);
-                }
-
-                for (int i = 0; i <= numRuns; ++i)
-                {
-                    var x1 = matchId.IndexOf(i);
-                    var x2 = matchId.LastIndexOf(i);
-                    if (x1 == x2)
-                        continue;
-                    StringBuilder sb2 = new StringBuilder();
-                    for (int z = x1; z <= x2; ++z)
-                        sb2.Append(((XmlElement) children[z]
-                            .SelectSingleNode("w:t", nsmgr)).InnerText);
-                    XmlElement newRun = xmlDoc.CreateElement("w:r", wordNamespace);
-                    XmlElement runProps =
-                        (XmlElement) children[x1].SelectSingleNode("child::w:rPr", nsmgr);
-                    if (runProps != null)
-                    {
-                        XmlElement newRunProps = (XmlElement) runProps.CloneNode(true);
-                        newRun.AppendChild(newRunProps);
-                    }
-
-                    XmlElement newTextElement = xmlDoc.CreateElement("w:t", wordNamespace);
-                    XmlText newText = xmlDoc.CreateTextNode(sb2.ToString());
-                    newTextElement.AppendChild(newText);
-                    if (sb2[0] == ' ' || sb2[sb2.Length - 1] == ' ')
-                    {
-                        XmlAttribute xmlSpace = xmlDoc.CreateAttribute(
-                            "xml", "space", "http://www.w3.org/XML/1998/namespace");
-                        xmlSpace.Value = "preserve";
-                        newTextElement.Attributes.Append(xmlSpace);
-                    }
-
-                    newRun.AppendChild(newTextElement);
-                    paragraph.InsertAfter(newRun, children[x2]);
-                    for (int z = x1; z <= x2; ++z)
-                        paragraph.RemoveChild(children[z]);
-                }
-
-                // Text inside text boxes have to be handled separately and yet can exist inside a paragraph???
-                var txbxParagraphs = paragraph.SelectNodes("descendant::w:p", nsmgr);
-                foreach (XmlElement p in txbxParagraphs)
-                    SearchAndReplaceInParagraph((XmlElement) p, search, replace, matchCase);
             }
         }
 
-        private static SearchAndReplaceIn
-        
+        private static void ConsolidateRunsWithSameProperties(XmlElement paragraph, XmlNamespaceManager nsmgr, XmlDocument xmlDoc, string wordNamespace)
+        {
+            // Now that we've found and replaced everything we needed to, let's glue this document back together by
+            // consolidating runs with identical properties into one.
+            XmlNodeList children = paragraph.SelectNodes("child::*", nsmgr);
+            List<int> matchId = new List<int>();
+            int consolidatedRunsToCreate = ConsolidatedRunsToCreate(children, matchId, nsmgr);
+            for (int i = 0; i <= consolidatedRunsToCreate; ++i)
+            {
+                var x1 = matchId.IndexOf(i);
+                var x2 = matchId.LastIndexOf(i);
+                if (x1 == x2)
+                    continue;
+                StringBuilder sb2 = new StringBuilder();
+                for (int z = x1; z <= x2; ++z)
+                    sb2.Append(((XmlElement) children[z]
+                        .SelectSingleNode("w:t", nsmgr)).InnerText);
+                XmlElement newRun = xmlDoc.CreateElement("w:r", wordNamespace);
+                XmlElement runProps =
+                    (XmlElement) children[x1].SelectSingleNode("child::w:rPr", nsmgr);
+                if (runProps != null)
+                {
+                    XmlElement newRunProps = (XmlElement) runProps.CloneNode(true);
+                    newRun.AppendChild(newRunProps);
+                }
+
+                XmlElement newTextElement = xmlDoc.CreateElement("w:t", wordNamespace);
+                XmlText newText = xmlDoc.CreateTextNode(sb2.ToString());
+                newTextElement.AppendChild(newText);
+                if (sb2[0] == ' ' || sb2[sb2.Length - 1] == ' ')
+                {
+                    XmlAttribute xmlSpace = xmlDoc.CreateAttribute(
+                        "xml", "space", "http://www.w3.org/XML/1998/namespace");
+                    xmlSpace.Value = "preserve";
+                    newTextElement.Attributes.Append(xmlSpace);
+                }
+
+                newRun.AppendChild(newTextElement);
+                paragraph.InsertAfter(newRun, children[x2]);
+                for (int z = x1; z <= x2; ++z)
+                    paragraph.RemoveChild(children[z]);
+            }
+        }
+
+        private static int ConsolidatedRunsToCreate(XmlNodeList children, List<int> matchId, XmlNamespaceManager nsmgr)
+        {
+            int consolidatedRunsToCreate = 0;
+            for (int ch = 0; ch < children.Count; ch++)
+            {
+                if (ch == 0)
+                {
+                    matchId.Add(consolidatedRunsToCreate);
+                    continue;
+                }
+
+                // If these are both text nodes and actually contain text
+                if (children[ch].Name == "w:r" &&
+                    children[ch - 1].Name == "w:r" &&
+                    children[ch].SelectSingleNode("w:t", nsmgr) != null &&
+                    children[ch - 1].SelectSingleNode("w:t", nsmgr) != null)
+                {
+                    XmlElement runProps =
+                        (XmlElement) children[ch].SelectSingleNode("w:rPr", nsmgr);
+                    XmlElement lastRunProps =
+                        (XmlElement) children[ch - 1].SelectSingleNode("w:rPr", nsmgr);
+                    // If only one of these runs has properties, then we can just mash them together
+                    // using the properties of the one that does
+                    if ((runProps == null && lastRunProps != null) ||
+                        (runProps != null && lastRunProps == null))
+                    {
+                        matchId.Add(consolidatedRunsToCreate++);
+                        continue;
+                    }
+
+                    // If both have properties, we can only consolidate them if they have the same properties.
+                    if (runProps != null && runProps.InnerXml != lastRunProps.InnerXml)
+                    {
+                        matchId.Add(consolidatedRunsToCreate++);
+                        continue;
+                    }
+
+                    matchId.Add(consolidatedRunsToCreate);
+                    continue;
+                }
+
+                matchId.Add(consolidatedRunsToCreate++);
+            }
+
+            return consolidatedRunsToCreate;
+        }
+
+        private static void SearchAndReplaceInTextBoxes(XmlElement paragraph, string search, string replace, bool matchCase,
+            XmlNamespaceManager nsmgr)
+        {
+            // Text inside text boxes have to be handled separately and yet can exist inside a paragraph???
+            var txbxParagraphs = paragraph.SelectNodes("descendant::w:p", nsmgr);
+            foreach (XmlElement p in txbxParagraphs)
+                SearchAndReplaceInParagraph((XmlElement) p, search, replace, matchCase);
+        }
+
+
         public static XmlDocument GetXmlDocument(OpenXmlPart part)
         {
             XmlDocument xmlDoc = new XmlDocument();
@@ -396,41 +446,4 @@ namespace DrDocx.WordDocEditing
         }
     }
 
-    public static class Extensions
-    {
-        public static string ToStringAlignAttributes(this XContainer xContainer)
-        {
-            XmlWriterSettings settings = new XmlWriterSettings();
-            settings.Indent = true;
-            settings.OmitXmlDeclaration = true;
-            settings.NewLineOnAttributes = true;
-            StringBuilder sb = new StringBuilder();
-            using (XmlWriter xmlWriter = XmlWriter.Create(sb, settings))
-                xContainer.WriteTo(xmlWriter);
-            return sb.ToString();
-        }
-
-        public static XDocument GetXDocument(this XmlDocument document)
-        {
-            XDocument xDoc = new XDocument();
-            using (XmlWriter xmlWriter = xDoc.CreateWriter())
-                document.WriteTo(xmlWriter);
-            XmlDeclaration decl =
-                document.ChildNodes.OfType<XmlDeclaration>().FirstOrDefault();
-            if (decl != null)
-                xDoc.Declaration = new XDeclaration(decl.Version, decl.Encoding,
-                    decl.Standalone);
-            return xDoc;
-        }
-
-        public static XElement GetXElement(this XmlNode node)
-        {
-            XDocument xDoc = new XDocument();
-            using (XmlWriter xmlWriter = xDoc.CreateWriter())
-                node.WriteTo(xmlWriter);
-            return xDoc.Root;
-        }
-
-    }
-    
 }
