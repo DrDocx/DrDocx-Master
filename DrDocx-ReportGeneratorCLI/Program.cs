@@ -9,8 +9,7 @@ using Entry = Microcharts.Entry;
 using SkiaSharp;
 
 using DrDocx.Models;
-using static DrDocx.WordDocEditing.WordAPI;
-using static DrDocx.WordDocEditing.ChartAPI;
+using DrDocx.WordDocEditing;
 
 namespace DrDocx.ReportGenCLI
 {
@@ -50,7 +49,7 @@ namespace DrDocx.ReportGenCLI
 			};
 
 			Patient patient = johnDoe;
-
+			
 			string templatePath = @"templates\report_template.docx";
 			string newfilePath = @"generated_reports\" + patient.Name + ".docx";
 
