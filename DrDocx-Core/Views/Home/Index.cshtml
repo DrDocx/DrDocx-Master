@@ -64,7 +64,7 @@
                             <label class="mdl-textfield__label" for="desc">Test Group Description</label>
                         </div>
                     </div>
-                    <input type="submit" class="mdl-cell mdl-cell--12-col  mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" value="Add Test Group" />
+                    <input type="submit" class="mdl-cell mdl-cell--12-col  mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" value="Add Test Group"/>
                 </form>
             </div>
         </div>
@@ -79,24 +79,27 @@
 
                     <table class="mdl-cell mdl-cell--12-col mdl-data-table mdl-js-data-table">
                         <thead>
-                            <tr>
-                                <th class="mdl-data-table__cell--non-numeric">Test Name</th>
-                                <th>Delete</th>
-                            </tr>
+                        <tr>
+                            <th class="mdl-data-table__cell--non-numeric">Test Name</th>
+                            <th>Delete</th>
+                        </tr>
                         </thead>
                         <tbody>
 
-                            @if (testGroup.TestGroupTests != null) foreach (var testGroupTest in testGroup.TestGroupTests)
-                                {
-                                    <tr>
-                                        <td class="mdl-data-table__cell--non-numeric">@Html.DisplayFor(model => testGroupTest.Test.Name)</td>
-                                        <td>
-                                            <form asp-controller="TestGroups" asp-action="RemoveTest" asp-route-groupId="@testGroup.Id" asp-route-testId="@testGroupTest.TestId" method="POST">
-                                                <input type="submit" class="mdl-button mdl-js-button mdl-js-ripple-effect" value="Remove" />
-                                            </form>
-                                        </td>
-                                    </tr>
-                                }
+                        @if (testGroup.TestGroupTests != null)
+                        {
+                            @foreach (var testGroupTest in testGroup.TestGroupTests)
+                            {
+                                <tr>
+                                    <td class="mdl-data-table__cell--non-numeric">@Html.DisplayFor(model => testGroupTest.Test.Name)</td>
+                                    <td>
+                                        <form asp-controller="TestGroups" asp-action="RemoveTest" asp-route-groupId="@testGroup.Id" asp-route-testId="@testGroupTest.TestId" method="POST">
+                                            <input type="submit" class="mdl-button mdl-js-button mdl-js-ripple-effect" value="Remove"/>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                        }
                         </tbody>
                     </table>
 
@@ -112,20 +115,19 @@
                     }
                     @if (possibleNewTests.Count > 0)
                     {
-                    <form class="mdl-grid mdl-cell mdl-cell--12-col" asp-controller="TestGroups" asp-action="AddTest" asp-route-groupId="@testGroup.Id" id="form2">
-                        <div class="mdl-layout-spacer"></div>
-                        <select name="testId" class="mdl-cell mdl-cell--5-col mdl-button mdl-button--raised " id="new-test-group">
-                            @foreach (var newTest in possibleNewTests)
-                            {
-                                <option value="@newTest.Id">@Html.DisplayFor(modelItem => newTest.Name)</option>
+                        <form class="mdl-grid mdl-cell mdl-cell--12-col" asp-controller="TestGroups" asp-action="AddTest" asp-route-groupId="@testGroup.Id" id="form2">
+                            <div class="mdl-layout-spacer"></div>
+                            <select name="testId" class="mdl-cell mdl-cell--5-col mdl-button mdl-button--raised " id="new-test-group">
+                                @foreach (var newTest in possibleNewTests)
+                                {
+                                    <option value="@newTest.Id">@Html.DisplayFor(modelItem => newTest.Name)</option>
+                                }
+                            </select>
+                            <div class="mdl-layout-spacer"></div>
+                            <input type="submit" class="setting-li mdl-cell mdl-cell--5-col mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" value="Add Test"/>
 
-                            }
-                        </select>
-                        <div class="mdl-layout-spacer"></div>
-                        <input type="submit" class="setting-li mdl-cell mdl-cell--5-col mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" value="Add Test" />
-
-                        <div class="mdl-layout-spacer"></div>
-                    </form>
+                            <div class="mdl-layout-spacer"></div>
+                        </form>
                     }
                 </div>
                 <div class="mdl-card__actions">
@@ -153,7 +155,7 @@
                             <label class="mdl-textfield__label" for="desc">Test Description</label>
                         </div>
                     </div>
-                    <input type="submit" class="mdl-cell mdl-cell--12-col  mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" value="Add Test" />
+                    <input type="submit" class="mdl-cell mdl-cell--12-col  mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" value="Add Test"/>
                 </form>
             </div>
         </div>
@@ -164,25 +166,25 @@
                 <h3>Existing Tests</h3>
                 <table class="mdl-cell mdl-cell--12-col mdl-data-table mdl-js-data-table">
                     <thead>
-                        <tr>
-                            <th class="mdl-data-table__cell--non-numeric">Test Name</th>
-                            <th class="mdl-data-table__cell--non-numeric">Description</th>
-                            <th>Delete</th>
-                        </tr>
+                    <tr>
+                        <th class="mdl-data-table__cell--non-numeric">Test Name</th>
+                        <th class="mdl-data-table__cell--non-numeric">Description</th>
+                        <th>Delete</th>
+                    </tr>
                     </thead>
                     <tbody>
-                        @foreach (var test in t)
-                        {
-                            <tr>
-                                <td class="mdl-data-table__cell--non-numeric">@Html.DisplayFor(model => test.Name)</td>
-                                <td class="mdl-data-table__cell--non-numeric">@Html.DisplayFor(model => test.Description)</td>
-                                <td>
-                                    <form asp-controller="Tests" asp-action="Delete" asp-route-id="@test.Id" method="POST">
-                                        <input type="submit" class="mdl-button mdl-js-button mdl-js-ripple-effect" value="Delete"/>
-                                    </form>
-                                </td>
-                            </tr>
-                        }
+                    @foreach (var test in t)
+                    {
+                        <tr>
+                            <td class="mdl-data-table__cell--non-numeric">@Html.DisplayFor(model => test.Name)</td>
+                            <td class="mdl-data-table__cell--non-numeric">@Html.DisplayFor(model => test.Description)</td>
+                            <td>
+                                <form asp-controller="Tests" asp-action="Delete" asp-route-id="@test.Id" method="POST">
+                                    <input type="submit" class="mdl-button mdl-js-button mdl-js-ripple-effect" value="Delete"/>
+                                </form>
+                            </td>
+                        </tr>
+                    }
                     </tbody>
                 </table>
             </div>

@@ -27,8 +27,8 @@
 }
 
 <form asp-action="Edit" id="form">
-    <input type="hidden" asp-for="Patient.Id" />
-    <input style="display: none" type="submit" id="form-submit" />
+    <input type="hidden" asp-for="Patient.Id"/>
+    <input style="display: none" type="submit" id="form-submit"/>
     <div class="mdl-layout__tab-panel is-active" id="overview">
         <section class="section--center mdl-grid mdl-grid--no-spacing mdl-shadow--2dp">
             <div class="mdl-card mdl-cell mdl-cell--12-col">
@@ -92,9 +92,9 @@
                         </div>
                     </div>
                 </div>
-                    <div class="mdl-card__actions">
-                        <a id="meds-button" class="mdl-button" onclick="toggleEdit('meds-button', ['meds'])">Edit Patient Medications</a>
-                    </div>
+                <div class="mdl-card__actions">
+                    <a id="meds-button" class="mdl-button" onclick="toggleEdit('meds-button', ['meds'])">Edit Patient Medications</a>
+                </div>
             </div>
         </section>
         <section class="section--center mdl-grid mdl-grid--no-spacing mdl-shadow--2dp">
@@ -140,7 +140,7 @@
         var possibleNewTestGroups = new List<TestGroup>();
         foreach (var testGroup in testGroups)
         {
-            if (patient.ResultGroups == null || !patient.ResultGroups.Any(resultGroup => resultGroup.TestGroupInfo == testGroup))
+            if (patient.ResultGroups == null || patient.ResultGroups.All(resultGroup => resultGroup.TestGroupInfo != testGroup))
             {
                 possibleNewTestGroups.Add(testGroup);
             }
@@ -153,17 +153,16 @@
                 <div class="mdl-card__supporting-text mdl-grid mdl-grid--no-spacing">
                     <h4 class="mdl-cell mdl-cell--12-col">Add Test Result Group</h4>
                     <form class="mdl-grid mdl-cell mdl-cell--12-col" asp-controller="Patients" asp-action="AddTestGroup" asp-route-patientId="@patient.Id">
-                        <input type="hidden" name="patientId" value="@patient.Id" />
+                        <input type="hidden" name="patientId" value="@patient.Id"/>
                         <div class="mdl-layout-spacer"></div>
                         <select name="testGroupId" class="mdl-cell mdl-cell--5-col mdl-button mdl-button--raised " id="new-test-group">
                             @foreach (var newTestGroup in possibleNewTestGroups)
                             {
                                 <option value="@newTestGroup.Id">@Html.DisplayFor(modelItem => newTestGroup.Name)</option>
-
                             }
                         </select>
                         <div class="mdl-layout-spacer"></div>
-                        <input type="submit" class="setting-li mdl-cell mdl-cell--5-col mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" value="Add Test" />
+                        <input type="submit" class="setting-li mdl-cell mdl-cell--5-col mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" value="Add Test"/>
 
                         <div class="mdl-layout-spacer"></div>
                     </form>
@@ -172,9 +171,10 @@
         </section>
     }
 
-    @if (patient.ResultGroups != null) foreach (var testResultGroup in patient.ResultGroups)
+    @if (patient.ResultGroups != null)
+    {
+        foreach (var testResultGroup in patient.ResultGroups)
         {
-
             <section class="section--center mdl-grid mdl-grid--no-spacing mdl-shadow--2dp">
                 <div class="mdl-card mdl-cell mdl-cell--12-col">
                     <div class="mdl-card__supporting-text">
@@ -183,98 +183,104 @@
 
                         <table class="mdl-cell mdl-cell--12-col mdl-data-table mdl-js-data-table">
                             <thead>
-                                <tr>
-                                    <th class="mdl-data-table__cell--non-numeric">Test Name</th>
-                                    <th>Raw</th>
-                                    <th>Scaled</th>
-                                    <th>Z-Score</th>
-                                    <th>Percent</th>
-                                    <th>Delete</th>
-                                </tr>
+                            <tr>
+                                <th class="mdl-data-table__cell--non-numeric">Test Name</th>
+                                <th>Raw</th>
+                                <th>Scaled</th>
+                                <th>Z-Score</th>
+                                <th>Percent</th>
+                                <th>Delete</th>
+                            </tr>
                             </thead>
                             <tbody>
 
-                                @if (testResultGroup.Tests != null) foreach (var testResult in testResultGroup.Tests)
-                                    {
-                                        <tr>
-                                            <td class="mdl-data-table__cell--non-numeric">@Html.DisplayFor(model => testResult.RelatedTest.Name)</td>
-                                            <td>@Html.DisplayFor(model => testResult.RawScore)</td>
-                                            <td>@Html.DisplayFor(model => testResult.ScaledScore)</td>
-                                            <td>@Html.DisplayFor(model => testResult.ZScore)</td>
-                                            <td>@Html.DisplayFor(model => testResult.Percentile)</td>
-                                            <td>
-                                                <form asp-controller="Patients" asp-action="RemoveTest" asp-route-testResultGroupId="@testResultGroup.Id" asp-route-testResultId="@testResult.ID" method="POST">
-                                                    <input type="hidden" name="patientId" value="@patient.Id" />
-                                                    <input type="submit" class="mdl-button mdl-js-button mdl-js-ripple-effect" value="Remove" />
-                                                </form>
-                                            </td>
-                                        </tr>
-                                    }
-
-                                @{
-                                    var possibleNewTests = new List<Test>();
-                                    if (testResultGroup.TestGroupInfo != null && testResultGroup.TestGroupInfo.TestGroupTests != null) foreach (var testGroupTest in testResultGroup.TestGroupInfo.TestGroupTests)
-                                        {
-                                            if (testResultGroup.Tests == null || !testResultGroup.Tests.Any(testResult => testResult.RelatedTest == testGroupTest.Test))
-                                            {
-                                                possibleNewTests.Add(testGroupTest.Test);
-                                            }
-                                        }
-                                }
-                                @if (possibleNewTests.Count > 0)
+                            @if (testResultGroup.Tests != null)
+                            {
+                                foreach (var testResult in testResultGroup.Tests)
                                 {
                                     <tr>
-                                        <form asp-controller="Patients" asp-action="AddTest" asp-route-testResultGroupId="@testResultGroup.Id">
-                                        <input type="hidden" name="patientId" value="@patient.Id" />
+                                        <td class="mdl-data-table__cell--non-numeric">@Html.DisplayFor(model => testResult.RelatedTest.Name)</td>
+                                        <td>@Html.DisplayFor(model => testResult.RawScore)</td>
+                                        <td>@Html.DisplayFor(model => testResult.StandardizedScore)</td>
+                                        <td>@Html.DisplayFor(model => testResult.ZScore)</td>
+                                        <td>@Html.DisplayFor(model => testResult.Percentile)</td>
                                         <td>
-                                        <select style="width: 75px;" name="testId" class="mdl-button mdl-button--raised " id="new-test-group">
-                                            @foreach (var newTest in possibleNewTests)
-                                            {
-                                                <option value="@newTest.Id">@Html.DisplayFor(modelItem => newTest.Name)</option>
-
-                                            }
-                                        </select>
-                                            </td>
-                                        <td>
-                                        <div style="width: 50px" class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                                            <input required name="RawScore" class="mdl-textfield__input" type="text" id="raw" value="">
-                                            <label class="mdl-textfield__label" for="raw">Raw</label>
-                                        </div>
-                                            </td>
-                                            <td>
-                                        <div style="width: 50px" class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                                            <input required name="ScaledScore" class="mdl-textfield__input" type="text" id="scl" value="">
-                                            <label class="mdl-textfield__label" for="scl">Scaled</label>
-                                        </div>
-                                                </td>
-                                            <td>
-                                        <div style="width: 50px" class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                                            <input required name="ZScore" class="mdl-textfield__input" type="text" id="z" value="">
-                                            <label class="mdl-textfield__label" for="z">Z-Score</label>
-                                        </div>
-                                                </td>
-                                            <td>
-                                        <div style="width: 50px" class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                                            <input required name="Percentile" class="mdl-textfield__input" type="text" id="p" value="">
-                                            <label class="mdl-textfield__label" for="p">Percentile</label>
-                                        </div>
-                                                </td>
-                                        <td>
-                                        <input type="submit" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" value="Add Test Result" />
-                                            </td>
-                                    </form>
-                                        </tr>
+                                            <form asp-controller="Patients" asp-action="RemoveTest" asp-route-testResultGroupId="@testResultGroup.Id" asp-route-testResultId="@testResult.Id" method="POST">
+                                                <input type="hidden" name="patientId" value="@patient.Id"/>
+                                                <input type="submit" class="mdl-button mdl-js-button mdl-js-ripple-effect" value="Remove"/>
+                                            </form>
+                                        </td>
+                                    </tr>
                                 }
-                                </tbody>
+                            }
+
+                            @{
+                                var possibleNewTests = new List<Test>();
+                                if (testResultGroup.TestGroupInfo != null && testResultGroup.TestGroupInfo.TestGroupTests != null)
+                                {
+                                    foreach (var testGroupTest in testResultGroup.TestGroupInfo.TestGroupTests)
+                                    {
+                                        if (testResultGroup.Tests == null || !testResultGroup.Tests.Any(testResult => testResult.RelatedTest == testGroupTest.Test))
+                                        {
+                                            possibleNewTests.Add(testGroupTest.Test);
+                                        }
+                                    }
+                                }
+                            }
+                            @if (possibleNewTests.Count > 0)
+                            {
+                                <tr>
+                                    <form asp-controller="Patients" asp-action="AddTest" asp-route-testResultGroupId="@testResultGroup.Id">
+                                        <input type="hidden" name="patientId" value="@patient.Id"/>
+                                        <td>
+                                            <select style="width: 75px;" name="testId" class="mdl-button mdl-button--raised " id="new-test-group">
+                                                @foreach (var newTest in possibleNewTests)
+                                                {
+                                                    <option value="@newTest.Id">@Html.DisplayFor(modelItem => newTest.Name)</option>
+                                                }
+                                            </select>
+                                        </td>
+                                        <td>
+                                            <div style="width: 50px" class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                                                <input required name="RawScore" class="mdl-textfield__input" type="text" id="raw" value="">
+                                                <label class="mdl-textfield__label" for="raw">Raw</label>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div style="width: 50px" class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                                                <input required name="ScaledScore" class="mdl-textfield__input" type="text" id="scl" value="">
+                                                <label class="mdl-textfield__label" for="scl">Scaled</label>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div style="width: 50px" class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                                                <input required name="ZScore" class="mdl-textfield__input" type="text" id="z" value="">
+                                                <label class="mdl-textfield__label" for="z">Z-Score</label>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div style="width: 50px" class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                                                <input required name="Percentile" class="mdl-textfield__input" type="text" id="p" value="">
+                                                <label class="mdl-textfield__label" for="p">Percentile</label>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <input type="submit" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" value="Add Test Result"/>
+                                        </td>
+                                    </form>
+                                </tr>
+                            }
+                            </tbody>
                         </table>
                     </div>
                     <div class="mdl-card__actions">
                         <form method="post" asp-action="RemoveTestGroup" asp-controller="Patients" asp-route-patientId="@patient.Id" asp-route-testResultGroupId="@testResultGroup.Id">
-                            <input type="hidden" name="patientId" value="@patient.Id" />
-                            <input type="submit" class="mdl-button" value="Remove Test Results Group" />
+                            <input type="hidden" name="patientId" value="@patient.Id"/>
+                            <input type="submit" class="mdl-button" value="Remove Test Results Group"/>
                         </form>
                     </div>
                 </div>
             </section>
         }
+    }
 </div>

@@ -25,7 +25,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\DrDocx-Models\DrDocx-Models.csproj" />
-    <ProjectReference Include="..\DrDocx-WordDoc-Editing\DrDocx-WordDocEditing.csproj" />
+    <ProjectReference Include="..\DrDocx-WordDocEditing\DrDocx-WordDocEditing.csproj" />
   </ItemGroup>
 
 
