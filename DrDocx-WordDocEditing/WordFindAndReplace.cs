@@ -14,7 +14,6 @@ namespace DrDocx.WordDocEditing
 
     internal static class WordFindAndReplace
     {
-
         public static void SearchAndReplace(WordprocessingDocument wordDoc, string search,
             string replace, bool matchCase)
         {
@@ -73,7 +72,7 @@ namespace DrDocx.WordDocEditing
             string replace, bool matchCase)
         {
             
-            XmlNamespaceManager nsmgr = GetNsmgrForParagraph(paragraph, out var xmlDoc, out var wordNamespace);
+            var xmlDoc = GetDocInfoForParagraph(paragraph, out var nsmgr, out var wordNamespace);
 
             // Get all the text nodes of the paragraph
             XmlNodeList paragraphText = paragraph.SelectNodes("descendant::w:t", nsmgr);
@@ -81,26 +80,22 @@ namespace DrDocx.WordDocEditing
             var isMatchInParagraph = IsMatchInParagraph(search, matchCase, paragraphText);
             if (!isMatchInParagraph) 
                 return;
-
             SplitTextRunsIntoCharacterRuns(paragraph, nsmgr, xmlDoc, wordNamespace);
-
             SearchAndReplaceCharRunsParagraph(paragraph, search, replace, matchCase, nsmgr, xmlDoc, wordNamespace);
-
             ConsolidateRunsWithSameProperties(paragraph, nsmgr, xmlDoc, wordNamespace);
-
             SearchAndReplaceInTextBoxes(paragraph, search, replace, matchCase, nsmgr);
         }
 
-        private static XmlNamespaceManager GetNsmgrForParagraph(XmlElement paragraph, out XmlDocument xmlDoc,
+        private static XmlDocument GetDocInfoForParagraph(XmlElement paragraph, out XmlNamespaceManager nsmgr,
             out string wordNamespace)
         {
-            xmlDoc = paragraph.OwnerDocument;
+            XmlDocument xmlDoc = paragraph.OwnerDocument;
             // TODO: Figure out if these namespaces are necessary. Reeks of cargo cult programming.
             wordNamespace = "http://schemas.openxmlformats.org/wordprocessingml/2006/main";
-            XmlNamespaceManager nsmgr =
+            nsmgr =
                 new XmlNamespaceManager(xmlDoc.NameTable);
             nsmgr.AddNamespace("w", wordNamespace);
-            return nsmgr;
+            return xmlDoc;
         }
 
         private static bool IsMatchInParagraph(string search, bool matchCase, XmlNodeList paragraphText)
@@ -116,6 +111,10 @@ namespace DrDocx.WordDocEditing
             return isMatchInParagraph;
         }
 
+        // <summary>
+        // This method takes in the paragraph after the text has been chopped into char runs and runs the
+        // main search and replace algorithm
+        // </summary>
         private static void SearchAndReplaceCharRunsParagraph(XmlElement paragraph, string search, string replace,
             bool matchCase, XmlNamespaceManager nsmgr, XmlDocument xmlDoc, string wordNamespace)
         {
@@ -126,64 +125,76 @@ namespace DrDocx.WordDocEditing
                 runs = paragraph.SelectNodes("child::w:r", nsmgr);
                 for (int i = 0; i <= runs.Count - search.Length; ++i)
                 {
-                    bool match = true;
-                    for (int charIndex = 0; charIndex < search.Length; charIndex++)
-                    {
-                        // Look through text nodes. If we find something that doesn't match with the string
-                        // we're looking for, then there is no match and we break. Otherwise, keep going.
-                        XmlElement textElement =
-                            (XmlElement) runs[i + charIndex].SelectSingleNode("child::w:t", nsmgr);
-                        if (textElement == null)
-                        {
-                            match = false;
-                            break;
-                        }
-
-                        if (textElement.InnerText == search[charIndex].ToString())
-                            continue;
-                        if (!matchCase &&
-                            textElement.InnerText.ToUpper() == search[charIndex].ToString().ToUpper())
-                            continue;
-                        match = false;
-                        break;
-                    }
-
-                    if (match)
-                    {
-                        XmlElement runProps =
-                            (XmlElement) runs[i].SelectSingleNode("descendant::w:rPr", nsmgr);
-                        XmlElement newRun = xmlDoc.CreateElement("w:r", wordNamespace);
-                        if (runProps != null)
-                        {
-                            XmlElement newRunProps = (XmlElement) runProps.CloneNode(true);
-                            newRun.AppendChild(newRunProps);
-                        }
-
-                        XmlElement newTextElement =
-                            xmlDoc.CreateElement("w:t", wordNamespace);
-                        XmlText newText = xmlDoc.CreateTextNode(replace);
-                        newTextElement.AppendChild(newText);
-                        if (replace[0] == ' ' || replace[replace.Length - 1] == ' ')
-                        {
-                            XmlAttribute xmlSpace = xmlDoc.CreateAttribute("xml", "space",
-                                "http://www.w3.org/XML/1998/namespace");
-                            // Let's not accidentally delete any whitespace.
-                            xmlSpace.Value = "preserve";
-                            newTextElement.Attributes.Append(xmlSpace);
-                        }
-
-                        newRun.AppendChild(newTextElement);
-                        paragraph.InsertAfter(newRun, (XmlNode) runs[i]);
-                        for (int c = 0; c < search.Length; ++c)
-                            paragraph.RemoveChild(runs[i + c]);
-                        cont = true;
-                        break;
-                    }
+                    var match = IsMatchHere(search, matchCase, nsmgr, runs, i);
+                    if (!match) 
+                        continue;
+                    ReplaceMatchedCharRunsWithText(paragraph, search, replace, nsmgr, xmlDoc, wordNamespace, runs, i);
+                    cont = true;
+                    break;
                 }
 
                 if (!cont)
                     break;
             }
+        }
+
+        private static void ReplaceMatchedCharRunsWithText(XmlElement paragraph, string search, string replace,
+            XmlNamespaceManager nsmgr, XmlDocument xmlDoc, string wordNamespace, XmlNodeList runs, int i)
+        {
+            var runProps =
+                (XmlElement) runs[i].SelectSingleNode("descendant::w:rPr", nsmgr);
+            var newRun = xmlDoc.CreateElement("w:r", wordNamespace);
+            if (runProps != null)
+            {
+                XmlElement newRunProps = (XmlElement) runProps.CloneNode(true);
+                newRun.AppendChild(newRunProps);
+            }
+
+            var newTextElement =
+                xmlDoc.CreateElement("w:t", wordNamespace);
+            var newText = xmlDoc.CreateTextNode(replace);
+            newTextElement.AppendChild(newText);
+            if (replace[0] == ' ' || replace[^1] == ' ')
+            {
+                var xmlSpace = xmlDoc.CreateAttribute("xml", "space",
+                    "http://www.w3.org/XML/1998/namespace");
+                // Let's not accidentally delete any whitespace.
+                xmlSpace.Value = "preserve";
+                newTextElement.Attributes.Append(xmlSpace);
+            }
+
+            newRun.AppendChild(newTextElement);
+            paragraph.InsertAfter(newRun, (XmlNode) runs[i]);
+            for (int c = 0; c < search.Length; ++c)
+                paragraph.RemoveChild(runs[i + c]);
+        }
+
+        private static bool IsMatchHere(string search, bool matchCase, XmlNamespaceManager nsmgr, XmlNodeList runs, int i)
+        {
+            bool match = true;
+            for (int charIndex = 0; charIndex < search.Length; charIndex++)
+            {
+                // Look through text nodes. If we find something that doesn't match with the string
+                // we're looking for, then there is no match and we break. Otherwise, keep going.
+                XmlElement textElement =
+                    (XmlElement) runs[i + charIndex].SelectSingleNode("child::w:t", nsmgr);
+                if (textElement == null)
+                {
+                    match = false;
+                    break;
+                }
+
+                if (textElement.InnerText == search[charIndex].ToString())
+                    continue;
+                if (!matchCase &&
+                    string.Equals(textElement.InnerText, search[charIndex].ToString(),
+                        StringComparison.CurrentCultureIgnoreCase))
+                    continue;
+                match = false;
+                break;
+            }
+
+            return match;
         }
 
         private static void SplitTextRunsIntoCharacterRuns(XmlElement paragraph, XmlNamespaceManager nsmgr,
@@ -203,52 +214,20 @@ namespace DrDocx.WordDocEditing
                         // If this run has text in it, we're going to split it up into a run for every
                         // character. Performance! Efficiency! We shall have none of it!
                         if (childElements[c].Name == "w:t")
-                        {
-                            string textElementString = childElements[c].InnerText;
-                            for (int i = textElementString.Length - 1; i >= 0; --i)
-                            {
-                                XmlElement newRun =
-                                    xmlDoc.CreateElement("w:r", wordNamespace);
-                                XmlElement runProps =
-                                    (XmlElement) run.SelectSingleNode("child::w:rPr", nsmgr);
-                                if (runProps != null)
-                                {
-                                    XmlElement newRunProps =
-                                        (XmlElement) runProps.CloneNode(true);
-                                    newRun.AppendChild(newRunProps);
-                                }
-
-                                XmlElement newTextElement =
-                                    xmlDoc.CreateElement("w:t", wordNamespace);
-                                XmlText newText =
-                                    xmlDoc.CreateTextNode(textElementString[i].ToString());
-                                newTextElement.AppendChild(newText);
-                                if (textElementString[i] == ' ')
-                                {
-                                    XmlAttribute xmlSpace = xmlDoc.CreateAttribute(
-                                        "xml", "space",
-                                        "http://www.w3.org/XML/1998/namespace");
-                                    xmlSpace.Value = "preserve";
-                                    newTextElement.Attributes.Append(xmlSpace);
-                                }
-
-                                newRun.AppendChild(newTextElement);
-                                paragraph.InsertAfter(newRun, run);
-                            }
-                        }
+                            SplitSingleRunIntoCharRuns(paragraph, nsmgr, xmlDoc, wordNamespace, childElements, c, run);
                         else
                         {
-                            XmlElement newRun = xmlDoc.CreateElement("w:r", wordNamespace);
-                            XmlElement runProps =
+                            var newRun = xmlDoc.CreateElement("w:r", wordNamespace);
+                            var runProps =
                                 (XmlElement) run.SelectSingleNode("child::w:rPr", nsmgr);
                             if (runProps != null)
                             {
-                                XmlElement newRunProps =
+                                var newRunProps =
                                     (XmlElement) runProps.CloneNode(true);
                                 newRun.AppendChild(newRunProps);
                             }
 
-                            XmlElement newChildElement =
+                            var newChildElement =
                                 (XmlElement) childElements[c].CloneNode(true);
                             newRun.AppendChild(newChildElement);
                             paragraph.InsertAfter(newRun, run);
@@ -257,6 +236,42 @@ namespace DrDocx.WordDocEditing
 
                     paragraph.RemoveChild(run);
                 }
+            }
+        }
+
+        private static void SplitSingleRunIntoCharRuns(XmlElement paragraph, XmlNamespaceManager nsmgr, XmlDocument xmlDoc,
+            string wordNamespace, XmlNodeList childElements, int c, XmlElement run)
+        {
+            string textElementString = childElements[c].InnerText;
+            for (int i = textElementString.Length - 1; i >= 0; --i)
+            {
+                XmlElement newRun =
+                    xmlDoc.CreateElement("w:r", wordNamespace);
+                XmlElement runProps =
+                    (XmlElement) run.SelectSingleNode("child::w:rPr", nsmgr);
+                if (runProps != null)
+                {
+                    XmlElement newRunProps =
+                        (XmlElement) runProps.CloneNode(true);
+                    newRun.AppendChild(newRunProps);
+                }
+
+                XmlElement newTextElement =
+                    xmlDoc.CreateElement("w:t", wordNamespace);
+                XmlText newText =
+                    xmlDoc.CreateTextNode(textElementString[i].ToString());
+                newTextElement.AppendChild(newText);
+                if (textElementString[i] == ' ')
+                {
+                    XmlAttribute xmlSpace = xmlDoc.CreateAttribute(
+                        "xml", "space",
+                        "http://www.w3.org/XML/1998/namespace");
+                    xmlSpace.Value = "preserve";
+                    newTextElement.Attributes.Append(xmlSpace);
+                }
+
+                newRun.AppendChild(newTextElement);
+                paragraph.InsertAfter(newRun, run);
             }
         }
 
