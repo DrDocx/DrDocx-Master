@@ -9,7 +9,7 @@ using Entry = Microcharts.Entry;
 using SkiaSharp;
 
 using DrDocx.Models;
-using static DrDocx.WordDocEditing.WordAPI;
+using DrDocx.WordDocEditing;
 
 namespace DrDocx.ReportGenCLI
 {
@@ -94,9 +94,10 @@ namespace DrDocx.ReportGenCLI
 			using(WordprocessingDocument myDoc = WordprocessingDocument.Open(newfilePath,true)){
 
 				myDoc.ChangeDocumentType(DocumentFormat.OpenXml.WordprocessingDocumentType.Document);
-				InsertPatientData(myDoc,patient);
+				var wordAPI = new WordAPI(myDoc);
+				wordAPI.InsertPatientData(patient);
 				foreach(TestResultGroup testResultGroup in patient.ResultGroups){
-					DisplayTestGroup(myDoc,testResultGroup);
+					wordAPI.DisplayTestGroup(testResultGroup);
 
 					foreach(TestResult result in testResultGroup.Tests){
 						interp = 2*Math.Abs(0.01 * (double)result.Percentile - 0.5);
@@ -117,7 +118,7 @@ namespace DrDocx.ReportGenCLI
 							});
 					}
 				}
-				PageBreak(myDoc);
+				wordAPI.PageBreak();
 				//InsertPicturePng(myDoc, imagePath,7,1.2);
 				//JoinFile(myDoc,vizPath);
 
@@ -149,7 +150,8 @@ namespace DrDocx.ReportGenCLI
 			}
 
 			using(WordprocessingDocument myDoc = WordprocessingDocument.Open(newfilePath,true)){
-				InsertPicturePng(myDoc, "one.png",6,3);
+				var wordAPI = new WordAPI(myDoc);
+				wordAPI.InsertPicturePng("one.png",6,3);
 			}
 
 			//Console.WriteLine("Modified");
