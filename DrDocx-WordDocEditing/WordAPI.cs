@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
@@ -17,6 +18,26 @@ namespace DrDocx.WordDocEditing
 {
 	public static class WordAPI
 	{
+		public static async Task GenerateReport(Patient patient, string templatePath, string newFilePath)
+		{
+			if (File.Exists(newFilePath))
+			{
+				File.Delete(newFilePath);
+			}
+
+			File.Copy(templatePath, newFilePath);
+
+			using (WordprocessingDocument myDoc = WordprocessingDocument.Open(newFilePath, true))
+			{
+				InsertPatientData(myDoc,patient);
+
+				foreach (var testResultGroup in patient.ResultGroups)
+				{
+					DisplayTestGroup(myDoc,testResultGroup);
+				}
+			}
+		}
+
 		public static void FindAndReplace(WordprocessingDocument myDoc, string search, string replace, bool matchCase)
 		{
 			WordFindAndReplace.SearchAndReplace(myDoc, search, replace, matchCase);
@@ -30,6 +51,35 @@ namespace DrDocx.WordDocEditing
 		public static void LineBreak(WordprocessingDocument myDoc)
 		{
 			myDoc.MainDocumentPart.Document.Body.AppendChild(new Paragraph(new Run(new Text("\n"))));
+		}
+
+		public static void AddParagraph(WordprocessingDocument myDoc, string title, bool bold = false, bool italic = false, string alignment = "left",int fontsize = 24)
+		{
+			RunProperties rp = new RunProperties(new RunFonts() { Ascii = "Times New Roman" }, new FontSize() { Val = (fontsize*2).ToString() });
+			if(bold){
+				rp.Bold = new Bold();
+			}
+			if(italic){
+				rp.Italic = new Italic();
+			}
+			JustificationValues val = JustificationValues.Left;
+			switch(alignment)
+			{
+				case "left":
+					val = JustificationValues.Left;
+					break;
+				case "center":
+					val = JustificationValues.Center;
+					break;
+				case "right":
+					val = JustificationValues.Right;
+					break;
+				
+			}
+			myDoc.MainDocumentPart.Document.Body.AppendChild(new Paragraph(
+				new ParagraphProperties(new Justification() { Val = val }),
+				new Run(rp,new Text(title))
+				));
 		}
 
 		public static void JoinFile(WordprocessingDocument myDoc, string otherFilePath)
@@ -52,13 +102,14 @@ namespace DrDocx.WordDocEditing
 
 		public static void InsertPatientData(WordprocessingDocument myDoc, Patient patient)
 		{
-			InsertTextInLabel(myDoc,"NAME",patient.Name);
-			InsertTextInLabel(myDoc,"PREFERRED_NAME",patient.PreferredName);
-			InsertTextInLabel(myDoc,"DOB",patient.DateOfBirth.ToString());
-			InsertTextInLabel(myDoc,"TEST_DATE",patient.DateOfTesting.ToString());
-			InsertTextInLabel(myDoc,"MEDICAL_RECORD_NUMBER",patient.MedicalRecordNumber.ToString());
-			InsertTextInLabel(myDoc,"ADDRESS",patient.Address);
-			InsertTextInLabel(myDoc,"MEDICATION",patient.Medications);
+			FindAndReplace(myDoc,"{NAME}",patient.Name,true);
+			FindAndReplace(myDoc,"{PREFERRED_NAME}",patient.PreferredName,true);
+			FindAndReplace(myDoc,"{DOB}",patient.DateOfBirth.ToString(),true);
+			FindAndReplace(myDoc,"{TEST_DATE}",patient.DateOfTesting.ToString(),true);
+			FindAndReplace(myDoc,"{AGE_AT_TESTING}",(patient.DateOfTesting - patient.DateOfBirth).ToString(),true);
+			FindAndReplace(myDoc,"{MEDICAL_RECORD_NUMBER}",patient.MedicalRecordNumber.ToString(),true);
+			FindAndReplace(myDoc,"{ADDRESS}",patient.Address,true);
+			FindAndReplace(myDoc,"{MEDICATION}",patient.Medications,true);
 		}
 
 		public static void InsertTextInLabel(WordprocessingDocument myDoc, string contentControlTag, string text)
@@ -94,10 +145,11 @@ namespace DrDocx.WordDocEditing
 			}
 		}
 
-		public static void DisplayTestGroup(WordprocessingDocument myDoc, TestResultGroup testResultGroup){
-			myDoc.MainDocumentPart.Document.Body.Append(CreateTitleTable(testResultGroup.TestGroupInfo.Name));
+		public static void DisplayTestGroup(WordprocessingDocument myDoc, TestResultGroup testResultGroup)
+		{
+			myDoc.MainDocumentPart.Document.Body.AppendChild(CreateTitleTable(testResultGroup.TestGroupInfo.Name));
 			LineBreak(myDoc);
-			myDoc.MainDocumentPart.Document.Body.Append(CreateSubTable(testResultGroup));
+			myDoc.MainDocumentPart.Document.Body.AppendChild(CreateSubTable(testResultGroup));
 		}
 
 		private static Table CreateTitleTable(string title)
@@ -118,14 +170,14 @@ namespace DrDocx.WordDocEditing
 
 
 				// Specify the table cell content.
-			tc.Append(new TableCellProperties(new TableCellVerticalAlignment() { Val = TableVerticalAlignmentValues.Center }));
-			tc.Append(new Paragraph(new ParagraphProperties(new Justification() { Val = JustificationValues.Center }), new Run(rp, new Text(title))));
+			tc.AppendChild(new TableCellProperties(new TableCellVerticalAlignment() { Val = TableVerticalAlignmentValues.Center }));
+			tc.AppendChild(new Paragraph(new ParagraphProperties(new Justification() { Val = JustificationValues.Center }), new Run(rp, new Text(title))));
 
 				// Append the table cell to the table row.
-			tr.Append(tc);
+			tr.AppendChild(tc);
 
 				// Append the table row to the table.
-			table.Append(tr);
+			table.AppendChild(tr);
 
 			return table;
 		}
@@ -153,7 +205,7 @@ namespace DrDocx.WordDocEditing
 				new Paragraph(new Run(new RunProperties(new RunFonts() { Ascii = "Times New Roman" }, new Bold(), new FontSize() { Val = "24" }),
 					new Text("Percentile"))));
 			tr.Append(testName,zScore,percentile);
-			table.Append(tr);
+			table.AppendChild(tr);
 
 
 			foreach (TestResult result in testResultGroup.Tests)
@@ -165,8 +217,8 @@ namespace DrDocx.WordDocEditing
 					new Paragraph(new Run(new Text(result.ZScore.ToString()))));
 				percentile = new TableCell(WordTableFormats.DataCellFormat(),
 					new Paragraph(new Run(new Text(result.Percentile.ToString()))));
-				tr.Append(testName); tr.Append(zScore); tr.Append(percentile);
-				table.Append(tr);
+				tr.AppendChild(testName); tr.AppendChild(zScore); tr.AppendChild(percentile);
+				table.AppendChild(tr);
 			}
 
 			return table;
@@ -186,7 +238,7 @@ namespace DrDocx.WordDocEditing
 			AddImageToBody(myDoc, mainPart.GetIdOfPart(imagePart),scaleWidth,scaleHeight);
 		}
 
-		private static void AddImageToBody(WordprocessingDocument wordDoc, string relationshipId, double scaleWidth, double scaleHeight)
+		private static void AddImageToBody(WordprocessingDocument myDoc, string relationshipId, double scaleWidth, double scaleHeight)
 		{
 			// Define the reference of the image.
 			var element =
@@ -274,7 +326,10 @@ namespace DrDocx.WordDocEditing
 			.ShapeProperties.Transform2D.Extents.Cy = finalHeight;
 
 			// Append the reference to body, the element should be in a Run.
-			wordDoc.MainDocumentPart.Document.Body.AppendChild(new Paragraph(new Run(element)));
+			myDoc.MainDocumentPart.Document.Body.AppendChild(new Paragraph(
+				new ParagraphProperties(new Justification() { Val = JustificationValues.Center }),
+				new Run(element)
+				));
 		}
 	}
 }
