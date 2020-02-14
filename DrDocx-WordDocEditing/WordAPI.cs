@@ -18,54 +18,48 @@ namespace DrDocx.WordDocEditing
 	// TODO: Stop using these methods directly from ReportGeneratorCLI so we can make them private as they should be.
 	public class WordAPI
 	{
-		public WordAPI(WordprocessingDocument myDoc)
-		{
-			WordDoc = myDoc;
-		}
-
 		public WordAPI(string templatePath, string docPath)
 		{
 			if (File.Exists(docPath))
 				File.Delete(docPath);
 			File.Copy(templatePath, docPath);
-			var doc = WordprocessingDocument.Open(docPath, true);
-			doc.ChangeDocumentType(WordprocessingDocumentType.Document);
 			DocPath = docPath;
-			WordDoc = doc;
 		}
-
-		private WordprocessingDocument WordDoc { get; set; }
 		private string DocPath { get; set; }
 
 		public void FindAndReplace(Dictionary<string, string> findReplacePairs, bool matchCase)
 		{
 			// TODO: Wrap all keys of dictionary in {{ }}
-			
-			WordFindAndReplace findAndReplacer = new WordFindAndReplace(WordDoc, matchCase);
-			findAndReplacer.SearchAndReplace(findReplacePairs);
-			WordDoc.Close();
+			using (var doc = WordprocessingDocument.Open(DocPath, true))
+			{
+				var findAndReplacer = new WordFindAndReplace(doc, matchCase);
+				findAndReplacer.SearchAndReplace(findReplacePairs);
+			}
 		}
 
-		public bool ContainsText(string matchText)
+		public static bool ContainsText(string filePath, string matchText, bool matchCase)
 		{
-			Console.WriteLine(WordDoc.DocumentType.ToString());
-			return false;
+			using (var doc = WordprocessingDocument.Open(filePath, true))
+			{
+				var findAndReplacer = new WordFindAndReplace(doc, matchCase);
+				return findAndReplacer.ContainsText(matchText, matchCase);
+			}
 		}
 
-		public void PageBreak()
+		public void PageBreak(WordprocessingDocument wordDoc)
 		{
-			WordDoc.MainDocumentPart.Document.Body.AppendChild(new Paragraph(new Run(new Break() { Type = BreakValues.Page })));
+			wordDoc.MainDocumentPart.Document.Body.AppendChild(new Paragraph(new Run(new Break() { Type = BreakValues.Page })));
 		}
 
-		private void LineBreak()
+		private void LineBreak(WordprocessingDocument wordDoc)
 		{
-			WordDoc.MainDocumentPart.Document.Body.AppendChild(new Paragraph(new Run(new Text("\n"))));
+			wordDoc.MainDocumentPart.Document.Body.AppendChild(new Paragraph(new Run(new Text("\n"))));
 		}
 
-		public void JoinFile(string otherFilePath)
+		public void JoinFile(WordprocessingDocument wordDoc, string otherFilePath)
 		{
-			PageBreak();
-			MainDocumentPart mainPart = WordDoc.MainDocumentPart;
+			PageBreak(wordDoc);
+			MainDocumentPart mainPart = wordDoc.MainDocumentPart;
 			const string altChunkId = "AltChunkId1";
 			var chunk = mainPart.AddAlternativeFormatImportPart(
 				AlternativeFormatImportPartType.WordprocessingML, altChunkId);
@@ -77,26 +71,26 @@ namespace DrDocx.WordDocEditing
 			var altChunk = new AltChunk { Id = altChunkId };
 			mainPart.Document.Body.InsertAfter(altChunk, mainPart.Document.Body.Elements<Paragraph>().Last());
 			mainPart.Document.Save();
-			WordDoc.Close();
+			wordDoc.Close();
 		}
 
-		public void InsertPatientData(Patient patient)
+		public void InsertPatientData(WordprocessingDocument wordDoc, Patient patient)
 		{
-			InsertTextInLabel("NAME",patient.Name);
-			InsertTextInLabel("PREFERRED_NAME",patient.PreferredName);
-			InsertTextInLabel("DOB",patient.DateOfBirth.ToString(CultureInfo.CurrentCulture));
-			InsertTextInLabel("TEST_DATE",patient.DateOfTesting.ToString(CultureInfo.InvariantCulture));
-			InsertTextInLabel("MEDICAL_RECORD_NUMBER",patient.MedicalRecordNumber.ToString());
-			InsertTextInLabel("ADDRESS",patient.Address);
-			InsertTextInLabel("MEDICATION",patient.Medications);
+			InsertTextInLabel(wordDoc, "NAME",patient.Name);
+			InsertTextInLabel(wordDoc, "PREFERRED_NAME",patient.PreferredName);
+			InsertTextInLabel(wordDoc, "DOB",patient.DateOfBirth.ToString(CultureInfo.CurrentCulture));
+			InsertTextInLabel(wordDoc, "TEST_DATE",patient.DateOfTesting.ToString(CultureInfo.InvariantCulture));
+			InsertTextInLabel(wordDoc, "MEDICAL_RECORD_NUMBER",patient.MedicalRecordNumber.ToString());
+			InsertTextInLabel(wordDoc, "ADDRESS",patient.Address);
+			InsertTextInLabel(wordDoc, "MEDICATION",patient.Medications);
 		}
 
-		private void InsertTextInLabel(string contentControlTag, string text)
+		private void InsertTextInLabel(WordprocessingDocument wordDoc, string contentControlTag, string text)
 		{
-			var filteredBodyContentControls = WordDoc.MainDocumentPart.Document.Body.Descendants<SdtElement>()
+			var filteredBodyContentControls = wordDoc.MainDocumentPart.Document.Body.Descendants<SdtElement>()
 			.Where(sdt => sdt.SdtProperties.GetFirstChild<Tag>()?.Val == contentControlTag);
 
-			var header = WordDoc.MainDocumentPart.HeaderParts;
+			var header = wordDoc.MainDocumentPart.HeaderParts;
 			foreach (var headerPart in header)
 			{
 				var headerContentControls = headerPart.Header.Descendants<SdtElement>();
@@ -107,7 +101,7 @@ namespace DrDocx.WordDocEditing
 				}
 			}
 
-			var footer = WordDoc.MainDocumentPart.FooterParts;
+			var footer = wordDoc.MainDocumentPart.FooterParts;
 			foreach (var footerPart in footer)
 			{
 				var footerContentControls = footerPart.Footer.Descendants<SdtElement>();
@@ -124,10 +118,10 @@ namespace DrDocx.WordDocEditing
 			}
 		}
 
-		public void DisplayTestGroup(TestResultGroup testResultGroup){
-			WordDoc.MainDocumentPart.Document.Body.Append(CreateTitleTable(testResultGroup.TestGroupInfo.Name));
-			LineBreak();
-			WordDoc.MainDocumentPart.Document.Body.Append(CreateSubTable(testResultGroup));
+		public void DisplayTestGroup(WordprocessingDocument wordDoc, TestResultGroup testResultGroup){
+			wordDoc.MainDocumentPart.Document.Body.Append(CreateTitleTable(testResultGroup.TestGroupInfo.Name));
+			LineBreak(wordDoc);
+			wordDoc.MainDocumentPart.Document.Body.Append(CreateSubTable(testResultGroup));
 		}
 
 		private static Table CreateTitleTable(string title)
@@ -202,9 +196,9 @@ namespace DrDocx.WordDocEditing
 			return table;
 		}
 
-		public void InsertPicturePng(string imageFilePath, double scaleWidth, double scaleHeight)
+		public void InsertPicturePng(WordprocessingDocument wordDoc, string imageFilePath, double scaleWidth, double scaleHeight)
 		{
-			MainDocumentPart mainPart = WordDoc.MainDocumentPart;
+			MainDocumentPart mainPart = wordDoc.MainDocumentPart;
 
 			ImagePart imagePart = mainPart.AddImagePart(ImagePartType.Png);
 
@@ -213,10 +207,10 @@ namespace DrDocx.WordDocEditing
 				imagePart.FeedData(stream);
 			}
 
-			AddImageToBody(mainPart.GetIdOfPart(imagePart),scaleWidth,scaleHeight);
+			AddImageToBody(wordDoc, mainPart.GetIdOfPart(imagePart),scaleWidth,scaleHeight);
 		}
 
-		public void AddImageToBody(string relationshipId, double scaleWidth, double scaleHeight)
+		public void AddImageToBody(WordprocessingDocument wordDoc, string relationshipId, double scaleWidth, double scaleHeight)
 		{
 			// Define the reference of the image.
 			var element =
@@ -304,7 +298,7 @@ namespace DrDocx.WordDocEditing
 			.ShapeProperties.Transform2D.Extents.Cy = finalHeight;
 
 			// Append the reference to body, the element should be in a Run.
-			WordDoc.MainDocumentPart.Document.Body.AppendChild(new Paragraph(new Run(element)));
+			wordDoc.MainDocumentPart.Document.Body.AppendChild(new Paragraph(new Run(element)));
 		}
 	}
 }

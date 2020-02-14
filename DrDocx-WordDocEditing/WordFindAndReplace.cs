@@ -53,6 +53,13 @@ namespace DrDocx.WordDocEditing
                 DocParts.Add(WordDoc.MainDocumentPart.FootnotesPart);
         }
 
+        public bool ContainsText(string text, bool matchCase)
+        {
+            if (matchCase)
+                return DocParts.Select(part => GetXmlDocument(part).InnerText).Any(partXmlDocText => partXmlDocText.Contains(text));
+            return DocParts.Select(part => GetXmlDocument(part).InnerText.ToLower()).Any(partXmlDocText => partXmlDocText.Contains(text.ToLower()));
+        } 
+
         public void SearchAndReplace(Dictionary<string, string> matchAndReplacePairs)
         {
             CurrentFindAndReplacePairs = matchAndReplacePairs;
