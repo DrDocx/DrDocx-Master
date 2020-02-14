@@ -1,4 +1,4 @@
-using Xunit;
+using NUnit.Framework;
 using DrDocx.Models;
 using DrDocx.WordDocEditing;
 
@@ -6,11 +6,20 @@ namespace DrDocx.Tests.WordDocEditing
 {
     public class FindAndReplaceTests
     {
-        [Theory]
-        [InlineData("{{NAME}}")]
-        public void ReplacedTextIsGone(string textToReplace)
+
+        [Test]
+        public void SearchTextIsGoneAfterReplace(string searchText)
         {
             Assert.True(true);
-        } 
+        }
+
+        [Test]
+        [TestCase("Sideshow Bob")]
+        [TestCase("Bart Simpson")]
+        [TestCase("IJustHappenToHaveAnExtremelyLong NameToSeeIfICanMessWithOpenXML BecauseIHateWhenStuffWorks")]
+        public void ReplaceTextIsFoundAfterReplace(string replaceText)
+        {
+            Assert.IsFalse(replaceText == null);
+        }
     }
 }
