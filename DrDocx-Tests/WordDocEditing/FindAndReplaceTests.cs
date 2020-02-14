@@ -13,25 +13,36 @@ namespace DrDocx.Tests.WordDocEditing
     public class FindAndReplaceTests
     {
         private WordAPI WordInterface { get; set; }
+        private string ReportsDir { get; set; }
         private string TemplatePath { get; set; }
         private string DocPath { get; set; }
         private Dictionary<string, string> FindAndReplacePairs { get; set; }
+        
         [SetUp]
         public void Init()
         {
             FindAndReplacePairs = FindAndReplaceTestData.GetFindAndReplacePairs();
-            
-            var workingDir = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "/DrDocx";
-            if (!Directory.Exists(workingDir))
-                Directory.CreateDirectory(workingDir);
-            Environment.CurrentDirectory = workingDir;
-            Env.Load(Environment.CurrentDirectory + "/.env");
-            Console.WriteLine("Working directory: " + Environment.CurrentDirectory);
-            
-            var reportsDir = Environment.CurrentDirectory + Env.GetString("REPORTS_DIR");
-            TemplatePath = $"{reportsDir}/" + Env.GetString("REPORT_TEMPLATE1_NAME");
-            DocPath = $"{reportsDir}/" + Env.GetString("REPORT_OUTPUT1_NAME");
-            WordInterface = new WordAPI(TemplatePath, DocPath);
+
+            ReportsDir = Environment.CurrentDirectory + Env.GetString("REPORTS_DIR");
+            if (!Directory.Exists(ReportsDir))
+                Directory.CreateDirectory(ReportsDir);
+            TemplatePath = $"{ReportsDir}/" + Env.GetString("REPORT_TEMPLATE1_NAME");
+            DocPath = $"{ReportsDir}/" + Env.GetString("REPORT_OUTPUT1_NAME");
+        }
+
+        [TearDown]
+        public void Cleanup()
+        {
+            // Comment this line if you want to see the file after the test.
+            File.Delete(DocPath);
+        }
+
+        [Test]
+        public void TemplateFileExists()
+        {
+            var potentialErrorMessage = $"You need to place the template in the directory {Environment.CurrentDirectory}. " +
+                                        $"Then, update your .env file in {Environment.CurrentDirectory} with the template file name for key REPORT_TEMPLATE1_NAME";
+            Assert.IsTrue(File.Exists(TemplatePath), potentialErrorMessage);
         }
 
         // NOTE: The two "before" tests do not test functionality but instead verify that the template exists
@@ -53,6 +64,7 @@ namespace DrDocx.Tests.WordDocEditing
         [Test]
         public void SearchTextDoesNotExistAfterReplace()
         {
+            WordInterface = new WordAPI(TemplatePath, DocPath);
             WordInterface.FindAndReplace(FindAndReplacePairs, false);
             foreach (var pair in FindAndReplacePairs)
                 Assert.IsFalse(WordAPI.ContainsText(DocPath, pair.Key, false));
@@ -61,6 +73,7 @@ namespace DrDocx.Tests.WordDocEditing
         [Test]
         public void ReplaceTextDoesNotExistAfterReplace()
         {
+            WordInterface = new WordAPI(TemplatePath, DocPath);
             WordInterface.FindAndReplace(FindAndReplacePairs, false);
             foreach (var pair in FindAndReplacePairs)
                 Assert.IsTrue(WordAPI.ContainsText(DocPath, pair.Value, false));
