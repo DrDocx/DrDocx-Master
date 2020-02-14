@@ -11,7 +11,11 @@ namespace DrDocx.Tests
         [OneTimeSetUp]
         public void GlobalSetup()
         {
-            var workingDir = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "/DrDocx";
+            string workingDir;
+            if (Environment.GetEnvironmentVariable("THIS_ENV") != "CI")
+                workingDir = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "/DrDocx";
+            else
+                workingDir = Environment.CurrentDirectory + "/TestFiles";
             if (!Directory.Exists(workingDir))
                 Directory.CreateDirectory(workingDir);
             Environment.CurrentDirectory = workingDir;

@@ -21,4 +21,8 @@
       <ProjectReference Include="..\DrDocx-WordDocEditing\DrDocx-WordDocEditing.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="TestFiles\Reports" />
+    </ItemGroup>
+
 </Project>

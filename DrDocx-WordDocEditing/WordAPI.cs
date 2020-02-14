@@ -25,6 +25,11 @@ namespace DrDocx.WordDocEditing
 			File.Copy(templatePath, docPath);
 			DocPath = docPath;
 		}
+
+		public WordAPI(string docPath)
+		{
+			DocPath = docPath;
+		}
 		private string DocPath { get; set; }
 
 		public void FindAndReplace(Dictionary<string, string> findReplacePairs, bool matchCase)
@@ -72,17 +77,6 @@ namespace DrDocx.WordDocEditing
 			mainPart.Document.Body.InsertAfter(altChunk, mainPart.Document.Body.Elements<Paragraph>().Last());
 			mainPart.Document.Save();
 			wordDoc.Close();
-		}
-
-		public void InsertPatientData(WordprocessingDocument wordDoc, Patient patient)
-		{
-			InsertTextInLabel(wordDoc, "NAME",patient.Name);
-			InsertTextInLabel(wordDoc, "PREFERRED_NAME",patient.PreferredName);
-			InsertTextInLabel(wordDoc, "DOB",patient.DateOfBirth.ToString(CultureInfo.CurrentCulture));
-			InsertTextInLabel(wordDoc, "TEST_DATE",patient.DateOfTesting.ToString(CultureInfo.InvariantCulture));
-			InsertTextInLabel(wordDoc, "MEDICAL_RECORD_NUMBER",patient.MedicalRecordNumber.ToString());
-			InsertTextInLabel(wordDoc, "ADDRESS",patient.Address);
-			InsertTextInLabel(wordDoc, "MEDICATION",patient.Medications);
 		}
 
 		private void InsertTextInLabel(WordprocessingDocument wordDoc, string contentControlTag, string text)
