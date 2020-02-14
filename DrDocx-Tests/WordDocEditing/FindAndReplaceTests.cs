@@ -34,7 +34,7 @@ namespace DrDocx.Tests.WordDocEditing
         public void Cleanup()
         {
             // Comment this line if you want to see the file after the test.
-            File.Delete(DocPath);
+            // File.Delete(DocPath);
         }
 
         [Test]
