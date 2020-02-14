@@ -31,6 +31,7 @@ namespace DrDocx.Tests.WordDocEditing
             var report1 = Env.GetString("REPORT_OUTPUT1_NAME");
             var wordAPI = new WordAPI($"{reportsDir}/{template1}", $"{reportsDir}/{report1}"); 
             wordAPI.FindAndReplace(FindAndReplaceTestData.GetFindAndReplacePairs(), false);
+            wordAPI.ContainsText("Hello");
             Assert.IsTrue(true);
         }
 
@@ -54,9 +55,22 @@ namespace DrDocx.Tests.WordDocEditing
     {
         public static Dictionary<string, string> GetFindAndReplacePairs()
         {
+            Randomizer.Seed = new Random(739276); // Do not change
+            var fakePatient = new Faker<Patient>()
+                .RuleFor(p => p.Name, f => f.Name.FullName());
+            
             return new Dictionary<string, string>
             {
-                {"{{NAME}}", "Bart Simpson"}
+                {"{{FIRST_NAME}}", "Bart"},
+                {"{{LAST_NAME}}", "Simpson"},
+                {"{{DOB}}", "2000-01-01"},
+                {"{{DOE}}", "2020-02-10"},
+                {"{{MRNUM}}", "756483762"},
+                {"{{HANDEDNESS}}", "left"},
+                {"{{AGE}}", "20"},
+                {"{{REFERRAL}}", "Dr. Nick"},
+                {"{{ETHNICITY}}", "Simpsonian"},
+                {"{{EDUCATION}}", "12"}
             };
         }
     }

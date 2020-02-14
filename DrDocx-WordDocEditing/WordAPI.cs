@@ -23,13 +23,33 @@ namespace DrDocx.WordDocEditing
 			WordDoc = myDoc;
 		}
 
+		public WordAPI(string templatePath, string docPath)
+		{
+			if (File.Exists(docPath))
+				File.Delete(docPath);
+			File.Copy(templatePath, docPath);
+			var doc = WordprocessingDocument.Open(docPath, true);
+			doc.ChangeDocumentType(WordprocessingDocumentType.Document);
+			DocPath = docPath;
+			WordDoc = doc;
+		}
+
 		private WordprocessingDocument WordDoc { get; set; }
+		private string DocPath { get; set; }
 
 		public void FindAndReplace(Dictionary<string, string> findReplacePairs, bool matchCase)
 		{
 			// TODO: Wrap all keys of dictionary in {{ }}
+			
 			WordFindAndReplace findAndReplacer = new WordFindAndReplace(WordDoc, matchCase);
 			findAndReplacer.SearchAndReplace(findReplacePairs);
+			WordDoc.Close();
+		}
+
+		public bool ContainsText(string matchText)
+		{
+			Console.WriteLine(WordDoc.DocumentType.ToString());
+			return false;
 		}
 
 		public void PageBreak()

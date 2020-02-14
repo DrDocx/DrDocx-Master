@@ -11,15 +11,14 @@ using DocumentFormat.OpenXml.Packaging;
 namespace DrDocx.WordDocEditing
 {
     // Credit: http://www.ericwhite.com/blog/search-and-replace-text-in-an-open-xml-wordprocessingml-document/
-    // TODO: Make this a non-static class which takes a WordProcessingDocument object in constructor
-    // TODO: Create a List of OpenXmlPart objects so we can iterate over them without code reuse
+    // for the algorithm and much of the code.
     internal class WordFindAndReplace
     {
         public WordFindAndReplace(WordprocessingDocument wordDoc, bool matchCase)
         {
             WordDoc = wordDoc;
             MatchCase = matchCase;
-            InitializeDocPartsList(wordDoc);
+            InitializeDocPartsList();
             if (HasTrackedRevisions())
                 throw new SearchAndReplaceException(
                     "Search and replace will not work with documents that contain revision tracking.");
@@ -36,21 +35,22 @@ namespace DrDocx.WordDocEditing
         private Dictionary<string, string> CurrentFindAndReplacePairs { get; set; }
         private bool MatchCase { get; set; }
 
-        private void InitializeDocPartsList(WordprocessingDocument wordDoc)
+        private void InitializeDocPartsList()
         {
-            DocParts.Add(wordDoc.MainDocumentPart);
+            DocParts = new List<OpenXmlPart>();
+            DocParts.Add(WordDoc.MainDocumentPart);
 
-            foreach (var part in wordDoc.MainDocumentPart.HeaderParts)
+            foreach (var part in WordDoc.MainDocumentPart.HeaderParts)
                 DocParts.Add(part);
 
-            foreach (var part in wordDoc.MainDocumentPart.FooterParts)
+            foreach (var part in WordDoc.MainDocumentPart.FooterParts)
                 DocParts.Add(part);
 
-            if (wordDoc.MainDocumentPart.EndnotesPart != null)
-                DocParts.Add(wordDoc.MainDocumentPart.EndnotesPart);
+            if (WordDoc.MainDocumentPart.EndnotesPart != null)
+                DocParts.Add(WordDoc.MainDocumentPart.EndnotesPart);
 
-            if (wordDoc.MainDocumentPart.FootnotesPart != null)
-                DocParts.Add(wordDoc.MainDocumentPart.FootnotesPart);
+            if (WordDoc.MainDocumentPart.FootnotesPart != null)
+                DocParts.Add(WordDoc.MainDocumentPart.FootnotesPart);
         }
 
         public void SearchAndReplace(Dictionary<string, string> matchAndReplacePairs)
@@ -172,7 +172,7 @@ namespace DrDocx.WordDocEditing
             }
 
             newRun.AppendChild(newTextElement);
-            paragraph.InsertAfter(newRun, (XmlNode) runs[i]);
+            paragraph.InsertAfter(newRun, runs[i - 1]);
             for (int c = 0; c < search.Length; ++c)
                 paragraph.RemoveChild(runs[i + c]);
         }
@@ -296,10 +296,14 @@ namespace DrDocx.WordDocEditing
                 var x2 = matchId.LastIndexOf(i);
                 if (x1 == x2)
                     continue;
-                StringBuilder sb2 = new StringBuilder();
+                var sb2 = new StringBuilder();
                 for (int z = x1; z <= x2; ++z)
-                    sb2.Append(((XmlElement) children[z]
-                        .SelectSingleNode("w:t", Nsmgr)).InnerText);
+                {
+                    var singleNode = ((XmlElement) children[z]).SelectSingleNode("w:t", Nsmgr);
+                    if (singleNode != null)
+                        sb2.Append(singleNode.InnerText);
+                }
+
                 XmlElement newRun = xmlDoc.CreateElement("w:r", WordNamespace);
                 XmlElement runProps =
                     (XmlElement) children[x1].SelectSingleNode("child::w:rPr", Nsmgr);
