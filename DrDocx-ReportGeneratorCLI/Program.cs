@@ -90,12 +90,11 @@ namespace DrDocx.ReportGenCLI
 			double interp;
 			string hexcol;
 			int percentile;
-			
+
 			using(WordprocessingDocument myDoc = WordprocessingDocument.Open(newfilePath,true)){
 
+				var wordAPI = new WordAPI(newfilePath);
 				myDoc.ChangeDocumentType(DocumentFormat.OpenXml.WordprocessingDocumentType.Document);
-				var wordAPI = new WordAPI(myDoc);
-				wordAPI.InsertPatientData(patient);
 				foreach(TestResultGroup testResultGroup in patient.ResultGroups){
 					wordAPI.DisplayTestGroup(testResultGroup);
 
@@ -150,7 +149,7 @@ namespace DrDocx.ReportGenCLI
 			}
 
 			using(WordprocessingDocument myDoc = WordprocessingDocument.Open(newfilePath,true)){
-				var wordAPI = new WordAPI(myDoc);
+				var wordAPI = new WordAPI(newfilePath);
 				wordAPI.InsertPicturePng("one.png",6,3);
 			}
 

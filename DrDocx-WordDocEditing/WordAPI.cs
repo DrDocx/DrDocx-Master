@@ -18,18 +18,38 @@ namespace DrDocx.WordDocEditing
 	// TODO: Stop using these methods directly from ReportGeneratorCLI so we can make them private as they should be.
 	public class WordAPI
 	{
-		public WordAPI(WordprocessingDocument myDoc)
+		public WordAPI(string templatePath, string docPath, bool readOnly = true)
 		{
-			WordDoc = myDoc;
+			if (File.Exists(docPath))
+				File.Delete(docPath);
+			File.Copy(templatePath, docPath);
+			DocPath = docPath;
+			WordDoc = WordprocessingDocument.Open(DocPath, !readOnly);
 		}
 
-		private WordprocessingDocument WordDoc { get; set; }
+		public WordAPI(string docPath, bool readOnly = true)
+		{
+			DocPath = docPath;
+			WordDoc = WordprocessingDocument.Open(DocPath, !readOnly);
+		}
 
+		public void Close()
+		{
+			WordDoc.Close();
+		}
+		private string DocPath { get; set; }
+		private WordprocessingDocument WordDoc { get; set; }
 		public void FindAndReplace(Dictionary<string, string> findReplacePairs, bool matchCase)
 		{
 			// TODO: Wrap all keys of dictionary in {{ }}
-			WordFindAndReplace findAndReplacer = new WordFindAndReplace(WordDoc, matchCase);
+			var findAndReplacer = new WordFindAndReplace(WordDoc, matchCase);
 			findAndReplacer.SearchAndReplace(findReplacePairs);
+		}
+
+		public bool ContainsText(string matchText, bool matchCase)
+		{
+			var findAndReplacer = new WordFindAndReplace(WordDoc, matchCase);
+			return findAndReplacer.ContainsText(matchText, matchCase);
 		}
 
 		public void PageBreak()
@@ -45,7 +65,7 @@ namespace DrDocx.WordDocEditing
 		public void JoinFile(string otherFilePath)
 		{
 			PageBreak();
-			MainDocumentPart mainPart = WordDoc.MainDocumentPart;
+			var mainPart = WordDoc.MainDocumentPart;
 			const string altChunkId = "AltChunkId1";
 			var chunk = mainPart.AddAlternativeFormatImportPart(
 				AlternativeFormatImportPartType.WordprocessingML, altChunkId);
@@ -57,18 +77,6 @@ namespace DrDocx.WordDocEditing
 			var altChunk = new AltChunk { Id = altChunkId };
 			mainPart.Document.Body.InsertAfter(altChunk, mainPart.Document.Body.Elements<Paragraph>().Last());
 			mainPart.Document.Save();
-			WordDoc.Close();
-		}
-
-		public void InsertPatientData(Patient patient)
-		{
-			InsertTextInLabel("NAME",patient.Name);
-			InsertTextInLabel("PREFERRED_NAME",patient.PreferredName);
-			InsertTextInLabel("DOB",patient.DateOfBirth.ToString(CultureInfo.CurrentCulture));
-			InsertTextInLabel("TEST_DATE",patient.DateOfTesting.ToString(CultureInfo.InvariantCulture));
-			InsertTextInLabel("MEDICAL_RECORD_NUMBER",patient.MedicalRecordNumber.ToString());
-			InsertTextInLabel("ADDRESS",patient.Address);
-			InsertTextInLabel("MEDICATION",patient.Medications);
 		}
 
 		private void InsertTextInLabel(string contentControlTag, string text)
