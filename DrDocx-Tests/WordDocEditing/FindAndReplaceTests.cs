@@ -76,6 +76,7 @@ namespace DrDocx.Tests.WordDocEditing
             var templateApi = new WordAPI(TemplatePath);
             foreach (var pair in FindAndReplacePairs)
                 Assert.IsTrue(templateApi.ContainsText(pair.Key, false), templatePreconditionError + TemplatePath);
+            templateApi.Close();
         }
         
         [Test]
@@ -84,6 +85,7 @@ namespace DrDocx.Tests.WordDocEditing
             var templateApi = new WordAPI(TemplatePath);
             foreach (var pair in FindAndReplacePairs)
                 Assert.IsFalse(templateApi.ContainsText(pair.Value, false), templatePreconditionError + TemplatePath);
+            WordInterface = new WordAPI(TemplatePath, DocPath, true);
         }
 
         [Test]
@@ -93,6 +95,7 @@ namespace DrDocx.Tests.WordDocEditing
             WordInterface.FindAndReplace(FindAndReplacePairs, false);
             foreach (var pair in FindAndReplacePairs)
                 Assert.IsFalse(WordInterface.ContainsText(pair.Key, false));
+            WordInterface = new WordAPI(TemplatePath, DocPath, true);
         }
 
         [Test]
@@ -102,6 +105,7 @@ namespace DrDocx.Tests.WordDocEditing
             WordInterface.FindAndReplace(FindAndReplacePairs, false);
             foreach (var pair in FindAndReplacePairs)
                 Assert.IsTrue(WordInterface.ContainsText(pair.Value, false));
+            WordInterface = new WordAPI(TemplatePath, DocPath, true);
         }
     }
 

@@ -33,7 +33,7 @@ namespace DrDocx.WordDocEditing
 			WordDoc = WordprocessingDocument.Open(DocPath, !readOnly);
 		}
 
-		~WordAPI()
+		public void Close()
 		{
 			WordDoc.Close();
 		}
