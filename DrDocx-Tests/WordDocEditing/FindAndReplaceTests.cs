@@ -12,6 +12,7 @@ namespace DrDocx.Tests.WordDocEditing
     // TODO: Create initializer that generates a word document for testing purposes with search text so one does not need to be provided.
     
     [TestFixture]
+    [SingleThreaded]
     public class FindAndReplaceTests
     {
         private WordAPI WordInterface { get; set; }
