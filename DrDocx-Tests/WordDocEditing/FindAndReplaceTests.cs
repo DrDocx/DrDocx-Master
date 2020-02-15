@@ -9,6 +9,8 @@ using DotNetEnv;
 
 namespace DrDocx.Tests.WordDocEditing
 {
+    // TODO: Create initializer that generates a word document for testing purposes with search text so one does not need to be provided.
+    
     [TestFixture]
     public class FindAndReplaceTests
     {
@@ -47,36 +49,58 @@ namespace DrDocx.Tests.WordDocEditing
 
         // NOTE: The two "before" tests do not test functionality but instead verify that the template exists
         // in that state before any replacing. Otherwise, the "after" tests would be meaningless.
+        private string templatePreconditionError =
+            "The provided template either contains some replace text already or does not contain the required match strings. " +
+            "Please modify your template and run the tests again. Template path: ";
+
+        [Test]
+        public void ReadOnlySearchAndReplaceFails()
+        {
+            Exception failedEx = null;
+            try
+            {
+                WordInterface = new WordAPI(TemplatePath, DocPath, true);
+                WordInterface.FindAndReplace(FindAndReplacePairs, false);
+            }
+            catch (Exception e)
+            {
+                failedEx = e;
+            }
+            Assert.IsNotNull(failedEx);
+        }
+        
         [Test]
         public void SearchTextExistsBeforeReplace()
         {
+            var templateApi = new WordAPI(TemplatePath);
             foreach (var pair in FindAndReplacePairs)
-                Assert.IsTrue(WordAPI.ContainsText(TemplatePath, pair.Key, false));
+                Assert.IsTrue(templateApi.ContainsText(pair.Key, false), templatePreconditionError + TemplatePath);
         }
         
         [Test]
         public void ReplaceTextDoesNotExistBeforeReplace()
         {
+            var templateApi = new WordAPI(TemplatePath);
             foreach (var pair in FindAndReplacePairs)
-                Assert.IsFalse(WordAPI.ContainsText(TemplatePath, pair.Value, false));
+                Assert.IsFalse(templateApi.ContainsText(pair.Value, false), templatePreconditionError + TemplatePath);
         }
 
         [Test]
         public void SearchTextDoesNotExistAfterReplace()
         {
-            WordInterface = new WordAPI(TemplatePath, DocPath);
+            WordInterface = new WordAPI(TemplatePath, DocPath, false);
             WordInterface.FindAndReplace(FindAndReplacePairs, false);
             foreach (var pair in FindAndReplacePairs)
-                Assert.IsFalse(WordAPI.ContainsText(DocPath, pair.Key, false));
+                Assert.IsFalse(WordInterface.ContainsText(pair.Key, false));
         }
 
         [Test]
         public void ReplaceTextDoesNotExistAfterReplace()
         {
-            WordInterface = new WordAPI(TemplatePath, DocPath);
+            WordInterface = new WordAPI(TemplatePath, DocPath, false);
             WordInterface.FindAndReplace(FindAndReplacePairs, false);
             foreach (var pair in FindAndReplacePairs)
-                Assert.IsTrue(WordAPI.ContainsText(DocPath, pair.Value, false));
+                Assert.IsTrue(WordInterface.ContainsText(pair.Value, false));
         }
     }
 
@@ -85,9 +109,9 @@ namespace DrDocx.Tests.WordDocEditing
         public static Dictionary<string, string> GetFindAndReplacePairs()
         {
             // In progress data randomization. Ignore
-            Randomizer.Seed = new Random(739276); // Do not change
-            var fakePatient = new Faker<Patient>()
-                .RuleFor(p => p.Name, f => f.Name.FullName());
+            // Randomizer.Seed = new Random(739276); // Do not change
+            // var fakePatient = new Faker<Patient>()
+            //     .RuleFor(p => p.Name, f => f.Name.FullName());
             
             return new Dictionary<string, string>
             {

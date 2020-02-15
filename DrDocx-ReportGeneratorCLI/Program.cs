@@ -96,7 +96,7 @@ namespace DrDocx.ReportGenCLI
 				var wordAPI = new WordAPI(newfilePath);
 				myDoc.ChangeDocumentType(DocumentFormat.OpenXml.WordprocessingDocumentType.Document);
 				foreach(TestResultGroup testResultGroup in patient.ResultGroups){
-					wordAPI.DisplayTestGroup(myDoc, testResultGroup);
+					wordAPI.DisplayTestGroup(testResultGroup);
 
 					foreach(TestResult result in testResultGroup.Tests){
 						interp = 2*Math.Abs(0.01 * (double)result.Percentile - 0.5);
@@ -117,7 +117,7 @@ namespace DrDocx.ReportGenCLI
 							});
 					}
 				}
-				wordAPI.PageBreak(myDoc);
+				wordAPI.PageBreak();
 				//InsertPicturePng(myDoc, imagePath,7,1.2);
 				//JoinFile(myDoc,vizPath);
 
@@ -150,7 +150,7 @@ namespace DrDocx.ReportGenCLI
 
 			using(WordprocessingDocument myDoc = WordprocessingDocument.Open(newfilePath,true)){
 				var wordAPI = new WordAPI(newfilePath);
-				wordAPI.InsertPicturePng(myDoc, "one.png",6,3);
+				wordAPI.InsertPicturePng("one.png",6,3);
 			}
 
 			//Console.WriteLine("Modified");
