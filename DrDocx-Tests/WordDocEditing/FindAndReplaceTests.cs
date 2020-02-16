@@ -67,6 +67,7 @@ namespace DrDocx.Tests.WordDocEditing
             {
                 failedEx = e;
             }
+            WordInterface.Close();
             Assert.IsNotNull(failedEx);
         }
         
