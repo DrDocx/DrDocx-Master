@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Collections.Generic;
 using System.Globalization;
+
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing;
@@ -12,6 +13,7 @@ using DW = DocumentFormat.OpenXml.Drawing.Wordprocessing;
 using PIC = DocumentFormat.OpenXml.Drawing.Pictures;
 
 using DrDocx.Models;
+using static DrDocx.WordDocEditing.ChartAPI;
 
 namespace DrDocx.WordDocEditing
 {
@@ -21,7 +23,7 @@ namespace DrDocx.WordDocEditing
 		public WordAPI(string templatePath, string docPath, bool readOnly = true)
 		{
 			if (File.Exists(docPath))
-				File.Delete(docPath);
+			File.Delete(docPath);
 			File.Copy(templatePath, docPath);
 			DocPath = docPath;
 			WordDoc = WordprocessingDocument.Open(DocPath, !readOnly);
@@ -39,6 +41,39 @@ namespace DrDocx.WordDocEditing
 		}
 		private string DocPath { get; set; }
 		private WordprocessingDocument WordDoc { get; set; }
+
+		public void GenerateReport(Patient patient)
+		{
+			
+			Dictionary<string, string> patientDict = new Dictionary<string, string>();
+			patientDict.Add("{NAME}",patient.Name);
+			patientDict.Add("{PREFERRED_NAME}",patient.PreferredName);
+			patientDict.Add("{DOB}",patient.DateOfBirth.ToString());
+			patientDict.Add("{TEST_DATE}",patient.DateOfTesting.ToString());
+			patientDict.Add("{AGE_AT_TESTING}",(patient.DateOfTesting - patient.DateOfBirth).ToString());
+			patientDict.Add("{MEDICAL_RECORD_NUMBER}",patient.MedicalRecordNumber.ToString());
+			patientDict.Add("{ADDRESS}",patient.Address);
+			patientDict.Add("{MEDICATION}",patient.Medications);
+
+			FindAndReplace(patientDict,true);
+
+			foreach (var testResultGroup in patient.ResultGroups)
+			{
+				DisplayTestGroup(testResultGroup);
+			}
+
+			PageBreak();
+
+			int i = 0;
+			foreach (var resultGroup in patient.ResultGroups)
+			{
+				i++;
+				ChartAPI.MakePatientPercentileChart(resultGroup,patient.Name + i.ToString());
+				InsertPicturePng(patient.Name + i.ToString() + ".png",0.8*6,1.25*6);
+				AddParagraph(resultGroup.TestGroupInfo.Name,bold: true,fontsize: 16,alignment: "center");
+			}
+		}
+
 		public void FindAndReplace(Dictionary<string, string> findReplacePairs, bool matchCase)
 		{
 			// TODO: Wrap all keys of dictionary in {{ }}
@@ -55,6 +90,35 @@ namespace DrDocx.WordDocEditing
 		public void PageBreak()
 		{
 			WordDoc.MainDocumentPart.Document.Body.AppendChild(new Paragraph(new Run(new Break() { Type = BreakValues.Page })));
+		}
+
+		public void AddParagraph(string title, bool bold = false, bool italic = false, string alignment = "left",int fontsize = 24)
+		{
+			RunProperties rp = new RunProperties(new RunFonts() { Ascii = "Times New Roman" }, new FontSize() { Val = (fontsize*2).ToString() });
+			if(bold){
+				rp.Bold = new Bold();
+			}
+			if(italic){
+				rp.Italic = new Italic();
+			}
+			JustificationValues val = JustificationValues.Left;
+			switch(alignment)
+			{
+				case "left":
+				val = JustificationValues.Left;
+				break;
+				case "center":
+				val = JustificationValues.Center;
+				break;
+				case "right":
+				val = JustificationValues.Right;
+				break;
+				
+			}
+			WordDoc.MainDocumentPart.Document.Body.AppendChild(new Paragraph(
+				new ParagraphProperties(new Justification() { Val = val }),
+				new Run(rp,new Text(title))
+				));
 		}
 
 		private void LineBreak()
@@ -79,46 +143,13 @@ namespace DrDocx.WordDocEditing
 			mainPart.Document.Save();
 		}
 
-		private void InsertTextInLabel(string contentControlTag, string text)
-		{
-			var filteredBodyContentControls = WordDoc.MainDocumentPart.Document.Body.Descendants<SdtElement>()
-			.Where(sdt => sdt.SdtProperties.GetFirstChild<Tag>()?.Val == contentControlTag);
-
-			var header = WordDoc.MainDocumentPart.HeaderParts;
-			foreach (var headerPart in header)
-			{
-				var headerContentControls = headerPart.Header.Descendants<SdtElement>();
-				var filteredCCs = headerContentControls.Where(sdt => sdt.SdtProperties.GetFirstChild<Tag>()?.Val == contentControlTag);
-				foreach (var contentControl in filteredCCs)
-				{
-					contentControl.Descendants<Text>().First().Text = text;
-				}
-			}
-
-			var footer = WordDoc.MainDocumentPart.FooterParts;
-			foreach (var footerPart in footer)
-			{
-				var footerContentControls = footerPart.Footer.Descendants<SdtElement>();
-				var filteredCCs = footerContentControls.Where(sdt => sdt.SdtProperties.GetFirstChild<Tag>()?.Val == contentControlTag);
-				foreach (var contentControl in filteredCCs)
-				{
-					contentControl.Descendants<Text>().First().Text = text;
-				}
-			}
-
-			foreach (var contentControl in filteredBodyContentControls)
-			{
-				contentControl.Descendants<Text>().First().Text = text;
-			}
-		}
-
 		public void DisplayTestGroup(TestResultGroup testResultGroup){
 			WordDoc.MainDocumentPart.Document.Body.Append(CreateTitleTable(testResultGroup.TestGroupInfo.Name));
 			LineBreak();
 			WordDoc.MainDocumentPart.Document.Body.Append(CreateSubTable(testResultGroup));
 		}
 
-		private static Table CreateTitleTable(string title)
+		private Table CreateTitleTable(string title)
 		{
 
 			var table = new Table();
@@ -136,19 +167,19 @@ namespace DrDocx.WordDocEditing
 
 
 				// Specify the table cell content.
-			tc.Append(new TableCellProperties(new TableCellVerticalAlignment() { Val = TableVerticalAlignmentValues.Center }));
-			tc.Append(new Paragraph(new ParagraphProperties(new Justification() { Val = JustificationValues.Center }), new Run(rp, new Text(title))));
+			tc.AppendChild(new TableCellProperties(new TableCellVerticalAlignment() { Val = TableVerticalAlignmentValues.Center }));
+			tc.AppendChild(new Paragraph(new ParagraphProperties(new Justification() { Val = JustificationValues.Center }), new Run(rp, new Text(title))));
 
 				// Append the table cell to the table row.
-			tr.Append(tc);
+			tr.AppendChild(tc);
 
 				// Append the table row to the table.
-			table.Append(tr);
+			table.AppendChild(tr);
 
 			return table;
 		}
 
-		private static Table CreateSubTable(TestResultGroup testResultGroup)
+		private Table CreateSubTable(TestResultGroup testResultGroup)
 		{
 			int numResults = testResultGroup.Tests.Count();
 
@@ -171,7 +202,7 @@ namespace DrDocx.WordDocEditing
 				new Paragraph(new Run(new RunProperties(new RunFonts() { Ascii = "Times New Roman" }, new Bold(), new FontSize() { Val = "24" }),
 					new Text("Percentile"))));
 			tr.Append(testName,zScore,percentile);
-			table.Append(tr);
+			table.AppendChild(tr);
 
 
 			foreach (TestResult result in testResultGroup.Tests)
@@ -183,8 +214,8 @@ namespace DrDocx.WordDocEditing
 					new Paragraph(new Run(new Text(result.ZScore.ToString()))));
 				percentile = new TableCell(WordTableFormats.DataCellFormat(),
 					new Paragraph(new Run(new Text(result.Percentile.ToString()))));
-				tr.Append(testName); tr.Append(zScore); tr.Append(percentile);
-				table.Append(tr);
+				tr.AppendChild(testName); tr.AppendChild(zScore); tr.AppendChild(percentile);
+				table.AppendChild(tr);
 			}
 
 			return table;
@@ -275,12 +306,12 @@ namespace DrDocx.WordDocEditing
 
 			int finalWidth = (int)(sdtWidth*scaleWidth);
 			int finalHeight = (int)(sdtHeight*scaleHeight);
-			
+
 			//Resize picture placeholder
 			element.Inline.Extent.Cx = finalWidth;
 			element.Inline.Extent.Cy = finalHeight;
 
-			
+
 
 			//Change width/height of picture shapeproperties Transform
 			//This will override above height/width until you manually drag image for example
@@ -292,7 +323,10 @@ namespace DrDocx.WordDocEditing
 			.ShapeProperties.Transform2D.Extents.Cy = finalHeight;
 
 			// Append the reference to body, the element should be in a Run.
-			WordDoc.MainDocumentPart.Document.Body.AppendChild(new Paragraph(new Run(element)));
+			WordDoc.MainDocumentPart.Document.Body.AppendChild(new Paragraph(
+				new ParagraphProperties(new Justification() { Val = JustificationValues.Center }),
+				new Run(element)
+				));
 		}
 	}
 }
