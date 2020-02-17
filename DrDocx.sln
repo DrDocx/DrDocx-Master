@@ -7,8 +7,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DrDocx-Models", "DrDocx-Mod
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DrDocx-Core", "DrDocx-Core\DrDocx-Core.csproj", "{376C95AB-9BCE-4664-AFC5-89731C7BA0C6}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DrDocx-ReportGenCLI", "DrDocx-ReportGeneratorCLI\DrDocx-ReportGenCLI.csproj", "{2D8FC5F1-775B-4B55-904D-26E20E78985A}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DrDocx-WordDocEditing", "DrDocx-WordDocEditing\DrDocx-WordDocEditing.csproj", "{2FB20E75-BFAB-4776-BBAC-43C43516055F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DrDocx-Tests", "DrDocx-Tests\DrDocx-Tests.csproj", "{9E6C49CA-6A21-4944-9F67-181793586C7F}"
@@ -27,10 +25,6 @@ Global
 		{376C95AB-9BCE-4664-AFC5-89731C7BA0C6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{376C95AB-9BCE-4664-AFC5-89731C7BA0C6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{376C95AB-9BCE-4664-AFC5-89731C7BA0C6}.Release|Any CPU.Build.0 = Release|Any CPU
-		{2D8FC5F1-775B-4B55-904D-26E20E78985A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2D8FC5F1-775B-4B55-904D-26E20E78985A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2D8FC5F1-775B-4B55-904D-26E20E78985A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2D8FC5F1-775B-4B55-904D-26E20E78985A}.Release|Any CPU.Build.0 = Release|Any CPU
 		{2FB20E75-BFAB-4776-BBAC-43C43516055F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{2FB20E75-BFAB-4776-BBAC-43C43516055F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2FB20E75-BFAB-4776-BBAC-43C43516055F}.Release|Any CPU.ActiveCfg = Release|Any CPU
