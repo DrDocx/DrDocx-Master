@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Globalization;
 
@@ -23,7 +24,7 @@ namespace DrDocx.WordDocEditing
 		public WordAPI(string templatePath, string docPath, bool readOnly = true)
 		{
 			if (File.Exists(docPath))
-			File.Delete(docPath);
+				File.Delete(docPath);
 			File.Copy(templatePath, docPath);
 			DocPath = docPath;
 			WordDoc = WordprocessingDocument.Open(DocPath, !readOnly);
@@ -42,7 +43,7 @@ namespace DrDocx.WordDocEditing
 		private string DocPath { get; set; }
 		private WordprocessingDocument WordDoc { get; set; }
 
-		public void GenerateReport(Patient patient)
+		public async Task GenerateReport(Patient patient,string directory)
 		{
 			
 			Dictionary<string, string> patientDict = new Dictionary<string, string>();
@@ -60,16 +61,18 @@ namespace DrDocx.WordDocEditing
 			foreach (var testResultGroup in patient.ResultGroups)
 			{
 				DisplayTestGroup(testResultGroup);
+				LineBreak();
 			}
 
 			PageBreak();
 
 			int i = 0;
+			double chartScale = 6.464;
 			foreach (var resultGroup in patient.ResultGroups)
 			{
 				i++;
-				ChartAPI.MakePatientPercentileChart(resultGroup,patient.Name + i.ToString());
-				InsertPicturePng(patient.Name + i.ToString() + ".png",0.8*6,1.25*6);
+				ChartAPI.MakePatientPercentileChart(resultGroup,directory + patient.Name + i.ToString());
+				InsertPicturePng(directory + patient.Name + i.ToString() + ".png",chartScale,chartScale*(resultGroup.Tests.Count*50)/600);
 				AddParagraph(resultGroup.TestGroupInfo.Name,bold: true,fontsize: 16,alignment: "center");
 			}
 		}

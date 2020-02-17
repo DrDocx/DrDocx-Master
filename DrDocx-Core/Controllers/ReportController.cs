@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using DrDocx.Core;
 using System.Text.Json;
-using DrDocx.ReportGen;
+using DrDocx.WordDocEditing;
 
 namespace DrDocx_Core.Controllers
 {
