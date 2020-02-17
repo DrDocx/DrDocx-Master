@@ -118,17 +118,10 @@ namespace Microcharts
                         paint.MeasureText(text, ref bounds);
 
                         if(this.LabelOrientation == Orientation.Vertical){
-                            if (bounds.Width > footerHeight)
-                            {
-                                text = text.Substring(0, Math.Min(6, text.Length));
-                                paint.MeasureText(text, ref bounds);
-                            }
 
-                            if (bounds.Width > footerHeight)
-                            {
-                                text = text.Substring(0, Math.Min(3, text.Length));
-                                paint.MeasureText(text, ref bounds);
-                            }
+                            text = text.Substring(0, Math.Min(6, text.Length));
+                            paint.MeasureText(text, ref bounds);
+
                             canvas.RotateDegrees(-90, point.X + (bounds.Height / 2), height + this.Margin + (this.LabelTextSize / 2) - 50);
                             canvas.DrawText(text, point.X + (bounds.Height / 2), height + this.Margin + (this.LabelTextSize / 2) - 50, paint);
                             canvas.RotateDegrees(90, point.X + (bounds.Height / 2), height + this.Margin + (this.LabelTextSize / 2) - 50);

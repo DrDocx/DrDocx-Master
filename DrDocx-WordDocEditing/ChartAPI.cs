@@ -43,7 +43,7 @@ namespace DrDocx.WordDocEditing
    			//rotate the picture by 90 degrees
 			img.RotateFlip(RotateFlipType.Rotate90FlipNone);
 
-    		//re-save the picture as a Jpeg
+    		//re-save the picture as a Png
 			img.Save(fileName, System.Drawing.Imaging.ImageFormat.Png);
 
     		//tidy up after we've finished
@@ -87,7 +87,7 @@ namespace DrDocx.WordDocEditing
 				LabelOrientation = Microcharts.Orientation.Vertical
 			};
 
-			int width = 800;
+			int width = entries.Count * 50;
 			int height = 600;
 
 			SKImageInfo info = new SKImageInfo(width, height);
