@@ -18,7 +18,6 @@ namespace DrDocx.WordDocEditing
         {
             WordDoc = wordDoc;
             MatchCase = matchCase;
-            InitializeDocPartsList();
             if (HasTrackedRevisions())
                 throw new SearchAndReplaceException(
                     "Search and replace will not work with documents that contain revision tracking.");
@@ -31,26 +30,27 @@ namespace DrDocx.WordDocEditing
         private WordprocessingDocument WordDoc { get; set; }
         private XmlNamespaceManager Nsmgr { get; set; }
         private string WordNamespace { get; set; }
-        private List<OpenXmlPart> DocParts { get; set; }
         private Dictionary<string, string> CurrentFindAndReplacePairs { get; set; }
         private bool MatchCase { get; set; }
 
-        private void InitializeDocPartsList()
+        private IEnumerable<OpenXmlPart> DocParts
         {
-            DocParts = new List<OpenXmlPart>();
-            DocParts.Add(WordDoc.MainDocumentPart);
+            get
+            {
+                yield return WordDoc.MainDocumentPart;
 
-            foreach (var part in WordDoc.MainDocumentPart.HeaderParts)
-                DocParts.Add(part);
+                foreach (var part in WordDoc.MainDocumentPart.HeaderParts)
+                    yield return part;
 
-            foreach (var part in WordDoc.MainDocumentPart.FooterParts)
-                DocParts.Add(part);
+                foreach (var part in WordDoc.MainDocumentPart.FooterParts)
+                    yield return part;
 
-            if (WordDoc.MainDocumentPart.EndnotesPart != null)
-                DocParts.Add(WordDoc.MainDocumentPart.EndnotesPart);
+                if (WordDoc.MainDocumentPart.EndnotesPart != null)
+                    yield return WordDoc.MainDocumentPart.EndnotesPart;
 
-            if (WordDoc.MainDocumentPart.FootnotesPart != null)
-                DocParts.Add(WordDoc.MainDocumentPart.FootnotesPart);
+                if (WordDoc.MainDocumentPart.FootnotesPart != null)
+                    yield return WordDoc.MainDocumentPart.FootnotesPart;
+            }
         }
 
         public bool ContainsText(string text, bool matchCase)
