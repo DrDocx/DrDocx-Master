@@ -11,6 +11,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DrDocx-WordDocEditing", "Dr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DrDocx-Tests", "DrDocx-Tests\DrDocx-Tests.csproj", "{9E6C49CA-6A21-4944-9F67-181793586C7F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DrDocx-API", "DrDocx-API\DrDocx-API.csproj", "{49A65986-4A4E-4E35-A210-980C82786029}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{9E6C49CA-6A21-4944-9F67-181793586C7F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9E6C49CA-6A21-4944-9F67-181793586C7F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9E6C49CA-6A21-4944-9F67-181793586C7F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{49A65986-4A4E-4E35-A210-980C82786029}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{49A65986-4A4E-4E35-A210-980C82786029}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{49A65986-4A4E-4E35-A210-980C82786029}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{49A65986-4A4E-4E35-A210-980C82786029}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
