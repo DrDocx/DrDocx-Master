@@ -3,6 +3,8 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <RootNamespace>DrDocx.Models</RootNamespace>
+    <Configurations>Debug;Release;Publish Mac;Publish Windows</Configurations>
+    <Platforms>AnyCPU;Mac;Windows</Platforms>
   </PropertyGroup>
 
 </Project>

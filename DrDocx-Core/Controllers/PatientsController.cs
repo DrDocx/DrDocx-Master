@@ -75,8 +75,7 @@ namespace DrDocx.Core.Controllers
         // POST: TestResultGroups/Create
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken] //TODO: BTW I remember deleting one of these things to do something hacky, idk where but you should make sure to put them back... -Nathan
+        [HttpPost] //TODO: BTW I remember deleting one of these things to do something hacky, idk where but you should make sure to put them back... -Nathan
         public async Task<IActionResult> AddTestGroup(int testGroupId, int patientId)
         {
             var patient = await _context.Patients.FindAsync(patientId);

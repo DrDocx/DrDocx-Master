@@ -4,6 +4,12 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <RootNamespace>DrDocx_Core</RootNamespace>
     <GenerateRuntimeConfigurationFiles>True</GenerateRuntimeConfigurationFiles>
+    <RuntimeIdentifier Condition=" '$(OS)' != 'Windows_NT' ">osx-x64</RuntimeIdentifier>
+    <RuntimeIdentifier Condition=" '$(OS)' == 'Windows_NT' ">win-x64</RuntimeIdentifier>
+    <PublishSingleFile>true</PublishSingleFile>
+    <PublishTrimmed>true</PublishTrimmed>
+    <Configurations>Debug;Release</Configurations>
+    <Platforms>AnyCPU;Mac;Windows</Platforms>
   </PropertyGroup>
 
   <ItemGroup>

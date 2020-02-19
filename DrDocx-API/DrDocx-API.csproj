@@ -3,6 +3,8 @@
     <PropertyGroup>
         <TargetFramework>netcoreapp3.1</TargetFramework>
         <RootNamespace>DrDocx_API</RootNamespace>
+        <RuntimeIdentifier Condition=" '$(OS)' != 'Windows_NT' ">osx-x64</RuntimeIdentifier>
+        <RuntimeIdentifier Condition=" '$(OS)' == 'Windows_NT' ">win-x64</RuntimeIdentifier>
         <PublishSingleFile>true</PublishSingleFile>
         <PublishTrimmed>true</PublishTrimmed>
     </PropertyGroup>
