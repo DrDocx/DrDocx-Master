@@ -75,8 +75,7 @@ namespace DrDocx.Core.Controllers
         // POST: TestResultGroups/Create
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken] //TODO: BTW I remember deleting one of these things to do something hacky, idk where but you should make sure to put them back... -Nathan
+        [HttpPost] //TODO: BTW I remember deleting one of these things to do something hacky, idk where but you should make sure to put them back... -Nathan
         public async Task<IActionResult> AddTestGroup(int testGroupId, int patientId)
         {
             var patient = await _context.Patients.FindAsync(patientId);
@@ -255,7 +254,7 @@ namespace DrDocx.Core.Controllers
             var reportDir = "Patients/" + strippedPatientName + "/";
             var reportTemplatePath = "Templates/report_template.docx";
 
-            System.IO.Directory.CreateDirectory(reportDir);
+            Directory.CreateDirectory(reportDir);
 
             await GenerateReport(patient, reportTemplatePath, reportDir);
 
@@ -264,30 +263,9 @@ namespace DrDocx.Core.Controllers
 
         private async Task GenerateReport(Patient patient, string templatePath, string reportDir)
         {
-            var v = new PatientViewModel
-            {
-                Patient = patient,
-                Tests = await _context.Tests.ToListAsync(),
-                TestGroupTests = await _context.TestGroupTests.ToListAsync(),
-                TestGroups = await _context.TestGroups.ToListAsync(),
-                TestResultGroups = await _context.TestResultGroups.ToListAsync(),
-                TestResults = await _context.TestResults.ToListAsync(),
-            };
-
-            WordAPI report = new WordAPI(templatePath,reportDir + "/" + patient.Name.Replace(" ","-") + ".docx",readOnly: false);
-            await report.GenerateReport(patient,reportDir);
+            var report = new WordAPI(templatePath,reportDir + "/" + patient.Name.Replace(" ","-") + ".docx",readOnly: false);
+            report.GenerateReport(patient,reportDir);
             report.Close();
-        }
-
-        private async Task<bool> ServeGeneratedReportStatically(string reportGenPath, string reportStaticPath)
-        {
-            if (System.IO.File.Exists(reportStaticPath))
-            {
-                System.IO.File.Delete(reportStaticPath);
-            }
-            System.IO.File.Copy(reportGenPath, reportStaticPath);
-            
-            return true;
         }
     }
 }

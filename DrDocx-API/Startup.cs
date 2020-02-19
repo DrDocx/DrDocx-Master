@@ -1,28 +1,30 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Design;
-using DrDocx_Core.Models;
+using Microsoft.Extensions.Logging;
 
-namespace DrDocx.Core
+namespace DrDocx.API
 {
     public class Startup
     {
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
-            using (var client = new DatabaseContext())
-            {
-                client.Database.EnsureCreated();
-            }
+            var workingDir = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "/DrDocx";
+            if (!Directory.Exists(workingDir))
+                Directory.CreateDirectory(workingDir);
+            Environment.CurrentDirectory = workingDir;
+            using var client = new DatabaseContext();
+            client.Database.EnsureCreated();
         }
 
         public IConfiguration Configuration { get; }
@@ -30,7 +32,7 @@ namespace DrDocx.Core
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllersWithViews();
+            services.AddControllers();
             services.AddEntityFrameworkSqlite().AddDbContext<DatabaseContext>();
         }
 
@@ -41,31 +43,14 @@ namespace DrDocx.Core
             {
                 app.UseDeveloperExceptionPage();
             }
-            else
-            {
-                app.UseExceptionHandler("/Home/Error");
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-                app.UseHsts();
-            }
+
             app.UseHttpsRedirection();
-            app.UseStaticFiles();
 
             app.UseRouting();
 
             app.UseAuthorization();
 
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapControllerRoute(
-                    name: "default",
-                    pattern: "{controller=Home}/{action=Index}/{id?}");
-            });
-
-            //using (var serviceScope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope())
-            //{
-            //    var context = serviceScope.ServiceProvider.GetRequiredService<DatabaseContext>();
-            //    context.Database.EnsureCreated();
-            //}
+            app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
         }
     }
 }

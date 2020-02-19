@@ -5,6 +5,10 @@
         <RootNamespace>DrDocx.Tests</RootNamespace>
 
         <IsPackable>false</IsPackable>
+
+        <Configurations>Debug;Release;Publish Mac;Publish Windows</Configurations>
+
+        <Platforms>AnyCPU;Mac;Windows</Platforms>
     </PropertyGroup>
 
     <ItemGroup>
