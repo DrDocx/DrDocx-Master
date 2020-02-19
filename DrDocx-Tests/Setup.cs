@@ -13,7 +13,7 @@ namespace DrDocx.Tests
         {
             string workingDir;
             if (Environment.GetEnvironmentVariable("THIS_ENV") != "CI")
-                workingDir = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "/DrDocx";
+                workingDir = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "/DrDocx-Tests";
             else
                 workingDir = Environment.CurrentDirectory + "/TestFiles";
             if (!Directory.Exists(workingDir))
