@@ -11,13 +11,15 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-namespace DrDocx_API
+namespace DrDocx.API
 {
     public class Startup
     {
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
+            using var client = new DatabaseContext();
+            client.Database.EnsureCreated();
         }
 
         public IConfiguration Configuration { get; }

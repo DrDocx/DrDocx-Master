@@ -1,6 +1,6 @@
 using System;
 
-namespace DrDocx_API
+namespace DrDocx.API
 {
     public class WeatherForecast
     {
