@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
@@ -18,6 +19,10 @@ namespace DrDocx.API
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
+            var workingDir = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "/DrDocx";
+            if (!Directory.Exists(workingDir))
+                Directory.CreateDirectory(workingDir);
+            Environment.CurrentDirectory = workingDir;
             using var client = new DatabaseContext();
             client.Database.EnsureCreated();
         }
@@ -28,6 +33,7 @@ namespace DrDocx.API
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+            services.AddEntityFrameworkSqlite().AddDbContext<DatabaseContext>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
