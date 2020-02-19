@@ -14,7 +14,7 @@
     }
     else
     {
-        ViewData["Title"] = patient.Name + " (" + patient.PreferredName + ")";
+        // ViewData["Title"] = patient.Name + " (" + patient.PreferredName + ")";
     }
     ViewData["ReturnController"] = "Home";
     ViewData["ReturnAction"] = "Index";
@@ -41,23 +41,23 @@
                             <label class="mdl-textfield__label" for="fname">Full Name</label>
                         </div>
                         <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                            <input asp-for="Patient.PreferredName" disabled class="mdl-textfield__input" type="text" id="pname" value="@patient.PreferredName">
+                            @* <input asp-for="Patient.PreferredName" disabled class="mdl-textfield__input" type="text" id="pname" value="@patient.PreferredName"> *@
                             <label class="mdl-textfield__label" for="pname">Prefered Name</label>
                         </div>
                         <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                            <input required asp-for="Patient.DateOfBirth" disabled class="mdl-textfield__input" type="text" id="dob" value="@patient.DateOfBirth.Year-@patient.DateOfBirth.Month-@patient.DateOfBirth.Day" pattern="\d{1,4}\-\d{1,2}-\d{1,2}">
+                            @* <input required asp-for="Patient.DateOfBirth" disabled class="mdl-textfield__input" type="text" id="dob" value="@patient.DateOfBirth.Year-@patient.DateOfBirth.Month-@patient.DateOfBirth.Day" pattern="\d{1,4}\-\d{1,2}-\d{1,2}"> *@
                             <label class="mdl-textfield__label" for="dob">Date of Birth (YYYY-MM-DD)</label>
                         </div>
                         <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                            <input required asp-for="Patient.DateOfTesting" disabled class="mdl-textfield__input" type="text" id="dot" value="@patient.DateOfTesting.Year-@patient.DateOfTesting.Month-@patient.DateOfTesting.Day" pattern="\d{1,4}\-\d{1,2}-\d{1,2}">
+                            @* <input required asp-for="Patient.DateOfTesting" disabled class="mdl-textfield__input" type="text" id="dot" value="@patient.DateOfTesting.Year-@patient.DateOfTesting.Month-@patient.DateOfTesting.Day" pattern="\d{1,4}\-\d{1,2}-\d{1,2}"> *@
                             <label class="mdl-textfield__label" for="dot">Date of Tests (YYYY-MM-DD)</label>
                         </div>
                         <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                            <input required asp-for="Patient.MedicalRecordNumber" disabled class="mdl-textfield__input" type="text" id="mrn" value="@patient.MedicalRecordNumber">
+                            @* <input required asp-for="Patient.MedicalRecordNumber" disabled class="mdl-textfield__input" type="text" id="mrn" value="@patient.MedicalRecordNumber"> *@
                             <label class="mdl-textfield__label" for="mrn">Medical Record Number</label>
                         </div>
                         <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                            <input asp-for="Patient.Address" disabled class="mdl-textfield__input" type="text" id="address" value="@patient.Address">
+                            @* <input asp-for="Patient.Address" disabled class="mdl-textfield__input" type="text" id="address" value="@patient.Address"> *@
                             <label class="mdl-textfield__label" for="address">Address</label>
                         </div>
                     </div>
@@ -73,7 +73,7 @@
                     <h4 class="mdl-cell mdl-cell--12-col">Notes</h4>
                     <div class="section__text mdl-grid">
                         <div class="mdl-cell mdl-cell--12-col  mdl-textfield mdl-js-textfield">
-                            <textarea disabled class="mdl-textfield__input" form="form" type="text" rows="5" id="notes" asp-for="Patient.Notes">@Html.DisplayFor(model => model.Patient.Notes)</textarea>
+                            @* <textarea disabled class="mdl-textfield__input" form="form" type="text" rows="5" id="notes" asp-for="Patient.Notes">@Html.DisplayFor(model => model.Patient.Notes)</textarea> *@
                         </div>
                     </div>
                 </div>
@@ -88,7 +88,7 @@
                     <h4 class="mdl-cell mdl-cell--12-col">Medications</h4>
                     <div class="section__text mdl-grid">
                         <div class="mdl-cell mdl-cell--12-col  mdl-textfield mdl-js-textfield">
-                            <textarea disabled class="mdl-textfield__input" form="form" type="text" rows="5" id="meds" asp-for="Patient.Medications">@Html.DisplayFor(model => model.Patient.Medications)</textarea>
+                            @* <textarea disabled class="mdl-textfield__input" form="form" type="text" rows="5" id="meds" asp-for="Patient.Medications">@Html.DisplayFor(model => model.Patient.Medications)</textarea> *@
                         </div>
                     </div>
                 </div>
@@ -103,7 +103,7 @@
                     <h4 class="mdl-cell mdl-cell--12-col">Analysis</h4>
                     <div class="section__text mdl-cell mdl-cell--10-col-desktop mdl-cell--6-col-tablet mdl-cell--3-col-phone">
                         <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                            <input asp-for="Patient.Diagnosis" disabled class="mdl-textfield__input" type="text" id="diag" value="@patient.Diagnosis">
+                            @* <input asp-for="Patient.Diagnosis" disabled class="mdl-textfield__input" type="text" id="diag" value="@patient.Diagnosis"> *@
                             <label class="mdl-textfield__label" for="diag">Diagnosis</label>
                         </div>
                         <br>

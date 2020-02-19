@@ -22,13 +22,6 @@ namespace DrDocx.Core
             using (var client = new DatabaseContext())
             {
                 client.Database.EnsureCreated();
-                //client.Database.Migrate();
-                //client.Tests.Add(new Test()
-                //{
-                //    Name = "IAX-ST",
-                //    Description = "Anger management test"
-                //});
-                //client.SaveChanges();
             }
         }
 

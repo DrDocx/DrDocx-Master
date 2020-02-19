@@ -18,7 +18,6 @@ using static DrDocx.WordDocEditing.ChartAPI;
 
 namespace DrDocx.WordDocEditing
 {
-	// TODO: Stop using these methods directly from ReportGeneratorCLI so we can make them private as they should be.
 	public class WordAPI
 	{
 		public WordAPI(string templatePath, string docPath, bool readOnly = true)
@@ -43,18 +42,17 @@ namespace DrDocx.WordDocEditing
 		private string DocPath { get; set; }
 		private WordprocessingDocument WordDoc { get; set; }
 
-		public async Task GenerateReport(Patient patient,string directory)
+		public void GenerateReport(Patient patient, string directory)
 		{
 			
 			Dictionary<string, string> patientDict = new Dictionary<string, string>();
-			patientDict.Add("{NAME}",patient.Name);
-			patientDict.Add("{PREFERRED_NAME}",patient.PreferredName);
-			patientDict.Add("{DOB}",patient.DateOfBirth.ToString());
-			patientDict.Add("{TEST_DATE}",patient.DateOfTesting.ToString());
-			patientDict.Add("{AGE_AT_TESTING}",(patient.DateOfTesting - patient.DateOfBirth).ToString());
-			patientDict.Add("{MEDICAL_RECORD_NUMBER}",patient.MedicalRecordNumber.ToString());
-			patientDict.Add("{ADDRESS}",patient.Address);
-			patientDict.Add("{MEDICATION}",patient.Medications);
+			foreach (var fieldValueGroup in patient.FieldValueGroups)
+			{
+				foreach (var fieldValue in fieldValueGroup.FieldValues)
+				{
+					patientDict.Add("{" + fieldValue.Field.MatchText + "}", fieldValue.FieldTextValue);
+				}
+			}
 
 			FindAndReplace(patientDict,true);
 
@@ -66,20 +64,19 @@ namespace DrDocx.WordDocEditing
 
 			PageBreak();
 
-			int i = 0;
-			double chartScale = 6.464;
+			var i = 0;
+			const double chartScale = 6.464;
 			foreach (var resultGroup in patient.ResultGroups)
 			{
 				i++;
-				ChartAPI.MakePatientPercentileChart(resultGroup,directory + patient.Name + i.ToString());
-				InsertPicturePng(directory + patient.Name + i.ToString() + ".png",chartScale,chartScale*(resultGroup.Tests.Count*50)/600);
-				AddParagraph(resultGroup.TestGroupInfo.Name,bold: true,fontsize: 16,alignment: "center");
+				MakePatientPercentileChart(resultGroup,directory + patient.Name + i);
+				InsertPicturePng(directory + patient.Name + i + ".png",chartScale,chartScale*(resultGroup.Tests.Count*50)/600);
+				AddParagraph(resultGroup.TestGroupInfo.Name, bold: true, fontsize: 16, alignment: "center");
 			}
 		}
 
 		public void FindAndReplace(Dictionary<string, string> findReplacePairs, bool matchCase)
 		{
-			// TODO: Wrap all keys of dictionary in {{ }}
 			var findAndReplacer = new WordFindAndReplace(WordDoc, matchCase);
 			findAndReplacer.SearchAndReplace(findReplacePairs);
 		}
@@ -90,12 +87,12 @@ namespace DrDocx.WordDocEditing
 			return findAndReplacer.ContainsText(matchText, matchCase);
 		}
 
-		public void PageBreak()
+		private void PageBreak()
 		{
 			WordDoc.MainDocumentPart.Document.Body.AppendChild(new Paragraph(new Run(new Break() { Type = BreakValues.Page })));
 		}
 
-		public void AddParagraph(string title, bool bold = false, bool italic = false, string alignment = "left",int fontsize = 24)
+		private void AddParagraph(string title, bool bold = false, bool italic = false, string alignment = "left",int fontsize = 24)
 		{
 			RunProperties rp = new RunProperties(new RunFonts() { Ascii = "Times New Roman" }, new FontSize() { Val = (fontsize*2).ToString() });
 			if(bold){
@@ -146,7 +143,7 @@ namespace DrDocx.WordDocEditing
 			mainPart.Document.Save();
 		}
 
-		public void DisplayTestGroup(TestResultGroup testResultGroup){
+		private void DisplayTestGroup(TestResultGroup testResultGroup){
 			WordDoc.MainDocumentPart.Document.Body.Append(CreateTitleTable(testResultGroup.TestGroupInfo.Name));
 			LineBreak();
 			WordDoc.MainDocumentPart.Document.Body.Append(CreateSubTable(testResultGroup));
@@ -224,7 +221,7 @@ namespace DrDocx.WordDocEditing
 			return table;
 		}
 
-		public void InsertPicturePng(string imageFilePath, double scaleWidth, double scaleHeight)
+		private void InsertPicturePng(string imageFilePath, double scaleWidth, double scaleHeight)
 		{
 			MainDocumentPart mainPart = WordDoc.MainDocumentPart;
 
@@ -238,7 +235,7 @@ namespace DrDocx.WordDocEditing
 			AddImageToBody(mainPart.GetIdOfPart(imagePart),scaleWidth,scaleHeight);
 		}
 
-		public void AddImageToBody(string relationshipId, double scaleWidth, double scaleHeight)
+		private void AddImageToBody(string relationshipId, double scaleWidth, double scaleHeight)
 		{
 			// Define the reference of the image.
 			var element =
