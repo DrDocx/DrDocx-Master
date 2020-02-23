@@ -202,7 +202,6 @@
                                         <td class="mdl-data-table__cell--non-numeric">@Html.DisplayFor(model => testResult.RelatedTest.Name)</td>
                                         <td>@Html.DisplayFor(model => testResult.RawScore)</td>
                                         <td>@Html.DisplayFor(model => testResult.StandardizedScore)</td>
-                                        <td>@Html.DisplayFor(model => testResult.ZScore)</td>
                                         <td>@Html.DisplayFor(model => testResult.Percentile)</td>
                                         <td>
                                             <form asp-controller="Patients" asp-action="RemoveTest" asp-route-testResultGroupId="@testResultGroup.Id" asp-route-testResultId="@testResult.Id" method="POST">

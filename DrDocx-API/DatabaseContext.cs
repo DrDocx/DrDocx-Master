@@ -25,7 +25,7 @@ namespace DrDocx.API
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlite("Filename=DrDocx.db");
+            optionsBuilder.UseSqlite("Filename=db/DrDocx.db");
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
