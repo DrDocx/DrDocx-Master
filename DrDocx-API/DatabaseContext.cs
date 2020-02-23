@@ -20,6 +20,8 @@ namespace DrDocx.API
         public DbSet<FieldGroup> FieldGroups { get; set; }
         public DbSet<FieldValue> FieldValues { get; set; }
         public DbSet<FieldValueGroup> FieldValueGroups { get; set; }
+        
+        public DbSet<ReportTemplate> ReportTemplates { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

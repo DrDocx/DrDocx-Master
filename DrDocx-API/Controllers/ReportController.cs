@@ -20,15 +20,15 @@ namespace DrDocx.API.Controllers
         }
 
         // GET: api/Report
-        [HttpGet]
-        public IEnumerable<string> Get()
+        [HttpGet("{templateId}/{patientId}")]
+        public IEnumerable<string> Get(int templateId, int patientId)
         {
-            return new [] { "value1", "value2" };
+            return new [] { templateId.ToString(), patientId.ToString() };
         }
 
         
-        [HttpGet("download/{patientId}")]
-        public async Task<IActionResult> DownloadPatientReport(int patientId)
+        [HttpGet("download/{templateId}/{patientId}")]
+        public async Task<IActionResult> DownloadPatientReport(int templateId, int patientId)
         {
             if (!_context.Patients.Any(e => e.Id == patientId))
             {
