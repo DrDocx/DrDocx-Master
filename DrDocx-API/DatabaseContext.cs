@@ -15,6 +15,11 @@ namespace DrDocx.API
         public DbSet<TestGroup> TestGroups { get; set; }
         public DbSet<TestResultGroup> TestResultGroups { get; set; }
         public DbSet<TestGroupTest> TestGroupTests { get; set; }
+        
+        public DbSet<Field> Fields { get; set; }
+        public DbSet<FieldGroup> FieldGroups { get; set; }
+        public DbSet<FieldValue> FieldValues { get; set; }
+        public DbSet<FieldValueGroup> FieldValueGroups { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
