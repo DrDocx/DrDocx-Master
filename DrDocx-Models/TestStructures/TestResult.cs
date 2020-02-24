@@ -7,7 +7,6 @@ using System.Text.Json.Serialization;
 
 namespace DrDocx.Models
 {
-
     public class TestResult
     {
         public int Id { get; set; }

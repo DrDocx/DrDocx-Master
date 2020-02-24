@@ -1,9 +1,12 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using DrDocx.Models;
 using DrDocx.WordDocEditing;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DrDocx.API.Controllers
@@ -19,6 +22,66 @@ namespace DrDocx.API.Controllers
             _context = context;
         }
 
+        // NOTE: This stupid ass intake has the most absurd bug of all time: it ignores the first form field you pass it
+        // so you have to pass it a garbage key/value followed by the file and the name. Fix your shit, Microsoft.
+        
+        [HttpPost("upload")]
+        public async Task<ActionResult<ReportTemplate>> UploadReportTemplate([FromForm] IFormFile templateFile, [FromForm] string templateName)
+        {
+            if (templateFile == null)
+                return BadRequest("The file was not properly uploaded. Please try again.");
+            if (templateName == null)
+                return BadRequest("No template name was provided. Please provide one and try again.");
+            var generatedFileName = GenerateTemplateFileName(templateName);
+            if (generatedFileName == null)
+                return BadRequest("Could not generate a file name. Please check your templates directory for problems and try again");
+            
+            var fullFilePath = $"{Paths.RelativeTemplatesDir}/{generatedFileName}";
+            using (var fileStream = new FileStream(fullFilePath, FileMode.Create))
+            {
+                await templateFile.CopyToAsync(fileStream);
+            }
+            
+            var reportTemplate = new ReportTemplate
+            {
+                Name = templateName,
+                FileName = generatedFileName
+            };
+            _context.ReportTemplates.Add(reportTemplate);
+
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction("UploadReportTemplate", new { id = reportTemplate.Id }, reportTemplate);
+        }
+
+        /// <summary>
+        /// Generate a file name for the template based on its display name that isn't already taken in the templates dir
+        /// </summary>
+        /// <param name="templateName"></param>
+        /// <returns>An unused file name for the template.</returns>
+        private static string GenerateTemplateFileName(string templateName)
+        {
+            const string fileExtension = "docx";
+            const int maxFileNameLength = 32;
+            Regex rgx = new Regex("[^a-zA-Z0-9-]");
+            var cutName = templateName.Substring(0, templateName.Length > maxFileNameLength ? maxFileNameLength : templateName.Length);
+            var strippedCutName = templateName.Replace(" ", "-");
+            var cleanedStrippedCutName = rgx.Replace(strippedCutName, "");
+            var cleanedFileName = $"{cleanedStrippedCutName}.{fileExtension}";
+            var fileNameTaken = System.IO.File.Exists($"{Paths.RelativeTemplatesDir}/{cleanedFileName}");
+            if (!fileNameTaken)
+                return cleanedFileName;
+            // Otherwise, add numbers to the file name until we get a free one.
+            for (var appendedFileNum = 1; appendedFileNum < int.MaxValue; appendedFileNum++)
+            {
+                var newFileName = $"{cleanedStrippedCutName}-{appendedFileNum}.{fileExtension}";
+                if (!System.IO.File.Exists($"{Paths.RelativeTemplatesDir}/{newFileName}"))
+                    return newFileName;
+            }
+
+            return null;
+        }
+        
         // GET: api/Report
         [HttpGet("{templateId}/{patientId}")]
         public IEnumerable<string> Get(int templateId, int patientId)
@@ -35,7 +98,7 @@ namespace DrDocx.API.Controllers
                 return NotFound();
             }
             var patient = await _context.Patients.FindAsync(patientId);
-            var link = await GeneratePatientReport(patient);
+            var link = GeneratePatientReport(patient);
             var net = new System.Net.WebClient();
             var data = net.DownloadData(link);
             var content = new System.IO.MemoryStream(data);
@@ -44,7 +107,7 @@ namespace DrDocx.API.Controllers
             return File(content, contentType, fileName);
         }
         
-        private async Task<string> GeneratePatientReport(Patient patient)
+        private string GeneratePatientReport(Patient patient)
         {
             // Create local report directory
             var strippedPatientName = patient.Name.Replace(" ", "-");
@@ -53,12 +116,12 @@ namespace DrDocx.API.Controllers
 
             Directory.CreateDirectory(reportDir);
 
-            await GenerateReport(patient, reportTemplatePath, reportDir);
+            GenerateReport(patient, reportTemplatePath, reportDir);
 
             return reportDir + "/" + strippedPatientName + ".docx";
         }
 
-        private async Task GenerateReport(Patient patient, string templatePath, string reportDir)
+        private void GenerateReport(Patient patient, string templatePath, string reportDir)
         {
             var report = new WordAPI(templatePath,reportDir + "/" + patient.Name.Replace(" ","-") + ".docx",readOnly: false);
             report.GenerateReport(patient,reportDir);
