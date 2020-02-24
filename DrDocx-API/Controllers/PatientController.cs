@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -20,9 +21,17 @@ namespace DrDocx.API.Controllers
 
         // GET: api/Patient
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Patient>>> GetPatients()
+        public async Task<ActionResult<IEnumerable<PatientInfo>>> GetPatients()
         {
-            return await _context.Patients.ToListAsync();
+            var patientsQuery = from patient in _context.Patients 
+                select new PatientInfo
+                {
+                    Name = patient.Name,
+                    DateModified = patient.DateModified,
+                    Id = patient.Id
+                };
+
+            return await patientsQuery.ToListAsync();
         }
 
         // GET: api/Patient/5
@@ -50,6 +59,7 @@ namespace DrDocx.API.Controllers
                 return BadRequest();
             }
 
+            patient.DateModified = DateTime.UtcNow;
             _context.Entry(patient).State = EntityState.Modified;
 
             try

@@ -197,7 +197,7 @@ namespace DrDocx.WordDocEditing
 					new Text("Tests"))));
 			TableCell zScore = new TableCell(WordTableFormats.LabelCellFormat(),
 				new Paragraph(new Run(new RunProperties(new RunFonts() { Ascii = "Times New Roman" }, new Bold(), new FontSize() { Val = "24" }),
-					new Text("Z-Score"))));
+					new Text("StandardizedScore"))));
 			TableCell percentile = new TableCell(WordTableFormats.LabelCellFormat(),
 				new Paragraph(new Run(new RunProperties(new RunFonts() { Ascii = "Times New Roman" }, new Bold(), new FontSize() { Val = "24" }),
 					new Text("Percentile"))));
@@ -211,7 +211,7 @@ namespace DrDocx.WordDocEditing
 				testName = new TableCell(WordTableFormats.DataCellFormat(),
 					new Paragraph(new Run(new Text(result.RelatedTest.Name))));
 				zScore = new TableCell(WordTableFormats.DataCellFormat(),
-					new Paragraph(new Run(new Text(result.ZScore.ToString()))));
+					new Paragraph(new Run(new Text(result.StandardizedScore.ToString()))));
 				percentile = new TableCell(WordTableFormats.DataCellFormat(),
 					new Paragraph(new Run(new Text(result.Percentile.ToString()))));
 				tr.AppendChild(testName); tr.AppendChild(zScore); tr.AppendChild(percentile);

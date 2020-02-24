@@ -17,10 +17,7 @@ namespace DrDocx.API
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
-            var workingDir = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "/DrDocx";
-            if (!Directory.Exists(workingDir))
-                Directory.CreateDirectory(workingDir);
-            Environment.CurrentDirectory = workingDir;
+            Paths.EnsureDirsCreated();
             using var client = new DatabaseContext();
             client.Database.EnsureCreated();
         }
@@ -42,6 +39,8 @@ namespace DrDocx.API
                 app.UseDeveloperExceptionPage();
             }
 
+            app.UseMiddleware<RequestResponseLoggingMiddleware>();
+            
             app.UseHttpsRedirection();
 
             app.UseRouting();

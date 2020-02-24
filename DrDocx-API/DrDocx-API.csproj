@@ -24,10 +24,4 @@
       <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.1.1" />
       <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="3.1.1" />
     </ItemGroup>
-
-    <ItemGroup>
-      <_ContentIncludedByDefault Remove="publish\osx64\publish\winx64\web.config" />
-      <_ContentIncludedByDefault Remove="publish\osx64\publish\winx64\appsettings.Development.json" />
-      <_ContentIncludedByDefault Remove="publish\osx64\publish\winx64\appsettings.json" />
-    </ItemGroup>
 </Project>
