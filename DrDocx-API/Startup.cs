@@ -39,6 +39,8 @@ namespace DrDocx.API
                 app.UseDeveloperExceptionPage();
             }
 
+            app.UseMiddleware<RequestResponseLoggingMiddleware>();
+            
             app.UseHttpsRedirection();
 
             app.UseRouting();

@@ -18,6 +18,14 @@ namespace DrDocx.API
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
-                .ConfigureWebHostDefaults(webBuilder => { webBuilder.UseStartup<Startup>().UseUrls("https://localhost:1211"); });
+                .ConfigureLogging(logging =>
+                {
+                    // TODO: Add proper logging support, middleware class breaks API
+                })
+                .ConfigureWebHostDefaults(webBuilder =>
+                {
+                    webBuilder.UseStartup<Startup>()
+                        .UseUrls($"https://{Paths.ApiHostUrl}:{Paths.ApiHostPort}");
+                });
     }
 }
