@@ -39,7 +39,7 @@ namespace DrDocx.API
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseMiddleware<RequestResponseLoggingMiddleware>();
+            // app.UseMiddleware<RequestResponseLoggingMiddleware>();
             
             app.UseHttpsRedirection();
 
