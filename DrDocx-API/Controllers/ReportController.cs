@@ -8,6 +8,7 @@ using DrDocx.Models;
 using DrDocx.WordDocEditing;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace DrDocx.API.Controllers
 {
@@ -63,7 +64,7 @@ namespace DrDocx.API.Controllers
         {
             const string fileExtension = "docx";
             const int maxFileNameLength = 32;
-            Regex rgx = new Regex("[^a-zA-Z0-9-]");
+            var rgx = new Regex("[^a-zA-Z0-9-]");
             var cutName = templateName.Substring(0, templateName.Length > maxFileNameLength ? maxFileNameLength : templateName.Length);
             var strippedCutName = templateName.Replace(" ", "-");
             var cleanedStrippedCutName = rgx.Replace(strippedCutName, "");
@@ -83,21 +84,72 @@ namespace DrDocx.API.Controllers
         }
         
         // GET: api/Report
-        [HttpGet("{templateId}/{patientId}")]
-        public IEnumerable<string> Get(int templateId, int patientId)
+        [HttpGet]
+        public IEnumerable<ReportTemplate> Get(int templateId, int patientId)
         {
-            return new [] { templateId.ToString(), patientId.ToString() };
+            return _context.ReportTemplates;
+        }
+        
+        [HttpDelete("{id}")]
+        public async Task<ActionResult<ReportTemplate>> DeletePatient(int id)
+        {
+            var reportTemplate = await _context.ReportTemplates.FindAsync(id);
+            if (reportTemplate == null)
+            {
+                return NotFound();
+            }
+
+            _context.ReportTemplates.Remove(reportTemplate);
+            await _context.SaveChangesAsync();
+
+            return reportTemplate;
         }
 
+        [HttpPut("{id}")]
+        public async Task<IActionResult> PutTemplate(int id, ReportTemplate template)
+        {
+            if (id != template.Id)
+            {
+                return BadRequest();
+            }
+            
+            _context.Entry(template).State = EntityState.Modified;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!TemplateExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return NoContent();
+        }
         
+        /// <summary>
+        /// Generates and sends a patient report given the specified patient and template.
+        /// </summary>
+        /// <param name="templateId"></param>
+        /// <param name="patientId"></param>
+        /// <returns></returns>
         [HttpGet("download/{templateId}/{patientId}")]
         public async Task<IActionResult> DownloadPatientReport(int templateId, int patientId)
         {
             if (!_context.Patients.Any(e => e.Id == patientId))
-            {
-                return NotFound();
-            }
+                return NotFound("The specified patient could not be found.");
+            if (!_context.ReportTemplates.Any(t => t.Id == templateId))
+                return NotFound("The specified template could not be found.");
             var patient = await _context.Patients.FindAsync(patientId);
+            var template = await _context.ReportTemplates.FindAsync(templateId);
+            
             var link = GeneratePatientReport(patient);
             var net = new System.Net.WebClient();
             var data = net.DownloadData(link);
@@ -126,6 +178,11 @@ namespace DrDocx.API.Controllers
             var report = new WordAPI(templatePath,reportDir + "/" + patient.Name.Replace(" ","-") + ".docx",readOnly: false);
             report.GenerateReport(patient,reportDir);
             report.Close();
+        }
+        
+        private bool TemplateExists(int id)
+        {
+            return _context.ReportTemplates.Any(e => e.Id == id);
         }
     }
 }
