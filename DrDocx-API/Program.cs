@@ -25,7 +25,7 @@ namespace DrDocx.API
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>()
-                        .UseUrls($"https://{Paths.ApiHostUrl}:{Paths.ApiHostPort}");
+                        .UseUrls(Paths.ApiFullUrl);
                 });
     }
 }

@@ -3,10 +3,11 @@ using System.IO;
 
 namespace DrDocx.API
 {
-    public static class Paths
+    internal static class Paths
     {
         public static string ApiHostUrl => "localhost";
         public static int ApiHostPort => 1211;
+        public static string ApiFullUrl => $"https://{ApiHostUrl}:{ApiHostPort}";
         public static string WorkingDirectory => Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "/DrDocx";
         public static string RelativeDbDir => "db";
         public static string RelativeLogsDir => "logs";

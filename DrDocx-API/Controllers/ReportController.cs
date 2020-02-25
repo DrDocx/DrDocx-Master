@@ -73,7 +73,7 @@ namespace DrDocx.API.Controllers
             if (!fileNameTaken)
                 return cleanedFileName;
             // Otherwise, add numbers to the file name until we get a free one.
-            for (var appendedFileNum = 1; appendedFileNum < int.MaxValue; appendedFileNum++)
+            for (var appendedFileNum = 1; appendedFileNum < 256; appendedFileNum++)
             {
                 var newFileName = $"{cleanedStrippedCutName}-{appendedFileNum}.{fileExtension}";
                 if (!System.IO.File.Exists($"{Paths.RelativeTemplatesDir}/{newFileName}"))
