@@ -45,7 +45,6 @@ namespace DrDocx.Core.Controllers
             var test = await _context.Tests.FindAsync(testId);
 
             testResult.RelatedTest = test;
-            if (testResultGroup.Tests == null) testResultGroup.Tests = new List<TestResult>();
             testResultGroup.Tests.Add(testResult);
 
             _context.Add(testResult);
@@ -80,9 +79,7 @@ namespace DrDocx.Core.Controllers
         {
             var patient = await _context.Patients.FindAsync(patientId);
             TestResultGroup trg = new TestResultGroup();
-            trg.Tests = new List<TestResult>();
             trg.TestGroupInfo = await _context.TestGroups.FindAsync(testGroupId);
-            if(patient.ResultGroups == null) patient.ResultGroups = new List<TestResultGroup>();
             patient.ResultGroups.Add(trg);
 
             if (ModelState.IsValid)

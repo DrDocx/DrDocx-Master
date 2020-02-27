@@ -90,7 +90,7 @@ namespace DrDocx.API.Controllers
         [HttpDelete("{id}")]
         public async Task<ActionResult<FieldGroup>> DeleteFieldGroup(int id)
         {
-            var fieldGroup = await _context.FieldGroups.FindAsync(id);
+            var fieldGroup = await GetFullFieldGroup(id);
             if (fieldGroup == null)
             {
                 return NotFound();
@@ -129,7 +129,7 @@ namespace DrDocx.API.Controllers
         [HttpDelete("{id}/field/{fieldId}")]
         public async Task<ActionResult<FieldGroup>> AddField(int id, int fieldId)
         {
-            var fieldGroup = await _context.FieldGroups.FindAsync(id);
+            var fieldGroup = await GetFullFieldGroup(id);
             if (fieldGroup == null)
                 return NotFound("Field group not found.");
             
