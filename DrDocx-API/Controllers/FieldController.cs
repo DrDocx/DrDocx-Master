@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using DrDocx.API;
 using DrDocx.Models;
 
-namespace DrDocx_API.Controllers
+namespace DrDocx.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]

@@ -38,7 +38,7 @@ namespace DrDocx.API.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Patient>> GetPatient(int id)
         {
-            var patient = await _context.Patients.FindAsync(id);
+            var patient = await GetFullPatient(id);
 
             if (patient == null)
             {
@@ -107,6 +107,49 @@ namespace DrDocx.API.Controllers
             await _context.SaveChangesAsync();
 
             return patient;
+        }
+
+        // Note that this method takes in a field group id, NOT a field value group id as it creates a new
+        // field value group based on the field group provided.
+        [HttpPost("{id}/addFieldGroup/{fieldGroupId}")]
+        public async Task<ActionResult<FieldValueGroup>> AddFieldGroup(int id, int fieldGroupId)
+        {
+            var patient= await GetFullPatient(id);
+            if (patient == null)
+                return NotFound("Patient was not found.");
+            
+            var patientAlreadyHasFieldGroup = patient.FieldValueGroups.Exists(fvg => fvg.FieldGroup.Id == fieldGroupId);
+            if (patientAlreadyHasFieldGroup)
+                return BadRequest("Patient already has this field group.");
+            
+            var fieldGroup = await _context.FieldGroups.FindAsync(fieldGroupId);
+            if (fieldGroup == null)
+            {
+                return NotFound("Field group template was not found");
+            }
+
+            var fieldValueGroup = new FieldValueGroup
+            {
+                FieldGroup = fieldGroup,
+                Patient = patient
+            };
+            fieldValueGroup.FieldGroup.Fields.ForEach(field => fieldValueGroup.FieldValues.Add(new FieldValue
+            {
+                Field = field,
+                FieldValueGroup = fieldValueGroup
+            }));
+            _context.FieldValueGroups.Add(fieldValueGroup);
+            await _context.SaveChangesAsync();
+            
+            return fieldValueGroup;
+        }
+
+        private async Task<Patient> GetFullPatient(int id)
+        {
+            return await _context.Patients
+                .Include(p => p.FieldValueGroups)
+                .Include(p => p.ResultGroups)
+                .FirstOrDefaultAsync(fg => fg.Id == id);
         }
 
         private bool PatientExists(int id)

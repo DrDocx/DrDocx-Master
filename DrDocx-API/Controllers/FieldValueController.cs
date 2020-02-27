@@ -12,48 +12,48 @@ namespace DrDocx.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class TestResultGroupController : ControllerBase
+    public class FieldValueController : ControllerBase
     {
         private readonly DatabaseContext _context;
 
-        public TestResultGroupController(DatabaseContext context)
+        public FieldValueController(DatabaseContext context)
         {
             _context = context;
         }
 
-        // GET: api/TestResultGroup
+        // GET: api/FieldValue
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<TestResultGroup>>> GetTestResultGroups()
+        public async Task<ActionResult<IEnumerable<FieldValue>>> GetFieldValues()
         {
-            return await _context.TestResultGroups.ToListAsync();
+            return await _context.FieldValues.ToListAsync();
         }
 
-        // GET: api/TestResultGroup/5
+        // GET: api/FieldValue/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<TestResultGroup>> GetTestResultGroup(int id)
+        public async Task<ActionResult<FieldValue>> GetFieldValue(int id)
         {
-            var testResultGroup = await _context.TestResultGroups.FindAsync(id);
+            var fieldValue = await _context.FieldValues.FindAsync(id);
 
-            if (testResultGroup == null)
+            if (fieldValue == null)
             {
                 return NotFound();
             }
 
-            return testResultGroup;
+            return fieldValue;
         }
 
-        // PUT: api/TestResultGroup/5
+        // PUT: api/FieldValue/5
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutTestResultGroup(int id, TestResultGroup testResultGroup)
+        public async Task<IActionResult> PutFieldValue(int id, FieldValue fieldValue)
         {
-            if (id != testResultGroup.Id)
+            if (id != fieldValue.Id)
             {
                 return BadRequest();
             }
 
-            _context.Entry(testResultGroup).State = EntityState.Modified;
+            _context.Entry(fieldValue).State = EntityState.Modified;
 
             try
             {
@@ -61,7 +61,7 @@ namespace DrDocx.API.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!TestResultGroupExists(id))
+                if (!FieldValueExists(id))
                 {
                     return NotFound();
                 }
@@ -74,37 +74,37 @@ namespace DrDocx.API.Controllers
             return NoContent();
         }
 
-        // POST: api/TestResultGroup
+        // POST: api/FieldValue
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
         [HttpPost]
-        public async Task<ActionResult<TestResultGroup>> PostTestResultGroup(TestResultGroup testResultGroup)
+        public async Task<ActionResult<FieldValue>> PostFieldValue(FieldValue fieldValue)
         {
-            _context.TestResultGroups.Add(testResultGroup);
+            _context.FieldValues.Add(fieldValue);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetTestResultGroup", new { id = testResultGroup.Id }, testResultGroup);
+            return CreatedAtAction("GetFieldValue", new { id = fieldValue.Id }, fieldValue);
         }
 
-        // DELETE: api/TestResultGroup/5
+        // DELETE: api/FieldValue/5
         [HttpDelete("{id}")]
-        public async Task<ActionResult<TestResultGroup>> DeleteTestResultGroup(int id)
+        public async Task<ActionResult<FieldValue>> DeleteFieldValue(int id)
         {
-            var testResultGroup = await _context.TestResultGroups.FindAsync(id);
-            if (testResultGroup == null)
+            var fieldValue = await _context.FieldValues.FindAsync(id);
+            if (fieldValue == null)
             {
                 return NotFound();
             }
 
-            _context.TestResultGroups.Remove(testResultGroup);
+            _context.FieldValues.Remove(fieldValue);
             await _context.SaveChangesAsync();
 
-            return testResultGroup;
+            return fieldValue;
         }
 
-        private bool TestResultGroupExists(int id)
+        private bool FieldValueExists(int id)
         {
-            return _context.TestResultGroups.Any(e => e.Id == id);
+            return _context.FieldValues.Any(e => e.Id == id);
         }
     }
 }

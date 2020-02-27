@@ -6,6 +6,6 @@ namespace DrDocx.Models
     {
         public int Id { get; set; }
         public TestGroup TestGroupInfo { get; set; }
-        public List<TestResult> Tests { get; set; }
+        public List<TestResult> Tests { get; } = new List<TestResult>();
     }
 }

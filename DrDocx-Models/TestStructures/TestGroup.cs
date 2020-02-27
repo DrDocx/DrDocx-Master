@@ -9,6 +9,6 @@ namespace DrDocx.Models
         public string Name { get; set; }
         public string Description { get; set; }
         [JsonIgnore]
-        public List<TestGroupTest> TestGroupTests { get; set; }
+        public List<TestGroupTest> TestGroupTests { get; } = new List<TestGroupTest>();
     }
 }
