@@ -101,6 +101,23 @@ namespace DrDocx.API.Controllers
 
             return fieldGroup;
         }
+        
+        [HttpPut("{id}/field/{fieldId}")]
+        public async Task<ActionResult<FieldGroup>> AddField(int id, int fieldId)
+        {
+            var fieldGroup = await _context.FieldGroups.FindAsync(id);
+            if (fieldGroup == null)
+                return NotFound("Field group not found.");
+
+            var field = await _context.Fields.FindAsync(fieldId);
+            if (field == null)
+                return NotFound("Field not found.");
+
+            fieldGroup.Fields.Add(field);
+            await _context.SaveChangesAsync();
+
+            return fieldGroup;
+        }
 
         private bool FieldGroupExists(int id)
         {
