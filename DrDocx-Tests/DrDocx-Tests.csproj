@@ -14,6 +14,10 @@
     <ItemGroup>
         <PackageReference Include="Bogus" Version="29.0.1" />
         <PackageReference Include="DotNetEnv" Version="1.4.0" />
+        <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="3.1.2" />
+        <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="3.1.2" />
+        <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="3.1.2" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.2" />
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.2.0" />
         <PackageReference Include="coverlet.collector" Version="1.0.1" />
         <PackageReference Include="NUnit" Version="3.12.0" />
@@ -21,6 +25,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\DrDocx-API\DrDocx-API.csproj" />
       <ProjectReference Include="..\DrDocx-Models\DrDocx-Models.csproj" />
       <ProjectReference Include="..\DrDocx-WordDocEditing\DrDocx-WordDocEditing.csproj" />
     </ItemGroup>

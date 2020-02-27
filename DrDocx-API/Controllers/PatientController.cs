@@ -109,6 +109,50 @@ namespace DrDocx.API.Controllers
             return patient;
         }
 
+        // Note that this method takes in a field group id, NOT a field value group id as it creates a new
+        // field value group based on the field group provided.
+        [HttpPost("{id}/fieldValueGroup/{fieldGroupId}")]
+        public async Task<ActionResult<FieldValueGroup>> AddFieldGroup(int id, int fieldGroupId)
+        {
+            var patient = await _context.Patients.FindAsync(id);
+            if (patient == null)
+                return NotFound();
+            
+            var patientAlreadyHasFieldGroup = patient.FieldValueGroups.Exists(fvg => fvg.FieldGroup.Id == fieldGroupId);
+            if (patientAlreadyHasFieldGroup)
+                return BadRequest("Patient already has this field group.");
+            
+            var fieldGroup = await _context.FieldGroups.FindAsync(fieldGroupId);
+            if (fieldGroup == null)
+            {
+                return NotFound("Field group template was not found");
+            }
+
+            var fieldValueGroup = new FieldValueGroup(fieldGroup) { Patient = patient };
+            _context.FieldValueGroups.Add(fieldValueGroup);
+            await _context.SaveChangesAsync();
+            
+            return fieldValueGroup;
+        }
+        
+        
+        [HttpDelete("{id}/fieldValueGroup/{fieldValueGroupId}")]
+        public async Task<ActionResult<FieldValueGroup>> DeleteFieldGroup(int id, int fieldValueGroupId)
+        {
+            var patient = await _context.Patients.FindAsync(id);
+            if (patient == null)
+                return NotFound();
+            
+            var patientFvg = patient.FieldValueGroups.FirstOrDefault(fvg => fvg.Id == fieldValueGroupId);
+            if (patientFvg == null)
+                return BadRequest("Patient does not have this field value group.");
+
+            _context.FieldValueGroups.Remove(patientFvg);
+            await _context.SaveChangesAsync();
+            
+            return patientFvg;
+        }
+        
         private bool PatientExists(int id)
         {
             return _context.Patients.Any(e => e.Id == id);
