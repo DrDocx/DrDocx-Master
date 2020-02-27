@@ -16,8 +16,8 @@ namespace DrDocx.Models
     {
         public string Name { get; set; }
         public DateTime DateModified { get; set; }
-        public List<TestResultGroup> ResultGroups { get; set; }
-        public List<FieldValueGroup> FieldValueGroups { get; set; }
+        public List<TestResultGroup> ResultGroups { get; } = new List<TestResultGroup>();
+        public List<FieldValueGroup> FieldValueGroups { get; } = new List<FieldValueGroup>();
         public int Id { get; set; }
     }
 

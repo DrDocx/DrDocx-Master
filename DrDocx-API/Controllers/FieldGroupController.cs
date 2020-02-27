@@ -32,7 +32,7 @@ namespace DrDocx.API.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<FieldGroup>> GetFieldGroup(int id)
         {
-            var fieldGroup = await _context.FieldGroups.FindAsync(id);
+            var fieldGroup = await GetFullFieldGroup(id);
 
             if (fieldGroup == null)
             {
@@ -102,23 +102,46 @@ namespace DrDocx.API.Controllers
             return fieldGroup;
         }
         
-        [HttpPut("{id}/field/{fieldId}")]
-        public async Task<ActionResult<FieldGroup>> AddField(int id, int fieldId)
+        [HttpPost("{id}/field")]
+        public async Task<ActionResult<FieldGroup>> AddField(int id, Field field)
         {
-            var fieldGroup = await _context.FieldGroups.FindAsync(id);
+            var fieldGroup = await GetFullFieldGroup(id);
             if (fieldGroup == null)
                 return NotFound("Field group not found.");
 
-            var field = await _context.Fields.FindAsync(fieldId);
-            if (field == null)
-                return NotFound("Field not found.");
+            if (fieldGroup.Fields.Exists(f => f.MatchText == field.MatchText))
+                return BadRequest("Field with that match text already exists in this group.");
 
-            fieldGroup.Fields.Add(field);
+            field.FieldGroup = fieldGroup;
+            _context.Fields.Add(field);
             await _context.SaveChangesAsync();
 
             return fieldGroup;
         }
 
+        private Task<FieldGroup> GetFullFieldGroup(int id)
+        {
+            return _context.FieldGroups
+                .Include(fg => fg.Fields)
+                .FirstOrDefaultAsync(fg => fg.Id == id);
+        }
+
+        [HttpDelete("{id}/field/{fieldId}")]
+        public async Task<ActionResult<FieldGroup>> AddField(int id, int fieldId)
+        {
+            var fieldGroup = await _context.FieldGroups.FindAsync(id);
+            if (fieldGroup == null)
+                return NotFound("Field group not found.");
+            
+            var field = await _context.Fields.FindAsync(fieldId);
+            if (field == null)
+                return NotFound("Could not find the field you tried to remove.");
+
+            _context.Fields.Remove(field);
+            await _context.SaveChangesAsync();
+
+            return fieldGroup;
+        }
         private bool FieldGroupExists(int id)
         {
             return _context.FieldGroups.Any(e => e.Id == id);
