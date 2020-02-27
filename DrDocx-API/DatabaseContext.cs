@@ -36,6 +36,16 @@ namespace DrDocx.API
                 .HasOne(tgt => tgt.Test)
                 .WithMany(t => t.TestGroupTests)
                 .HasForeignKey(tgt => tgt.TestId);
+            modelBuilder.Entity<FieldValueGroup>()
+                .HasOne(fvg => fvg.Patient);
+            modelBuilder.Entity<FieldValueGroup>()
+                .HasMany(fvg => fvg.FieldValues)
+                .WithOne(fv => fv.FieldValueGroup)
+                .IsRequired();
+            modelBuilder.Entity<TestResultGroup>()
+                .HasMany(trg => trg.Tests)
+                .WithOne(tr => tr.TestResultGroup)
+                .IsRequired();
         }
     }
 }

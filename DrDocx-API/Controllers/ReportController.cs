@@ -91,13 +91,16 @@ namespace DrDocx.API.Controllers
         }
         
         [HttpDelete("{id}")]
-        public async Task<ActionResult<ReportTemplate>> DeletePatient(int id)
+        public async Task<ActionResult<ReportTemplate>> DeleteReport(int id)
         {
             var reportTemplate = await _context.ReportTemplates.FindAsync(id);
             if (reportTemplate == null)
             {
                 return NotFound();
             }
+
+            var templatePath = $"{Paths.RelativeTemplatesDir}/{reportTemplate.FileName}";
+            System.IO.File.Delete(templatePath);
 
             _context.ReportTemplates.Remove(reportTemplate);
             await _context.SaveChangesAsync();
