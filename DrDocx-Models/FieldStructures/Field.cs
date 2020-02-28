@@ -1,7 +1,8 @@
 ﻿using System.Text.Json.Serialization;
 
 namespace DrDocx.Models
-{ public class Field
+{ 
+    public class Field
     {
         public int Id { get; set; }
         public int FieldGroupId { get; set; }
@@ -10,6 +11,15 @@ namespace DrDocx.Models
         public string Name { get; set; }
         public string MatchText { get; set; }
         public string DefaultText { get; set; }
-        public string Type { get; set; }
+        public FieldType Type { get; set; }
+    }
+
+    public enum FieldType
+    {
+        SmallText,
+        BigText,
+        Date,
+        SelectOne,
+        SelectMultiple
     }
 }

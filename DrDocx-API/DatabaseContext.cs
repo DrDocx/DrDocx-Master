@@ -1,5 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System;
+using Microsoft.EntityFrameworkCore;
 using DrDocx.Models;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace DrDocx.API
 {
@@ -18,6 +20,8 @@ namespace DrDocx.API
         public DbSet<FieldValueGroup> FieldValueGroups { get; set; }
         
         public DbSet<ReportTemplate> ReportTemplates { get; set; }
+        
+        public DbSet<FieldOption> FieldOptions { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -25,6 +29,12 @@ namespace DrDocx.API
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            ConfigureRelationships(modelBuilder);
+            ConfigureModels(modelBuilder);
+        }
+
+        private void ConfigureRelationships(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<TestGroupTest>()
                 .HasKey(tgt => new { tgt.TestGroupId, tgt.TestId });
@@ -46,6 +56,12 @@ namespace DrDocx.API
                 .HasMany(trg => trg.Tests)
                 .WithOne(tr => tr.TestResultGroup)
                 .IsRequired();
+        }
+
+        private void ConfigureModels(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Field>().Property(f => f.Type)
+                .HasConversion<string>();
         }
     }
 }
