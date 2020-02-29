@@ -4,8 +4,8 @@ namespace DrDocx.Models
 { 
     public class FieldValue : FieldBase
     {
-        public int FieldValueGroupId { get; set; }
-        public FieldValueGroup FieldValueGroup { get; set; }
+        public int ParentGroupId { get; set; }
+        public FieldValueGroup ParentGroup { get; set; }
         public string FieldTextValue { get; set; }
         public List<FieldOptionValue> FieldOptionValues { get; } = new List<FieldOptionValue>();
 
@@ -15,7 +15,7 @@ namespace DrDocx.Models
             Type = field.Type;
             MatchText = field.MatchText;
             FieldTextValue = field.DefaultText;
-            field.FieldOptions.ForEach(fo => FieldOptionValues.Add(new FieldOptionValue(fo)));
+            field.FieldOptions.ForEach(fo => FieldOptionValues.Add(new FieldOptionValue(fo, this)));
         }
     }
 

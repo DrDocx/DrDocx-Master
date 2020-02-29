@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using DrDocx.Models;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
@@ -50,7 +51,7 @@ namespace DrDocx.API
                 .HasOne(fvg => fvg.Patient);
             modelBuilder.Entity<FieldValueGroup>()
                 .HasMany(fvg => fvg.FieldValues)
-                .WithOne(fv => fv.FieldValueGroup)
+                .WithOne(fv => fv.ParentGroup)
                 .IsRequired();
             modelBuilder.Entity<TestResultGroup>()
                 .HasMany(trg => trg.Tests)
@@ -62,6 +63,37 @@ namespace DrDocx.API
         {
             modelBuilder.Entity<Field>().Property(f => f.Type)
                 .HasConversion<string>();
+        }
+        
+        public override int SaveChanges()
+        {
+            var newEntities = this.ChangeTracker.Entries()
+                .Where(
+                    x => x.State == EntityState.Added && x.Entity is DatabaseModelBase
+                )
+                .Select(x => x.Entity as DatabaseModelBase);
+
+            var modifiedEntities = this.ChangeTracker.Entries() 
+                .Where(
+                    x => x.State == EntityState.Modified && x.Entity is DatabaseModelBase
+                )
+                .Select(x => x.Entity as DatabaseModelBase);
+
+            foreach (var newEntity in newEntities)
+            {
+                if (newEntity != null)
+                {
+                    newEntity.DateCreated = DateTime.UtcNow;
+                    newEntity.DateModified = DateTime.UtcNow;
+                }
+            }
+
+            foreach (var modifiedEntity in modifiedEntities)
+            {
+                if (modifiedEntity != null) modifiedEntity.DateCreated = DateTime.UtcNow;
+            }
+
+            return base.SaveChanges();
         }
     }
 }

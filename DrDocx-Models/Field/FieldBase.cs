@@ -2,11 +2,8 @@ using System.Text.Json.Serialization;
 
 namespace DrDocx.Models
 {
-    public abstract class FieldBase
+    public abstract class FieldBase : NamedModelBase
     {
-        public int Id { get; set; }
-
-        public string Name { get; set; }
         public string MatchText { get; set; }
         public FieldType Type { get; set; }
     }
