@@ -2,7 +2,5 @@
 
 namespace DrDocx.Models
 {
-    public abstract class PatientBase : NamedModelBase
-    {
-    }
+    public abstract class PatientBase : NamedModelBase { }
 }
