@@ -135,7 +135,7 @@ namespace DrDocx.API.Controllers
             };
             fieldValueGroup.FieldGroup.Fields.ForEach(field => fieldValueGroup.FieldValues.Add(new FieldValue
             {
-                Field = field,
+                Name = "",
                 FieldValueGroup = fieldValueGroup
             }));
             _context.FieldValueGroups.Add(fieldValueGroup);

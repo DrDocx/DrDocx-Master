@@ -1,9 +1,12 @@
 namespace DrDocx.Models
 {
-    public class FieldOptionValue
+    public class FieldOptionValue : FieldOptionBase
     {
-        public int Id { get; set; }
-        public FieldOption FieldOption { get; set; }
+        public FieldOptionValue(FieldOption fieldOption)
+        {
+            
+        }
+        
         public bool IsSelected { get; set; }
     }
 }

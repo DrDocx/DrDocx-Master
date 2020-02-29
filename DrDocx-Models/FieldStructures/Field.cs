@@ -1,21 +1,17 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
 namespace DrDocx.Models
-{ 
-    public class Field
+{
+    public class Field : FieldBase
     {
-        public int Id { get; set; }
-        public int FieldGroupId { get; set; }
         [JsonIgnore]
         public FieldGroup FieldGroup { get; set; }
-        public string Name { get; set; }
-        public string MatchText { get; set; }
+        public int FieldGroupId { get; set; }
         public string DefaultText { get; set; }
         
-        [JsonIgnore]
-        public bool IsRemoved { get; set; }
-        public FieldType Type { get; set; }
+        public List<FieldOption> FieldOptions { get; } = new List<FieldOption>();
     }
 
     public enum FieldType
