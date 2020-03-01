@@ -6,7 +6,7 @@
 [subrepo]
 	remote = https://github.com/DrDocx/DrDocx-API
 	branch = master
-	commit = 84e2cb0c8ff91ffa7fd17f1fac38b304e97008e9
+	commit = fa359c847b5cc6c965e19d3428865377bb6a5eba
 	method = merge
 	cmdver = 0.4.1
-	parent = 127122a487d5e752675e73a8e8f1a691f1e1f87e
+	parent = 1f23c1c1e3c2fe5a2d65f2b40c32409e770fa8cd
