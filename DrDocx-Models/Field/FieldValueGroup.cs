@@ -5,6 +5,7 @@ namespace DrDocx.Models
 {
     public class FieldValueGroup : FieldGroupBase
     {
+        public int FieldGroupId { get; set; }
         public FieldGroup FieldGroup { get; set; }
         [JsonIgnore]
         public Patient Patient { get; set; }

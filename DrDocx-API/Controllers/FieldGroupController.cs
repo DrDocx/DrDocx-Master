@@ -25,7 +25,7 @@ namespace DrDocx.API.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<FieldGroup>>> GetFieldGroups()
         {
-            return await _context.FieldGroups.ToListAsync();
+            return await _context.FieldGroups.Where(fg => !fg.IsArchived).ToListAsync();
         }
 
         // GET: api/FieldGroup/5
@@ -39,7 +39,7 @@ namespace DrDocx.API.Controllers
                 return NotFound();
             }
 
-            fieldGroup.Fields = (List<Field>) fieldGroup.Fields.Where(f => !f.IsArchived);
+            fieldGroup.Fields = fieldGroup.Fields.Where(f => !f.IsArchived).ToList();
             return fieldGroup;
         }
 
@@ -97,7 +97,17 @@ namespace DrDocx.API.Controllers
                 return NotFound();
             }
 
-            _context.FieldGroups.Remove(fieldGroup);
+            var associatedValueGroupCount = _context.FieldValueGroups.Count(fvg => fvg.FieldGroupId == fieldGroup.Id);
+            if (associatedValueGroupCount > 0)
+            {
+                fieldGroup.IsArchived = true;
+                _context.Entry(fieldGroup).State = EntityState.Modified;
+            }
+            else
+            {
+                _context.FieldGroups.Remove(fieldGroup);
+            }
+
             await _context.SaveChangesAsync();
 
             return fieldGroup;
