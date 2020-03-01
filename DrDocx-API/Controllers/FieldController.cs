@@ -50,7 +50,7 @@ namespace DrDocx.API.Controllers
         {
             if (id != @field.Id)
             {
-                return BadRequest();
+                return BadRequest("The request was incorrectly formed: field id and field object's id do not match.");
             }
 
             _context.Entry(@field).State = EntityState.Modified;
@@ -63,7 +63,7 @@ namespace DrDocx.API.Controllers
             {
                 if (!FieldExists(id))
                 {
-                    return NotFound();
+                    return NotFound("The field you tried to update could not be found.");
                 }
                 else
                 {
@@ -90,16 +90,26 @@ namespace DrDocx.API.Controllers
         [HttpDelete("{id}")]
         public async Task<ActionResult<Field>> DeleteField(int id)
         {
-            var @field = await _context.Fields.FindAsync(id);
-            if (@field == null)
+            var field = await _context.Fields.FindAsync(id);
+            if (field == null)
             {
-                return NotFound();
+                return NotFound("The field you tried to delete could not be found.");
             }
 
-            _context.Fields.Remove(@field);
+            var associatedValueCount = _context.FieldValues.Count(fv => fv.FieldId == field.Id);
+            if (associatedValueCount > 0)
+            {
+                field.IsArchived = true;
+                _context.Entry(field).State = EntityState.Modified;
+            }
+            else
+            {
+                _context.Fields.Remove(field);
+            }
+
             await _context.SaveChangesAsync();
 
-            return @field;
+            return field;
         }
 
         private bool FieldExists(int id)

@@ -39,6 +39,7 @@ namespace DrDocx.API.Controllers
                 return NotFound();
             }
 
+            fieldGroup.Fields = (List<Field>) fieldGroup.Fields.Where(f => !f.IsArchived);
             return fieldGroup;
         }
 
@@ -127,7 +128,7 @@ namespace DrDocx.API.Controllers
         }
 
         [HttpDelete("{id}/field/{fieldId}")]
-        public async Task<ActionResult<FieldGroup>> AddField(int id, int fieldId)
+        public async Task<ActionResult<FieldGroup>> RemoveField(int id, int fieldId)
         {
             var fieldGroup = await GetFullFieldGroup(id);
             if (fieldGroup == null)
@@ -137,7 +138,16 @@ namespace DrDocx.API.Controllers
             if (field == null)
                 return NotFound("Could not find the field you tried to remove.");
 
-            _context.Fields.Remove(field);
+            var associatedValueCount = _context.FieldValues.Count(fv => fv.FieldId == field.Id);
+            if (associatedValueCount > 0)
+            {
+                field.IsArchived = true;
+                _context.Entry(field).State = EntityState.Modified;
+            }
+            else
+            {
+                _context.Fields.Remove(field);
+            }
             await _context.SaveChangesAsync();
 
             return fieldGroup;
