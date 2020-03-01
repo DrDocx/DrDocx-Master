@@ -9,9 +9,7 @@ namespace DrDocx.Models
         [JsonIgnore]
         public FieldGroup FieldGroup { get; set; }
         public int FieldGroupId { get; set; }
-        public string DefaultText { get; set; }
-        
-        public List<FieldOption> FieldOptions { get; } = new List<FieldOption>();
+        public string DefaultValue { get; set; }
     }
 
     public enum FieldType
@@ -19,12 +17,12 @@ namespace DrDocx.Models
         [Display(Name = "Text")]
         SmallText,
         [Display(Name = "Paragraph")]
-        BigText,
+        LargeText,
         [Display(Name = "Date/Time")]
         Date,
-        [Display(Name = "Select One")]
-        SelectOne,
-        [Display(Name = "Select Multiple")]
-        SelectMultiple
+        // [Display(Name = "Select One")]
+        // SelectOne,
+        // [Display(Name = "Select Multiple")]
+        // SelectMultiple
     }
 }

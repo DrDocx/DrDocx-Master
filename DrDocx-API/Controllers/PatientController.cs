@@ -133,7 +133,13 @@ namespace DrDocx.API.Controllers
                 FieldGroup = fieldGroup,
                 Patient = patient
             };
-            fieldValueGroup.FieldGroup.Fields.ForEach(field => fieldValueGroup.FieldValues.Add(new FieldValue(field)));
+            fieldValueGroup.FieldGroup.Fields.ForEach(field => fieldValueGroup.FieldValues.Add(new FieldValue
+            {
+                Field = field,
+                FieldTextValue = field.DefaultValue,
+                ParentGroup = fieldValueGroup,
+                
+            }));
             _context.FieldValueGroups.Add(fieldValueGroup);
             await _context.SaveChangesAsync();
             

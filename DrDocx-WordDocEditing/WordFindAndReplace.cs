@@ -136,9 +136,9 @@ namespace DrDocx.WordDocEditing
             XmlNodeList runs;
             while (true)
             {
-                bool cont = false;
+                var cont = false;
                 runs = paragraph.SelectNodes("child::w:r", Nsmgr);
-                for (int i = 0; i <= runs.Count - search.Length; i++)
+                for (var i = 0; i <= runs.Count - search.Length; i++)
                 {
                     var match = IsMatchHere(search, runs, i);
                     if (!match)
@@ -179,6 +179,7 @@ namespace DrDocx.WordDocEditing
             }
 
             newRun.AppendChild(newTextElement);
+            var indexAfter = i - 1 >= 0 ? i - 1 : i;
             paragraph.InsertAfter(newRun, runs[i - 1]);
             for (int c = 0; c < search.Length; ++c)
                 paragraph.RemoveChild(runs[i + c]);
@@ -222,30 +223,35 @@ namespace DrDocx.WordDocEditing
                 if (childElements.Count > 0)
                 {
                     XmlElement last = (XmlElement) childElements[childElements.Count - 1];
-                    for (int ch = childElements.Count - 1; ch >= 0; ch--)
+                    for (var ch = childElements.Count - 1; ch >= 0; ch--)
                     {
-                        if (childElements[ch].Name == "w:rPr")
-                            continue;
-                        // If this run has text in it, we're going to split it up into a run for every
-                        // character. Performance! Efficiency! We shall have none of it!
-                        if (childElements[ch].Name == "w:t")
-                            SplitSingleRunIntoCharRuns(paragraph, xmlDoc, childElements, ch, run);
-                        else
+                        switch (childElements[ch].Name)
                         {
-                            var newRun = xmlDoc.CreateElement("w:r", WordNamespace);
-                            var runProps =
-                                (XmlElement) run.SelectSingleNode("child::w:rPr", Nsmgr);
-                            if (runProps != null)
+                            case "w:rPr":
+                                continue;
+                            // If this run has text in it, we're going to split it up into a run for every
+                            // character. Performance! Efficiency! We shall have none of it!
+                            case "w:t":
+                                SplitSingleRunIntoCharRuns(paragraph, xmlDoc, childElements, ch, run);
+                                break;
+                            default:
                             {
-                                var newRunProps =
-                                    (XmlElement) runProps.CloneNode(true);
-                                newRun.AppendChild(newRunProps);
-                            }
+                                var newRun = xmlDoc.CreateElement("w:r", WordNamespace);
+                                var runProps =
+                                    (XmlElement) run.SelectSingleNode("child::w:rPr", Nsmgr);
+                                if (runProps != null)
+                                {
+                                    var newRunProps =
+                                        (XmlElement) runProps.CloneNode(true);
+                                    newRun.AppendChild(newRunProps);
+                                }
 
-                            var newChildElement =
-                                (XmlElement) childElements[ch].CloneNode(true);
-                            newRun.AppendChild(newChildElement);
-                            paragraph.InsertAfter(newRun, run);
+                                var newChildElement =
+                                    (XmlElement) childElements[ch].CloneNode(true);
+                                newRun.AppendChild(newChildElement);
+                                paragraph.InsertAfter(newRun, run);
+                                break;
+                            }
                         }
                     }
 

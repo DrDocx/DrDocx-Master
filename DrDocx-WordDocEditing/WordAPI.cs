@@ -50,11 +50,11 @@ namespace DrDocx.WordDocEditing
 			{
 				foreach (var fieldValue in fieldValueGroup.FieldValues)
 				{
-					patientDict.Add("{" + fieldValue.MatchText + "}", fieldValue.FieldTextValue);
+					patientDict.Add("{" + fieldValue.Field.MatchText + "}", fieldValue.FieldTextValue);
 				}
 			}
 
-			FindAndReplace(patientDict,true);
+			FindAndReplace(patientDict, matchCase: false);
 
 			foreach (var testResultGroup in patient.ResultGroups)
 			{
