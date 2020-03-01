@@ -13,6 +13,9 @@ namespace DrDocx.Models
         public int RawScore { get; set; }
         public int StandardizedScore { get; set; }
         public int Percentile { get; set; } // TODO: Calculate automatically based on conversion from standardized score.
-        public Test RelatedTest { get; set; }
+        public int TestResultGroupId { get; set; }
+        public TestResultGroup TestResultGroup { get; set; }
+        public int TestId { get; set; }
+        public Test Test { get; set; }
     }
 }

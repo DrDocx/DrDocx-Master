@@ -74,7 +74,7 @@ namespace DrDocx.WordDocEditing
 					percentile = result.Percentile;
 				}
 				entries.Add(new Entry(percentile){
-					Label = result.RelatedTest.Name,
+					Label = result.Test.Name,
 					ValueLabel = result.Percentile.ToString(),
 					Color = SKColor.Parse(hexcol)
 					});

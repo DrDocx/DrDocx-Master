@@ -111,8 +111,8 @@ namespace DrDocx.API.Controllers
 
         // Note that this method takes in a field group id, NOT a field value group id as it creates a new
         // field value group based on the field group provided.
-        [HttpPost("{id}/addFieldGroup/{fieldGroupId}")]
-        public async Task<ActionResult<FieldValueGroup>> AddFieldGroup(int id, int fieldGroupId)
+        [HttpPost("{id}/fieldGroup/{fieldGroupId}")]
+        public async Task<ActionResult<List<FieldValueGroup>>> AddFieldGroup(int id, int fieldGroupId)
         {
             var patient= await GetFullPatient(id);
             if (patient == null)
@@ -136,12 +136,14 @@ namespace DrDocx.API.Controllers
             fieldValueGroup.FieldGroup.Fields.ForEach(field => fieldValueGroup.FieldValues.Add(new FieldValue
             {
                 Field = field,
-                FieldValueGroup = fieldValueGroup
+                FieldTextValue = field.DefaultValue,
+                ParentGroup = fieldValueGroup,
+                
             }));
             _context.FieldValueGroups.Add(fieldValueGroup);
             await _context.SaveChangesAsync();
             
-            return fieldValueGroup;
+            return patient.FieldValueGroups;
         }
 
         private async Task<Patient> GetFullPatient(int id)

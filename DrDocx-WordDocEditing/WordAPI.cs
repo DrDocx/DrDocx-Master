@@ -54,7 +54,7 @@ namespace DrDocx.WordDocEditing
 				}
 			}
 
-			FindAndReplace(patientDict,true);
+			FindAndReplace(patientDict, matchCase: false);
 
 			foreach (var testResultGroup in patient.ResultGroups)
 			{
@@ -209,7 +209,7 @@ namespace DrDocx.WordDocEditing
 			{
 				tr = new TableRow(new TableRowProperties(new TableRowHeight() { Val = Convert.ToUInt32(cellHeight) }));
 				testName = new TableCell(WordTableFormats.DataCellFormat(),
-					new Paragraph(new Run(new Text(result.RelatedTest.Name))));
+					new Paragraph(new Run(new Text(result.Test.Name))));
 				zScore = new TableCell(WordTableFormats.DataCellFormat(),
 					new Paragraph(new Run(new Text(result.StandardizedScore.ToString()))));
 				percentile = new TableCell(WordTableFormats.DataCellFormat(),

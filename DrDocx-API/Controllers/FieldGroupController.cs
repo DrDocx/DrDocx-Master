@@ -25,7 +25,7 @@ namespace DrDocx.API.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<FieldGroup>>> GetFieldGroups()
         {
-            return await _context.FieldGroups.ToListAsync();
+            return await _context.FieldGroups.Where(fg => !fg.IsArchived).ToListAsync();
         }
 
         // GET: api/FieldGroup/5
@@ -39,6 +39,7 @@ namespace DrDocx.API.Controllers
                 return NotFound();
             }
 
+            fieldGroup.Fields = fieldGroup.Fields.Where(f => !f.IsArchived).ToList();
             return fieldGroup;
         }
 
@@ -96,7 +97,17 @@ namespace DrDocx.API.Controllers
                 return NotFound();
             }
 
-            _context.FieldGroups.Remove(fieldGroup);
+            var associatedValueGroupCount = _context.FieldValueGroups.Count(fvg => fvg.FieldGroupId == fieldGroup.Id);
+            if (associatedValueGroupCount > 0)
+            {
+                fieldGroup.IsArchived = true;
+                _context.Entry(fieldGroup).State = EntityState.Modified;
+            }
+            else
+            {
+                _context.FieldGroups.Remove(fieldGroup);
+            }
+
             await _context.SaveChangesAsync();
 
             return fieldGroup;
@@ -127,7 +138,7 @@ namespace DrDocx.API.Controllers
         }
 
         [HttpDelete("{id}/field/{fieldId}")]
-        public async Task<ActionResult<FieldGroup>> AddField(int id, int fieldId)
+        public async Task<ActionResult<FieldGroup>> RemoveField(int id, int fieldId)
         {
             var fieldGroup = await GetFullFieldGroup(id);
             if (fieldGroup == null)
@@ -137,7 +148,16 @@ namespace DrDocx.API.Controllers
             if (field == null)
                 return NotFound("Could not find the field you tried to remove.");
 
-            _context.Fields.Remove(field);
+            var associatedValueCount = _context.FieldValues.Count(fv => fv.FieldId == field.Id);
+            if (associatedValueCount > 0)
+            {
+                field.IsArchived = true;
+                _context.Entry(field).State = EntityState.Modified;
+            }
+            else
+            {
+                _context.Fields.Remove(field);
+            }
             await _context.SaveChangesAsync();
 
             return fieldGroup;
