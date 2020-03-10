@@ -11,7 +11,7 @@ namespace DrDocx.API.Helpers
             var logFile = new NLog.Targets.FileTarget("api-logfile")
             {
                 FileName = GetLogFilePath(),
-                Layout = "${longdate}\t|\t${level}\t|\t${message} ${exception}"
+                Layout = "${longdate} | ${level} | ${message} ${exception}"
             };
             config.AddRule(LogLevel.Info, LogLevel.Fatal, logFile);
             LogManager.Configuration = config;
