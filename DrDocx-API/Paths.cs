@@ -27,8 +27,11 @@ namespace DrDocx.API
 
         private static void CreateDirIfMissing(string dirPath)
         {
-            if (!Directory.Exists(dirPath))
-                Directory.CreateDirectory(dirPath);
+            if (Directory.Exists(dirPath)) return;
+            Directory.CreateDirectory(dirPath);
+            NLog.LogManager.GetCurrentClassLogger().Info($"{dirPath} not found, created new one.");
         }
+        
+        
     }
 }

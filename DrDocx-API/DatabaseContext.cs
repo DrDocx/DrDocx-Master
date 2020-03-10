@@ -62,8 +62,7 @@ namespace DrDocx.API
 
         private void ConfigureModels(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Field>().Property(f => f.Type)
-                .HasConversion<string>();
+            
         }
 
         public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = new CancellationToken())

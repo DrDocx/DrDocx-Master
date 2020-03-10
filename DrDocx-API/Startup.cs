@@ -1,14 +1,10 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
+using DrDocx.API.Middleware;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
+using NLog;
 
 namespace DrDocx.API
 {
@@ -17,7 +13,6 @@ namespace DrDocx.API
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
-            Paths.EnsureDirsCreated();
             using var client = new DatabaseContext();
             client.Database.EnsureCreated();
         }
@@ -39,7 +34,7 @@ namespace DrDocx.API
                 app.UseDeveloperExceptionPage();
             }
 
-            // app.UseMiddleware<RequestResponseLoggingMiddleware>();
+            app.UseMiddleware<RequestResponseLoggingMiddleware>();
             
             app.UseHttpsRedirection();
 
