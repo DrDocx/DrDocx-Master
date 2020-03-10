@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using NLog.Extensions.Logging;
+using NLog.Web;
 
 namespace DrDocx.API
 {
@@ -20,7 +22,12 @@ namespace DrDocx.API
             Host.CreateDefaultBuilder(args)
                 .ConfigureLogging(logging =>
                 {
-                    // TODO: Add proper logging support, middleware class breaks API
+                    // TODO: Add proper logging support to file
+                    logging.AddNLog(new NLogProviderOptions
+                    {
+                        CaptureMessageTemplates = true,
+                        CaptureMessageProperties = true
+                    });
                 })
                 .ConfigureWebHostDefaults(webBuilder =>
                 {

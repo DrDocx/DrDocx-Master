@@ -1,8 +1,10 @@
 using System;
 using System.IO;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using Microsoft.IO;
 
 namespace DrDocx.API.Middleware
 {
@@ -54,11 +56,12 @@ namespace DrDocx.API.Middleware
             context.Response.Body.Seek(0, SeekOrigin.Begin);
 
             _logger.LogInformation($"Http Response Information:{Environment.NewLine}" +
-                                   $"Schema:{context.Request.Scheme} " +
-                                   $"Host: {context.Request.Host} " +
-                                   $"Path: {context.Request.Path} " +
-                                   $"QueryString: {context.Request.QueryString} " +
-                                   $"Response Body: {text}");
+                                   $"Schema:{context.Request.Scheme}\n" +
+                                   $"Host: {context.Request.Host}\n" +
+                                   $"Path: {context.Request.Path}\n" +
+                                   $"QueryString: {context.Request.QueryString}\n" +
+                                   $"Status Code: {context.Response.StatusCode}\n"  +
+                                   $"Response Body: {text}\n");
 
             await responseBody.CopyToAsync(originalBodyStream);
         }
