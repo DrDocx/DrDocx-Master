@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DrDocx.API.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20200227044933_InitialCreate")]
+    [Migration("20200310013545_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,10 +24,19 @@ namespace DrDocx.API.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("DefaultText")
+                    b.Property<DateTime>("DateCreated")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("DateModified")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("DefaultValue")
                         .HasColumnType("TEXT");
 
                     b.Property<int>("FieldGroupId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("IsArchived")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("MatchText")
@@ -52,8 +61,17 @@ namespace DrDocx.API.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
+                    b.Property<DateTime>("DateCreated")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("DateModified")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Description")
                         .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsArchived")
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Name")
                         .HasColumnType("TEXT");
@@ -63,26 +81,57 @@ namespace DrDocx.API.Migrations
                     b.ToTable("FieldGroups");
                 });
 
+            modelBuilder.Entity("DrDocx.Models.FieldOption", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("DateCreated")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("DateModified")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("ParentFieldId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ParentFieldId");
+
+                    b.ToTable("FieldOptions");
+                });
+
             modelBuilder.Entity("DrDocx.Models.FieldValue", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<int?>("FieldId")
+                    b.Property<DateTime>("DateCreated")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("DateModified")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("FieldId")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("FieldTextValue")
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("FieldValueGroupId")
+                    b.Property<int>("ParentGroupId")
                         .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 
                     b.HasIndex("FieldId");
 
-                    b.HasIndex("FieldValueGroupId");
+                    b.HasIndex("ParentGroupId");
 
                     b.ToTable("FieldValues");
                 });
@@ -93,10 +142,22 @@ namespace DrDocx.API.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<int?>("FieldGroupId")
+                    b.Property<DateTime>("DateCreated")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("DateModified")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("FieldGroupId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int?>("PatientId")
+                    b.Property<string>("Name")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("PatientId")
                         .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
@@ -113,6 +174,9 @@ namespace DrDocx.API.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("DateCreated")
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime>("DateModified")
                         .HasColumnType("TEXT");
@@ -134,7 +198,13 @@ namespace DrDocx.API.Migrations
                     b.Property<DateTime>("DateCreated")
                         .HasColumnType("TEXT");
 
+                    b.Property<DateTime>("DateModified")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("FileName")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("FilePath")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Name")
@@ -157,8 +227,8 @@ namespace DrDocx.API.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("StandardizedScoreType")
-                        .HasColumnType("TEXT");
+                    b.Property<int>("StandardizedScoreType")
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 
@@ -212,10 +282,10 @@ namespace DrDocx.API.Migrations
                     b.Property<int>("RawScore")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int?>("RelatedTestId")
+                    b.Property<int>("StandardizedScore")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("StandardizedScore")
+                    b.Property<int>("TestId")
                         .HasColumnType("INTEGER");
 
                     b.Property<int>("TestResultGroupId")
@@ -223,7 +293,7 @@ namespace DrDocx.API.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("RelatedTestId");
+                    b.HasIndex("TestId");
 
                     b.HasIndex("TestResultGroupId");
 
@@ -260,15 +330,26 @@ namespace DrDocx.API.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("DrDocx.Models.FieldOption", b =>
+                {
+                    b.HasOne("DrDocx.Models.Field", "ParentField")
+                        .WithMany()
+                        .HasForeignKey("ParentFieldId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("DrDocx.Models.FieldValue", b =>
                 {
                     b.HasOne("DrDocx.Models.Field", "Field")
                         .WithMany()
-                        .HasForeignKey("FieldId");
+                        .HasForeignKey("FieldId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    b.HasOne("DrDocx.Models.FieldValueGroup", "FieldValueGroup")
+                    b.HasOne("DrDocx.Models.FieldValueGroup", "ParentGroup")
                         .WithMany("FieldValues")
-                        .HasForeignKey("FieldValueGroupId")
+                        .HasForeignKey("ParentGroupId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
@@ -277,11 +358,15 @@ namespace DrDocx.API.Migrations
                 {
                     b.HasOne("DrDocx.Models.FieldGroup", "FieldGroup")
                         .WithMany()
-                        .HasForeignKey("FieldGroupId");
+                        .HasForeignKey("FieldGroupId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("DrDocx.Models.Patient", "Patient")
                         .WithMany("FieldValueGroups")
-                        .HasForeignKey("PatientId");
+                        .HasForeignKey("PatientId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("DrDocx.Models.TestGroupTest", b =>
@@ -301,9 +386,11 @@ namespace DrDocx.API.Migrations
 
             modelBuilder.Entity("DrDocx.Models.TestResult", b =>
                 {
-                    b.HasOne("DrDocx.Models.Test", "RelatedTest")
+                    b.HasOne("DrDocx.Models.Test", "Test")
                         .WithMany()
-                        .HasForeignKey("RelatedTestId");
+                        .HasForeignKey("TestId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("DrDocx.Models.TestResultGroup", "TestResultGroup")
                         .WithMany("Tests")

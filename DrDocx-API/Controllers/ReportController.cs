@@ -46,7 +46,8 @@ namespace DrDocx.API.Controllers
             var reportTemplate = new ReportTemplate
             {
                 Name = templateName,
-                FileName = generatedFileName
+                FileName = generatedFileName,
+                FilePath = fullFilePath
             };
             _context.ReportTemplates.Add(reportTemplate);
 
