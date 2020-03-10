@@ -6,7 +6,7 @@ namespace DrDocx.Models
     {
         public string Formula { get; set; }
         public string Description { get; set; }
-        public float MinValue { get; set; }
-        public float MaxValue { get; set; }
+        public double MinValue { get; set; }
+        public double MaxValue { get; set; }
     }
 }
