@@ -28,4 +28,29 @@
     <ItemGroup>
       <Folder Include="Migrations" />
     </ItemGroup>
+
+    <ItemGroup>
+      <Compile Remove="publish\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <EmbeddedResource Remove="publish\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="publish\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Content Remove="publish\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <_ContentIncludedByDefault Remove="publish\osx64\web.config" />
+      <_ContentIncludedByDefault Remove="publish\winx64\web.config" />
+      <_ContentIncludedByDefault Remove="publish\osx64\appsettings.Development.json" />
+      <_ContentIncludedByDefault Remove="publish\osx64\appsettings.json" />
+      <_ContentIncludedByDefault Remove="publish\winx64\appsettings.Development.json" />
+      <_ContentIncludedByDefault Remove="publish\winx64\appsettings.json" />
+    </ItemGroup>
 </Project>
