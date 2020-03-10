@@ -58,8 +58,7 @@ namespace DrDocx.API.Controllers
             {
                 return BadRequest();
             }
-
-            patient.DateModified = DateTime.UtcNow;
+            
             _context.Entry(patient).State = EntityState.Modified;
 
             try

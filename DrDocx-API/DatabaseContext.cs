@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using DrDocx.Models;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
@@ -16,7 +18,6 @@ namespace DrDocx.API
         public DbSet<TestGroupTest> TestGroupTests { get; set; }
         
         public DbSet<Field> Fields { get; set; }
-        public DbSet<FieldOption> FieldOptions { get; set; }
         public DbSet<FieldGroup> FieldGroups { get; set; }
         public DbSet<FieldValue> FieldValues { get; set; }
         public DbSet<FieldValueGroup> FieldValueGroups { get; set; }
@@ -47,7 +48,8 @@ namespace DrDocx.API
                 .WithMany(t => t.TestGroupTests)
                 .HasForeignKey(tgt => tgt.TestId);
             modelBuilder.Entity<FieldValueGroup>()
-                .HasOne(fvg => fvg.Patient);
+                .HasOne(fvg => fvg.Patient)
+                .WithMany(p => p.FieldValueGroups).IsRequired();
             modelBuilder.Entity<FieldValueGroup>()
                 .HasMany(fvg => fvg.FieldValues)
                 .WithOne(fv => fv.ParentGroup)
@@ -63,8 +65,20 @@ namespace DrDocx.API
             modelBuilder.Entity<Field>().Property(f => f.Type)
                 .HasConversion<string>();
         }
-        
+
+        public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = new CancellationToken())
+        {
+            UpdateTimestampsOnSave();
+            return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
+        }
+
         public override int SaveChanges()
+        {
+            UpdateTimestampsOnSave();
+            return base.SaveChanges();
+        }
+
+        private void UpdateTimestampsOnSave()
         {
             var newEntities = this.ChangeTracker.Entries()
                 .Where(
@@ -80,19 +94,15 @@ namespace DrDocx.API
 
             foreach (var newEntity in newEntities)
             {
-                if (newEntity != null)
-                {
-                    newEntity.DateCreated = DateTime.UtcNow;
-                    newEntity.DateModified = DateTime.UtcNow;
-                }
+                if (newEntity == null) continue;
+                newEntity.DateCreated = DateTime.UtcNow;
+                newEntity.DateModified = DateTime.UtcNow;
             }
 
             foreach (var modifiedEntity in modifiedEntities)
             {
                 if (modifiedEntity != null) modifiedEntity.DateCreated = DateTime.UtcNow;
             }
-
-            return base.SaveChanges();
         }
     }
 }

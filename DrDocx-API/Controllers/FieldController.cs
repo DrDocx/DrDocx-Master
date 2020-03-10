@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using DrDocx.API;
 using DrDocx.Models;
+using DrDocx.Models.Helpers;
+using DrDocx.API.Helpers;
 
 namespace DrDocx.API.Controllers
 {
@@ -48,12 +50,12 @@ namespace DrDocx.API.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutField(int id, Field @field)
         {
-            if (id != @field.Id)
+            if (id != field.Id)
             {
                 return BadRequest("The request was incorrectly formed: field id and field object's id do not match.");
             }
 
-            _context.Entry(@field).State = EntityState.Modified;
+            _context.Entry(field).State = EntityState.Modified;
 
             try
             {
@@ -61,7 +63,7 @@ namespace DrDocx.API.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!FieldExists(id))
+                if (!RecordExists.FieldExists(_context, id))
                 {
                     return NotFound("The field you tried to update could not be found.");
                 }
@@ -78,9 +80,14 @@ namespace DrDocx.API.Controllers
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
         [HttpPost]
-        public async Task<ActionResult<Field>> PostField(Field @field)
+        public async Task<ActionResult<Field>> PostField(Field field)
         {
-            _context.Fields.Add(@field);
+            if (!FieldHelper.FieldTypeIsValid(field.Type))
+                return BadRequest("Invalid field type provided.");
+            if (RecordExists.FieldGroupExists(_context, field.FieldGroupId))
+                return BadRequest("Field group that you're adding this field to could not be found");
+
+            _context.Fields.Add(field);
             await _context.SaveChangesAsync();
 
             return CreatedAtAction("GetField", new { id = @field.Id }, @field);
@@ -110,11 +117,6 @@ namespace DrDocx.API.Controllers
             await _context.SaveChangesAsync();
 
             return field;
-        }
-
-        private bool FieldExists(int id)
-        {
-            return _context.Fields.Any(e => e.Id == id);
         }
     }
 }
