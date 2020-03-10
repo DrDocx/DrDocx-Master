@@ -1,12 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using NLog.Extensions.Logging;
+using DrDocx.API.Helpers;
+using Microsoft.Extensions.Logging;
 using NLog.Web;
 
 namespace DrDocx.API
@@ -15,6 +11,8 @@ namespace DrDocx.API
     {
         public static void Main(string[] args)
         {
+            Paths.EnsureDirsCreated();
+            NLogHelper.ConfigureNLog();
             CreateHostBuilder(args).Build().Run();
         }
 
@@ -22,12 +20,9 @@ namespace DrDocx.API
             Host.CreateDefaultBuilder(args)
                 .ConfigureLogging(logging =>
                 {
-                    // TODO: Add proper logging support to file
-                    logging.AddNLog(new NLogProviderOptions
-                    {
-                        CaptureMessageTemplates = true,
-                        CaptureMessageProperties = true
-                    });
+                    logging.ClearProviders();
+                    logging.AddConsole();
+                    logging.AddNLog();
                 })
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
