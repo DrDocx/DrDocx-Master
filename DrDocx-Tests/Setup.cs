@@ -11,8 +11,7 @@ namespace DrDocx.Tests
         [OneTimeSetUp]
         public void GlobalSetup()
         {
-            string workingDir;
-            workingDir = Environment.CurrentDirectory + "/TestFiles";
+            var workingDir = Environment.CurrentDirectory + "/TestFiles";
             if (!Directory.Exists(workingDir))
                 Directory.CreateDirectory(workingDir);
             Environment.CurrentDirectory = workingDir;
