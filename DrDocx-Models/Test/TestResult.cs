@@ -10,9 +10,9 @@ namespace DrDocx.Models
     public class TestResult
     {
         public int Id { get; set; }
-        public int RawScore { get; set; }
-        public int StandardizedScore { get; set; }
-        public int Percentile { get; set; } // TODO: Calculate automatically based on conversion from standardized score.
+        public double RawScore { get; set; }
+        public double StandardizedScore { get; set; }
+        public double Percentile { get; set; } // TODO: Calculate automatically based on conversion from standardized score.
         public int TestResultGroupId { get; set; }
         public TestResultGroup TestResultGroup { get; set; }
         public int TestId { get; set; }
