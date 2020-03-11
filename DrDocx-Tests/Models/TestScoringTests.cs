@@ -23,19 +23,13 @@ namespace DrDocx.Tests.Models
             ScoreEquivalences = JsonConvert.DeserializeObject<List<ScoreEquivalence>>(scoreJson);
         }
 
-        [TearDown]
-        public void Cleanup()
-        {
-            
-        }
-
         [Test]
         public void PercentileIsCorrectForZScore()
         {
             foreach (var scoreEquivalence in ScoreEquivalences)
             {
                 var percentileEstimate = TestHelper.GetPercentileForScore(scoreEquivalence.ZScore, "z Score");
-                Assert.AreEqual(scoreEquivalence.Percentile, percentileEstimate, 0.01);
+                Assert.AreEqual(scoreEquivalence.Percentile, percentileEstimate, delta: 0.01);
             }
         }
 
@@ -45,7 +39,7 @@ namespace DrDocx.Tests.Models
             foreach (var scoreEquivalence in ScoreEquivalences)
             {
                 var percentileEstimate = TestHelper.GetPercentileForScore(scoreEquivalence.SS, "SS");
-                Assert.AreEqual(scoreEquivalence.Percentile, percentileEstimate, 2);
+                Assert.AreEqual(scoreEquivalence.Percentile, percentileEstimate, delta: 2);
             }
         }
 
@@ -55,7 +49,7 @@ namespace DrDocx.Tests.Models
             foreach (var scoreEquivalence in ScoreEquivalences)
             {
                 var percentileEstimate = TestHelper.GetPercentileForScore(scoreEquivalence.TScore, "T Score");
-                Assert.AreEqual(scoreEquivalence.Percentile, percentileEstimate, 3);
+                Assert.AreEqual(scoreEquivalence.Percentile, percentileEstimate, delta: 3);
             }
         }
 
@@ -70,7 +64,7 @@ namespace DrDocx.Tests.Models
                 if (!equivalencesForScaledScore.Any()) continue;
                 var middleScoreEquivalence = equivalencesForScaledScore[equivalencesForScaledScore.Count() / 2];
                 var percentileEstimate = TestHelper.GetPercentileForScore(middleScoreEquivalence.ScaledScore, "Scaled Score");
-                Assert.AreEqual(middleScoreEquivalence.Percentile, percentileEstimate, 4);
+                Assert.AreEqual(middleScoreEquivalence.Percentile, percentileEstimate, delta: 4);
             }
         }
         
