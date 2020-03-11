@@ -16,7 +16,7 @@ namespace DrDocx.Tests
                 Directory.CreateDirectory(workingDir);
             Environment.CurrentDirectory = workingDir;
             if (Environment.GetEnvironmentVariable("THIS_ENV") != "CI")
-                Env.Load(Environment.CurrentDirectory + "/.env");
+                Env.Load(Environment.CurrentDirectory + "/test.env");
             Console.WriteLine("Working directory: " + Environment.CurrentDirectory);
         }
 
