@@ -62,16 +62,16 @@ namespace DrDocx.WordDocEditing
 			int percentile;
 
 			foreach(TestResult result in testResultGroup.Tests){
-				interp = 0.01 * (double)result.Percentile;
+				interp = 0.01 * result.Percentile;
 				if(interp < 0.5){
 					hexcol = ColToHex(LinearInterpolation(red,yellow,2*interp));
 				} else {
 					hexcol = ColToHex(LinearInterpolation(yellow,green,2*(interp-0.5)));
 				}
-				if(result.Percentile == 0){
+				if(Math.Abs(result.Percentile) < 1){
 					percentile = 1;
 				} else {
-					percentile = result.Percentile;
+					percentile = (int) result.Percentile;
 				}
 				entries.Add(new Entry(percentile){
 					Label = result.Test.Name,

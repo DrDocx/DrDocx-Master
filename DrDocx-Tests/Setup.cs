@@ -12,14 +12,12 @@ namespace DrDocx.Tests
         public void GlobalSetup()
         {
             string workingDir;
-            if (Environment.GetEnvironmentVariable("THIS_ENV") != "CI")
-                workingDir = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "/DrDocx-Tests";
-            else
-                workingDir = Environment.CurrentDirectory + "/TestFiles";
+            workingDir = Environment.CurrentDirectory + "/TestFiles";
             if (!Directory.Exists(workingDir))
                 Directory.CreateDirectory(workingDir);
             Environment.CurrentDirectory = workingDir;
-            Env.Load(Environment.CurrentDirectory + "/.env");
+            if (Environment.GetEnvironmentVariable("THIS_ENV") != "CI")
+                Env.Load(Environment.CurrentDirectory + "/.env");
             Console.WriteLine("Working directory: " + Environment.CurrentDirectory);
         }
 
