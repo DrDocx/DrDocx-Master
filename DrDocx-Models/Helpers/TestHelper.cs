@@ -51,16 +51,16 @@ namespace DrDocx.Models.Helpers
          */
         private static double GetPercentileForScaledScore(in double score)
         {
-            // r^2 = 1.0 (not a typo)
-            const double a = 0.06667; const double b = -6.666;
+            // r^2 = 0.9954
+            const double a = 0.342; const double b = -3.415;
             var zScore = a * score + b;
             return GetPercentileForZScore(zScore);
         }
 
         private static double GetPercentileForSS(in double score)
         {
-            // r^2 = 0.9954
-            const double a = 0.342; const double b = -3.415;
+            // r^2 = 1.0 (not a typo)
+            const double a = 0.06667; const double b = -6.666;
             var zScore = a * score + b;
             return GetPercentileForZScore(zScore);
         }
