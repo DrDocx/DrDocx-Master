@@ -84,7 +84,7 @@ namespace DrDocx.API.Controllers
         {
             if (!FieldHelper.FieldTypeIsValid(field.Type))
                 return BadRequest("Invalid field type provided.");
-            if (RecordExists.FieldGroupExists(_context, field.FieldGroupId))
+            if (!RecordExists.FieldGroupExists(_context, field.FieldGroupId))
                 return BadRequest("Field group that you're adding this field to could not be found");
 
             _context.Fields.Add(field);

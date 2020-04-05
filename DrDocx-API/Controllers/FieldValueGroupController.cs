@@ -32,7 +32,8 @@ namespace DrDocx.API.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<FieldValueGroup>> GetFieldValueGroup(int id)
         {
-            var fieldValueGroup = await _context.FieldValueGroups.FindAsync(id);
+            var fieldValueGroup = await _context.FieldValueGroups.
+                Include(fvg => fvg.FieldValues).FirstOrDefaultAsync(fvg => fvg.Id == id);
 
             if (fieldValueGroup == null)
             {
@@ -101,7 +102,6 @@ namespace DrDocx.API.Controllers
 
             return fieldValueGroup;
         }
-
         private bool FieldValueGroupExists(int id)
         {
             return _context.FieldValueGroups.Any(e => e.Id == id);
