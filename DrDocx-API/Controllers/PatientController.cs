@@ -149,8 +149,10 @@ namespace DrDocx.API.Controllers
         {
             return await _context.Patients
                 .Include(p => p.FieldValueGroups)
-                    .ThenInclude(fvg => fvg.FieldValues)
-                        .ThenInclude(fv => fv.Field)
+                .ThenInclude(fvg => fvg.FieldValues)
+                    .ThenInclude(fv => fv.Field)
+                .Include(p => p.FieldValueGroups)
+                    .ThenInclude(fvg => fvg.FieldGroup)
                 .Include(p => p.ResultGroups)
                     .ThenInclude(trg => trg.Tests)
                 .FirstOrDefaultAsync(fg => fg.Id == id);
