@@ -10,6 +10,6 @@ namespace DrDocx.Models
         [JsonIgnore]
         public Patient Patient { get; set; }
         public int PatientId { get; set; }
-        public List<FieldValue> FieldValues { get; } = new List<FieldValue>();
+        public List<FieldValue> FieldValues { get; set; } = new List<FieldValue>();
     }
 }

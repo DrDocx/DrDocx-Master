@@ -147,7 +147,7 @@ namespace DrDocx.API.Controllers
 
         private async Task<Patient> GetFullPatient(int id)
         {
-            return await _context.Patients
+            var patient = await _context.Patients
                 .Include(p => p.FieldValueGroups)
                 .ThenInclude(fvg => fvg.FieldValues)
                     .ThenInclude(fv => fv.Field)
@@ -156,6 +156,11 @@ namespace DrDocx.API.Controllers
                 .Include(p => p.ResultGroups)
                     .ThenInclude(trg => trg.Tests)
                 .FirstOrDefaultAsync(fg => fg.Id == id);
+            foreach (var fvg in patient.FieldValueGroups)
+            {
+                fvg.FieldValues = fvg.FieldValues.OrderBy(fv => fv.Field.DateCreated).ToList();
+            }
+            return patient;
         }
 
         private bool PatientExists(int id)
