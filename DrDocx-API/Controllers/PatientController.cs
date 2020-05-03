@@ -52,7 +52,7 @@ namespace DrDocx.API.Controllers
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutPatient(int id, Patient patient)
+        public async Task<ActionResult<Patient>> PutPatient(int id, Patient patient)
         {
             if (id != patient.Id)
             {
@@ -77,7 +77,7 @@ namespace DrDocx.API.Controllers
                 }
             }
 
-            return NoContent();
+            return await GetFullPatient(patient.Id);
         }
 
         // POST: api/Patient
@@ -108,6 +108,31 @@ namespace DrDocx.API.Controllers
             return patient;
         }
 
+        public void UpdatePatientData(Patient patient)
+        {
+            foreach (var fvg in patient.FieldValueGroups)
+            {
+                fvg.Patient = patient;
+                _context.FieldValueGroups.Add(fvg);
+                foreach (var fieldValue in fvg.FieldValues)
+                {
+                    fieldValue.ParentGroup = fvg;
+                    _context.FieldValues.Add(fieldValue);
+                }
+            }
+
+            foreach (var trg in patient.ResultGroups)
+            {
+                trg.Patient = patient;
+                _context.TestResultGroups.Add(trg);
+                foreach (var result in trg.Tests)
+                {
+                    result.TestResultGroup = trg;
+                    _context.TestResults.Add(result);
+                }
+            }
+        }
+        
         // Note that this method takes in a field group id, NOT a field value group id as it creates a new
         // field value group based on the field group provided.
         [HttpPost("{id}/fieldGroup/{fieldGroupId}")]
