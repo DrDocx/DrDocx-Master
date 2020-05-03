@@ -1,6 +1,7 @@
 using DrDocx.API.Middleware;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -15,6 +16,7 @@ namespace DrDocx.API
             Configuration = configuration;
             using var client = new DatabaseContext();
             client.Database.EnsureCreated();
+            client.Database.Migrate();
         }
 
         public IConfiguration Configuration { get; }
