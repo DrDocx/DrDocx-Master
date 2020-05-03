@@ -58,6 +58,11 @@ namespace DrDocx.API
                 .HasMany(trg => trg.Tests)
                 .WithOne(tr => tr.TestResultGroup)
                 .IsRequired();
+            modelBuilder.Entity<TestResultGroup>()
+                .HasOne(trg => trg.Patient)
+                .WithMany(p => p.ResultGroups);
+            modelBuilder.Entity<TestResult>()
+                .HasOne(tr => tr.Patient);
         }
 
         private void ConfigureModels(ModelBuilder modelBuilder)
