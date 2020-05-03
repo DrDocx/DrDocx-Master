@@ -14,7 +14,7 @@ namespace DrDocx.Models
     
     public class Patient : NamedModelBase
     {
-        public List<TestResultGroup> ResultGroups { get; } = new List<TestResultGroup>();
-        public List<FieldValueGroup> FieldValueGroups { get; } = new List<FieldValueGroup>();
+        public List<TestResultGroup> ResultGroups { get; set; } = new List<TestResultGroup>();
+        public List<FieldValueGroup> FieldValueGroups { get; set; } = new List<FieldValueGroup>();
     }
 }
