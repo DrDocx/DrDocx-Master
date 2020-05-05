@@ -7,12 +7,12 @@ namespace DrDocx.API.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            // migrationBuilder.AddColumn<int>(name: "PatientId", table: "TestResultGroups", nullable: false);
+            migrationBuilder.AddColumn<int>(name: "PatientId", table: "TestResultGroups", nullable: false);
             migrationBuilder.AddColumn<int>(name: "PatientId", table: "TestResults", nullable: false, defaultValue: 2);
-            // migrationBuilder.CreateIndex(
-            //     name: "IX_TestResultGroups_PatientId",
-            //     table: "TestResultGroups",
-            //     column: "PatientId");
+            migrationBuilder.CreateIndex(
+                name: "IX_TestResultGroups_PatientId",
+                table: "TestResultGroups",
+                column: "PatientId");
             
             migrationBuilder.CreateIndex(
                 name: "IX_TestResults_PatientId",
