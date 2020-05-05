@@ -113,11 +113,11 @@ namespace DrDocx.API.Controllers
             foreach (var fvg in patient.FieldValueGroups)
             {
                 fvg.Patient = patient;
-                _context.FieldValueGroups.Add(fvg);
+                _context.Entry(fvg).State = fvg.Id == 0 ? EntityState.Added : EntityState.Modified;
                 foreach (var fieldValue in fvg.FieldValues)
                 {
                     fieldValue.ParentGroup = fvg;
-                    _context.FieldValues.Add(fieldValue);
+                    _context.Entry(fieldValue).State = fieldValue.Id == 0 ? EntityState.Added : EntityState.Modified;
                 }
             }
 
@@ -125,10 +125,11 @@ namespace DrDocx.API.Controllers
             {
                 trg.Patient = patient;
                 _context.TestResultGroups.Add(trg);
+                _context.Entry(trg).State = trg.Id == 0 ? EntityState.Added : EntityState.Modified;
                 foreach (var result in trg.Tests)
                 {
                     result.TestResultGroup = trg;
-                    _context.TestResults.Add(result);
+                    _context.Entry(result).State = result.Id == 0 ? EntityState.Added : EntityState.Modified;
                 }
             }
         }

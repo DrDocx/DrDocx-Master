@@ -9,7 +9,7 @@ namespace DrDocx.Models
         [JsonIgnore]
         public FieldGroup FieldGroup { get; set; }
         public int FieldGroupId { get; set; }
-        public string DefaultValue { get; set; }
+        public string DefaultValue { get; set; } = "";
         public bool IsArchived { get; set; } = false;
     }
 

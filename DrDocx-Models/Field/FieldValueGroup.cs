@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace DrDocx.Models
 {
-    public class FieldValueGroup : FieldGroupBase
+    public class FieldValueGroup : DatabaseModelBase
     {
         public int FieldGroupId { get; set; }
         public FieldGroup FieldGroup { get; set; }
