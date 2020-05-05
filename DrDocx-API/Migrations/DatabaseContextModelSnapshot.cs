@@ -71,6 +71,9 @@ namespace DrDocx.API.Migrations
                     b.Property<bool>("IsArchived")
                         .HasColumnType("INTEGER");
 
+                    b.Property<bool>("IsDefaultGroup")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("Name")
                         .HasColumnType("TEXT");
 
@@ -121,14 +124,8 @@ namespace DrDocx.API.Migrations
                     b.Property<DateTime>("DateModified")
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("Description")
-                        .HasColumnType("TEXT");
-
                     b.Property<int>("FieldGroupId")
                         .HasColumnType("INTEGER");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("TEXT");
 
                     b.Property<int>("PatientId")
                         .HasColumnType("INTEGER");
@@ -300,8 +297,6 @@ namespace DrDocx.API.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("PatientId");
-
                     b.HasIndex("TestId");
 
                     b.HasIndex("TestResultGroupId");
@@ -393,12 +388,6 @@ namespace DrDocx.API.Migrations
 
             modelBuilder.Entity("DrDocx.Models.TestResult", b =>
                 {
-                    b.HasOne("DrDocx.Models.Patient", "Patient")
-                        .WithMany()
-                        .HasForeignKey("PatientId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("DrDocx.Models.Test", "Test")
                         .WithMany()
                         .HasForeignKey("TestId")

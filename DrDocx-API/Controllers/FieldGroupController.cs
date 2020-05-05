@@ -23,7 +23,16 @@ namespace DrDocx.API.Controllers
 
         // GET: api/FieldGroup
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<FieldGroup>>> GetFieldGroups()
+        public async Task<ActionResult<IEnumerable<FieldGroup>>> GetFieldGroups(bool isDefault)
+        {
+            var fieldGroups = _context.FieldGroups.Where(fg => !fg.IsArchived);
+            if (isDefault)
+                fieldGroups = fieldGroups.Where(fg => fg.IsDefaultGroup);
+            return await fieldGroups.ToListAsync();
+        }
+
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<FieldGroup>>> GetDefaultFieldGroups()
         {
             return await _context.FieldGroups.Where(fg => !fg.IsArchived).ToListAsync();
         }
