@@ -102,6 +102,20 @@ namespace DrDocx.API.Controllers
 
             return fieldValueGroup;
         }
+
+        [HttpDelete]
+        public async Task<ActionResult<List<FieldValueGroup>>> DeleteFieldValueGroups(
+            List<FieldValueGroup> fvgsToDelete)
+        {
+            if (fvgsToDelete == null)
+                return BadRequest();
+            var fvgIds = fvgsToDelete.Select(fvg => fvg.Id);
+            var recordsToDelete = _context.FieldValueGroups.Where(fvg => fvgIds.Contains(fvg.Id));
+            _context.FieldValueGroups.RemoveRange(recordsToDelete);
+            await _context.SaveChangesAsync();
+            return await recordsToDelete.ToListAsync();
+        }
+        
         private bool FieldValueGroupExists(int id)
         {
             return _context.FieldValueGroups.Any(e => e.Id == id);

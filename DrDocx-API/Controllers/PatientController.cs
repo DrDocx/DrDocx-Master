@@ -59,7 +59,7 @@ namespace DrDocx.API.Controllers
                 return BadRequest();
             }
             
-            _context.Entry(patient).State = EntityState.Modified;
+            PreparePatientEntities(patient);
 
             try
             {
@@ -86,7 +86,7 @@ namespace DrDocx.API.Controllers
         [HttpPost]
         public async Task<ActionResult<Patient>> PostPatient(Patient patient)
         {
-            _context.Patients.Add(patient);
+            PreparePatientEntities(patient);
             await _context.SaveChangesAsync();
 
             return CreatedAtAction("GetPatient", new { id = patient.Id }, patient);
@@ -108,8 +108,9 @@ namespace DrDocx.API.Controllers
             return patient;
         }
 
-        public void UpdatePatientData(Patient patient)
+        public void PreparePatientEntities(Patient patient)
         {
+            _context.Entry(patient).State = patient.Id == 0 ? EntityState.Added : EntityState.Modified;
             foreach (var fvg in patient.FieldValueGroups)
             {
                 fvg.Patient = patient;
@@ -124,7 +125,6 @@ namespace DrDocx.API.Controllers
             foreach (var trg in patient.ResultGroups)
             {
                 trg.Patient = patient;
-                _context.TestResultGroups.Add(trg);
                 _context.Entry(trg).State = trg.Id == 0 ? EntityState.Added : EntityState.Modified;
                 foreach (var result in trg.Tests)
                 {
