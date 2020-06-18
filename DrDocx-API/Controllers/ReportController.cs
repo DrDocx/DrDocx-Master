@@ -37,7 +37,7 @@ namespace DrDocx.API.Controllers
             if (generatedFileName == null)
                 return BadRequest("Could not generate a file name. Please check your templates directory for problems and try again");
             
-            var fullFilePath = $"{Paths.RelativeTemplatesDir}/{generatedFileName}";
+            var fullFilePath = $"{Paths.RelativeTemplatesDir}\\{generatedFileName}";
             using (var fileStream = new FileStream(fullFilePath, FileMode.Create))
             {
                 await templateFile.CopyToAsync(fileStream);
@@ -47,7 +47,7 @@ namespace DrDocx.API.Controllers
             {
                 Name = templateName,
                 FileName = generatedFileName,
-                FilePath = $"{Paths.WorkingDirectory}/{fullFilePath}"
+                FilePath = $"{Paths.WorkingDirectory}\\{fullFilePath}"
             };
             _context.ReportTemplates.Add(reportTemplate);
 
@@ -100,8 +100,8 @@ namespace DrDocx.API.Controllers
                 return NotFound();
             }
 
-            var templatePath = $"{Paths.RelativeTemplatesDir}/{reportTemplate.FileName}";
-            System.IO.File.Delete(templatePath);
+            // var templatePath = $"{Paths.RelativeTemplatesDir}/{reportTemplate.FileName}";
+            System.IO.File.Delete(reportTemplate.FilePath);
 
             _context.ReportTemplates.Remove(reportTemplate);
             await _context.SaveChangesAsync();
