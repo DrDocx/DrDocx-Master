@@ -100,7 +100,7 @@ namespace DrDocx.Tests.WordDocEditing
         }
 
         [Test]
-        public void ReplaceTextDoesNotExistAfterReplace()
+        public void ReplaceTextExistsAfterReplace()
         {
             WordInterface = new WordAPI(TemplatePath, DocPath, false);
             WordInterface.FindAndReplace(FindAndReplacePairs, false);

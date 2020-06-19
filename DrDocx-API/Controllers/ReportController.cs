@@ -37,7 +37,7 @@ namespace DrDocx.API.Controllers
             if (generatedFileName == null)
                 return BadRequest("Could not generate a file name. Please check your templates directory for problems and try again");
             
-            var fullFilePath = $"{Paths.RelativeTemplatesDir}\\{generatedFileName}";
+            var fullFilePath = Path.Combine(Paths.RelativeTemplatesDir,generatedFileName);
             using (var fileStream = new FileStream(fullFilePath, FileMode.Create))
             {
                 await templateFile.CopyToAsync(fileStream);
@@ -47,7 +47,7 @@ namespace DrDocx.API.Controllers
             {
                 Name = templateName,
                 FileName = generatedFileName,
-                FilePath = $"{Paths.WorkingDirectory}\\{fullFilePath}"
+                FilePath = Path.Combine(Paths.WorkingDirectory, fullFilePath)
             };
             _context.ReportTemplates.Add(reportTemplate);
 
@@ -144,17 +144,17 @@ namespace DrDocx.API.Controllers
         /// <param name="templateId"></param>
         /// <param name="patientId"></param>
         /// <returns></returns>
-        [HttpGet("download/{templateId}/{patientId}")]
+        [HttpGet("{templateId}/download/{patientId}")]
         public async Task<IActionResult> DownloadPatientReport(int templateId, int patientId)
         {
             if (!_context.Patients.Any(e => e.Id == patientId))
                 return NotFound("The specified patient could not be found.");
             if (!_context.ReportTemplates.Any(t => t.Id == templateId))
                 return NotFound("The specified template could not be found.");
-            var patient = await _context.Patients.FindAsync(patientId);
+            var patient = await PatientController.GetFullPatient(_context, patientId);
             var template = await _context.ReportTemplates.FindAsync(templateId);
             
-            var link = GeneratePatientReport(patient);
+            var link = GeneratePatientReport(patient, template);
             var net = new System.Net.WebClient();
             var data = net.DownloadData(link);
             var content = new System.IO.MemoryStream(data);
@@ -163,23 +163,24 @@ namespace DrDocx.API.Controllers
             return File(content, contentType, fileName);
         }
         
-        private string GeneratePatientReport(Patient patient)
+        private string GeneratePatientReport(Patient patient, ReportTemplate template)
         {
             // Create local report directory
             var strippedPatientName = patient.Name.Replace(" ", "-");
-            var reportDir = "Patients/" + strippedPatientName + "/";
-            var reportTemplatePath = "Templates/report_template.docx";
+            var reportDir = Path.Combine("Patients", strippedPatientName);
+            var reportTemplatePath = template.FilePath;
 
             Directory.CreateDirectory(reportDir);
 
             GenerateReport(patient, reportTemplatePath, reportDir);
 
-            return reportDir + "/" + strippedPatientName + ".docx";
+            return Path.Combine(reportDir, $"{strippedPatientName}.docx");
         }
 
         private void GenerateReport(Patient patient, string templatePath, string reportDir)
         {
-            var report = new WordAPI(templatePath,reportDir + "/" + patient.Name.Replace(" ","-") + ".docx",readOnly: false);
+            var docPath = Path.Combine(reportDir, patient.Name.Replace(" ", "-") + ".docx");
+            var report = new WordAPI(templatePath, docPath, readOnly: false);
             report.GenerateReport(patient,reportDir);
             report.Close();
         }

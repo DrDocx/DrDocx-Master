@@ -50,7 +50,7 @@ namespace DrDocx.WordDocEditing
 			{
 				foreach (var fieldValue in fieldValueGroup.FieldValues)
 				{
-					patientDict.Add("{" + fieldValue.Field.MatchText + "}", fieldValue.FieldTextValue);
+					patientDict.Add("{{" + fieldValue.Field.MatchText + "}}", fieldValue.FieldTextValue);
 				}
 			}
 

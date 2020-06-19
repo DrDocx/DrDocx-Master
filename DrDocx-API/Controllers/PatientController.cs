@@ -38,7 +38,7 @@ namespace DrDocx.API.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Patient>> GetPatient(int id)
         {
-            var patient = await GetFullPatient(id);
+            var patient = await GetFullPatient(_context, id);
 
             if (patient == null)
             {
@@ -77,7 +77,7 @@ namespace DrDocx.API.Controllers
                 }
             }
 
-            return await GetFullPatient(patient.Id);
+            return await GetFullPatient(_context, patient.Id);
         }
 
         // POST: api/Patient
@@ -139,7 +139,7 @@ namespace DrDocx.API.Controllers
         [HttpPost("{id}/fieldGroup/{fieldGroupId}")]
         public async Task<ActionResult<List<FieldValueGroup>>> AddFieldGroup(int id, int fieldGroupId)
         {
-            var patient= await GetFullPatient(id);
+            var patient= await GetFullPatient(_context, id);
             if (patient == null)
                 return NotFound("Patient was not found.");
             
@@ -171,9 +171,10 @@ namespace DrDocx.API.Controllers
             return patient.FieldValueGroups;
         }
 
-        private async Task<Patient> GetFullPatient(int id)
+        // TODO: Put this in a helper class
+        public static async Task<Patient> GetFullPatient(DatabaseContext context, int id)
         {
-            var patient = await _context.Patients
+            var patient = await context.Patients
                 .Include(p => p.FieldValueGroups)
                 .ThenInclude(fvg => fvg.FieldValues)
                     .ThenInclude(fv => fv.Field)
