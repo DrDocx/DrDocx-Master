@@ -161,7 +161,7 @@ namespace DrDocx.API.Controllers
             var content = new System.IO.MemoryStream(data);
             var contentType = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
             var fileName = $"Patient-{patient.Name}-Report.docx";
-            return File(content, contentType, fileName);
+            return File(content, contentType, Path.GetFileName(link));
         }
         
         private string GeneratePatientReport(Patient patient, ReportTemplate template)
@@ -177,10 +177,10 @@ namespace DrDocx.API.Controllers
             Directory.CreateDirectory(reportDir);
             var docPath= Path.Combine(reportDir, patientFileName);
             var report = new WordAPI(reportTemplatePath, docPath, readOnly: false);
-            report.GenerateReport(patient,reportDir);
+            report.GenerateReport(patient, reportDir);
             report.Close();
 
-            return Path.Combine(reportDir, $"{patientFileName}.docx");
+            return Path.Combine(reportDir, patientFileName);
         }
 
         private bool TemplateExists(int id)
