@@ -33,7 +33,7 @@ namespace DrDocx.API.Controllers
                 return BadRequest("The file was not properly uploaded. Please try again.");
             if (templateName == null)
                 return BadRequest("No template name was provided. Please provide one and try again.");
-            var generatedFileName = GenerateTemplateFileName(templateName);
+            var generatedFileName = GenerateFileName(templateName, Paths.RelativeTemplatesDir);
             if (generatedFileName == null)
                 return BadRequest("Could not generate a file name. Please check your templates directory for problems and try again");
             
@@ -59,25 +59,26 @@ namespace DrDocx.API.Controllers
         /// <summary>
         /// Generate a file name for the template based on its display name that isn't already taken in the templates dir
         /// </summary>
-        /// <param name="templateName"></param>
+        /// <param name="inputName">The name from which to generate a file name</param>
+        /// <param name="directory">The directory that the file would go in, used for avoiding a duplicate name.</param>
         /// <returns>An unused file name for the template.</returns>
-        private static string GenerateTemplateFileName(string templateName)
+        private static string GenerateFileName(string inputName, string directory)
         {
             const string fileExtension = "docx";
             const int maxFileNameLength = 32;
             var rgx = new Regex("[^a-zA-Z0-9-]");
-            var cutName = templateName.Substring(0, templateName.Length > maxFileNameLength ? maxFileNameLength : templateName.Length);
-            var strippedCutName = templateName.Replace(" ", "-");
+            var cutName = inputName.Substring(0, inputName.Length > maxFileNameLength ? maxFileNameLength : inputName.Length);
+            var strippedCutName = inputName.Replace(" ", "-");
             var cleanedStrippedCutName = rgx.Replace(strippedCutName, "");
             var cleanedFileName = $"{cleanedStrippedCutName}.{fileExtension}";
-            var fileNameTaken = System.IO.File.Exists($"{Paths.RelativeTemplatesDir}/{cleanedFileName}");
+            var fileNameTaken = System.IO.File.Exists(Path.Combine(directory, cleanedFileName));
             if (!fileNameTaken)
                 return cleanedFileName;
             // Otherwise, add numbers to the file name until we get a free one.
             for (var appendedFileNum = 1; appendedFileNum < 256; appendedFileNum++)
             {
                 var newFileName = $"{cleanedStrippedCutName}-{appendedFileNum}.{fileExtension}";
-                if (!System.IO.File.Exists($"{Paths.RelativeTemplatesDir}/{newFileName}"))
+                if (!System.IO.File.Exists($"{directory}/{newFileName}"))
                     return newFileName;
             }
 
@@ -166,25 +167,22 @@ namespace DrDocx.API.Controllers
         private string GeneratePatientReport(Patient patient, ReportTemplate template)
         {
             // Create local report directory
-            var strippedPatientName = patient.Name.Replace(" ", "-");
-            var reportDir = Path.Combine("Patients", strippedPatientName);
+            var datePrefix = DateTime.Now.ToString("yyyy-MM-dd");
+            var patientFileName = GenerateFileName($"{datePrefix}-{patient.Name}", Paths.RelativeReportsDir);
+            var patientDirName = Path.GetInvalidFileNameChars()
+                .Aggregate(patient.Name, (current, c) => current.Replace(c, '-'));
+            var reportDir = Path.Combine(Paths.RelativeReportsDir, patientDirName);
             var reportTemplatePath = template.FilePath;
 
             Directory.CreateDirectory(reportDir);
-
-            GenerateReport(patient, reportTemplatePath, reportDir);
-
-            return Path.Combine(reportDir, $"{strippedPatientName}.docx");
-        }
-
-        private void GenerateReport(Patient patient, string templatePath, string reportDir)
-        {
-            var docPath = Path.Combine(reportDir, patient.Name.Replace(" ", "-") + ".docx");
-            var report = new WordAPI(templatePath, docPath, readOnly: false);
+            var docPath= Path.Combine(reportDir, patientFileName);
+            var report = new WordAPI(reportTemplatePath, docPath, readOnly: false);
             report.GenerateReport(patient,reportDir);
             report.Close();
+
+            return Path.Combine(reportDir, $"{patientFileName}.docx");
         }
-        
+
         private bool TemplateExists(int id)
         {
             return _context.ReportTemplates.Any(e => e.Id == id);
