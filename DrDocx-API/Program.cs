@@ -1,7 +1,9 @@
+using System.Net;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 using NLog.Extensions.Logging;
 using DrDocx.API.Helpers;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using NLog.Web;
 
@@ -27,7 +29,18 @@ namespace DrDocx.API
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>()
-                        .UseUrls(Paths.ApiFullUrl);
+                        .UseKestrel(options =>
+                        {
+                            options.Listen(IPAddress.Loopback, 1211);
+                        });
+                })
+                .ConfigureAppConfiguration((hostingContext, builder) =>
+                {
+                    var env = hostingContext.HostingEnvironment;
+                    if (env.IsEnvironment("Local"))
+                    {
+                        builder.AddUserSecrets<Startup>();
+                    }
                 });
     }
 }
