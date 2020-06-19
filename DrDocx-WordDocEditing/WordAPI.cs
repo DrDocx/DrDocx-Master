@@ -50,7 +50,12 @@ namespace DrDocx.WordDocEditing
 			{
 				foreach (var fieldValue in fieldValueGroup.FieldValues)
 				{
-					patientDict.Add("{{" + fieldValue.Field.MatchText + "}}", fieldValue.FieldTextValue);
+					var fieldTextValue = fieldValue.FieldTextValue;
+					if (fieldValue.Field.Type == "Date")
+					{
+						fieldTextValue = DateTime.Parse(fieldValue.FieldTextValue).ToString("dd MM yyyy");
+					}
+					patientDict.Add("{{" + fieldValue.Field.MatchText + "}}", fieldTextValue);
 				}
 			}
 
