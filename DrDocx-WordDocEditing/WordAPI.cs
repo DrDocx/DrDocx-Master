@@ -44,12 +44,14 @@ namespace DrDocx.WordDocEditing
 
 		public void GenerateReport(Patient patient, string directory)
 		{
-			
+			var patientNameArr = patient.Name.Split(" ");
+			var patientFirstName = string.Join(" ", patientNameArr.Take(patientNameArr.Length - 1)) ?? "";
+			var patientLastName = patientNameArr.Last() ?? "";
 			var patientDict = new Dictionary<string, string>
 			{
 				{"{{NAME}}", patient.Name},
-				{"{{FIRST_NAME}}", patient.Name.Split(" ")[0] ?? ""},
-				{"{{LAST_NAME}}", patient.Name.Split(" ")[1] ?? ""}
+				{"{{FIRST_NAME}}", patientFirstName},
+				{"{{LAST_NAME}}", patientLastName}
 			};
 			foreach (var fieldValueGroup in patient.FieldValueGroups)
 			{
@@ -58,7 +60,7 @@ namespace DrDocx.WordDocEditing
 					var fieldTextValue = fieldValue.FieldTextValue;
 					if (fieldValue.Field.Type == "Date")
 					{
-						fieldTextValue = DateTime.Parse(fieldValue.FieldTextValue).ToString("MM/dd/yy");
+						fieldTextValue = DateTime.Parse(fieldValue.FieldTextValue).ToString("MM/dd/yyyy");
 					}
 					patientDict.Add("{{" + fieldValue.Field.MatchText + "}}", fieldTextValue);
 				}
