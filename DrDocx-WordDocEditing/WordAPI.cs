@@ -60,7 +60,14 @@ namespace DrDocx.WordDocEditing
 					var fieldTextValue = fieldValue.FieldTextValue;
 					if (fieldValue.Field.Type == "Date")
 					{
-						fieldTextValue = DateTime.Parse(fieldValue.FieldTextValue).ToString("MM/dd/yyyy");
+						if (DateTime.TryParse(fieldValue.FieldTextValue, out var parsedDate))
+						{
+							fieldTextValue = parsedDate.ToString("MM/dd/yyyy");
+						}
+						else
+						{
+							fieldTextValue = "";
+						}
 					}
 					patientDict.Add("{{" + fieldValue.Field.MatchText + "}}", fieldTextValue);
 				}
