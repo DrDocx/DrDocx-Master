@@ -169,7 +169,7 @@ namespace DrDocx.WordDocEditing
                 xmlDoc.CreateElement("w:t", WordNamespace);
             var newText = xmlDoc.CreateTextNode(replace);
             newTextElement.AppendChild(newText);
-            if (replace[0] == ' ' || replace[^1] == ' ')
+            if (replace.Length > 0 && (replace[0] == ' ' || replace[^1] == ' '))
             {
                 var xmlSpace = xmlDoc.CreateAttribute("xml", "space",
                     "http://www.w3.org/XML/1998/namespace");
@@ -185,32 +185,28 @@ namespace DrDocx.WordDocEditing
                 paragraph.RemoveChild(runs[i + c]);
         }
 
-        private bool IsMatchHere(string search, XmlNodeList runs, int i)
+        private bool IsMatchHere(string search, XmlNodeList runs, int startingCharRunIndex)
         {
-            var match = true;
             for (int charIndex = 0; charIndex < search.Length; charIndex++)
             {
                 // Look through text nodes. If we find something that doesn't match with the string
                 // we're looking for, then there is no match and we break. Otherwise, keep going.
                 XmlElement textElement =
-                    (XmlElement) runs[i + charIndex].SelectSingleNode("child::w:t", Nsmgr);
+                    (XmlElement) runs[startingCharRunIndex + charIndex].SelectSingleNode("child::w:t", Nsmgr);
                 if (textElement == null)
                 {
-                    match = false;
-                    break;
+                    return false;
                 }
 
-                if (textElement.InnerText == search[charIndex].ToString())
-                    continue;
-                if (!MatchCase &&
-                    string.Equals(textElement.InnerText, search[charIndex].ToString(),
-                        StringComparison.CurrentCultureIgnoreCase))
-                    continue;
-                match = false;
-                break;
+                var comparisonType =
+                    MatchCase ? StringComparison.CurrentCulture : StringComparison.CurrentCultureIgnoreCase;
+                if (!string.Equals(textElement.InnerText, search[charIndex].ToString(),
+                    StringComparison.CurrentCultureIgnoreCase))
+                {
+                    return false;
+                }
             }
-
-            return match;
+            return true;
         }
 
         private void SplitTextRunsIntoCharacterRuns(XmlElement paragraph,
@@ -220,43 +216,41 @@ namespace DrDocx.WordDocEditing
             foreach (XmlElement run in runs)
             {
                 XmlNodeList childElements = run.SelectNodes("child::*", Nsmgr);
-                if (childElements.Count > 0)
+                if (childElements.Count <= 0) continue;
+                XmlElement last = (XmlElement) childElements[childElements.Count - 1];
+                for (var ch = childElements.Count - 1; ch >= 0; ch--)
                 {
-                    XmlElement last = (XmlElement) childElements[childElements.Count - 1];
-                    for (var ch = childElements.Count - 1; ch >= 0; ch--)
+                    switch (childElements[ch].Name)
                     {
-                        switch (childElements[ch].Name)
+                        case "w:rPr":
+                            continue;
+                        // If this run has text in it, we're going to split it up into a run for every
+                        // character. Performance! Efficiency! We shall have none of it!
+                        case "w:t":
+                            SplitSingleRunIntoCharRuns(paragraph, xmlDoc, childElements, ch, run);
+                            break;
+                        default:
                         {
-                            case "w:rPr":
-                                continue;
-                            // If this run has text in it, we're going to split it up into a run for every
-                            // character. Performance! Efficiency! We shall have none of it!
-                            case "w:t":
-                                SplitSingleRunIntoCharRuns(paragraph, xmlDoc, childElements, ch, run);
-                                break;
-                            default:
+                            var newRun = xmlDoc.CreateElement("w:r", WordNamespace);
+                            var runProps =
+                                (XmlElement) run.SelectSingleNode("child::w:rPr", Nsmgr);
+                            if (runProps != null)
                             {
-                                var newRun = xmlDoc.CreateElement("w:r", WordNamespace);
-                                var runProps =
-                                    (XmlElement) run.SelectSingleNode("child::w:rPr", Nsmgr);
-                                if (runProps != null)
-                                {
-                                    var newRunProps =
-                                        (XmlElement) runProps.CloneNode(true);
-                                    newRun.AppendChild(newRunProps);
-                                }
-
-                                var newChildElement =
-                                    (XmlElement) childElements[ch].CloneNode(true);
-                                newRun.AppendChild(newChildElement);
-                                paragraph.InsertAfter(newRun, run);
-                                break;
+                                var newRunProps =
+                                    (XmlElement) runProps.CloneNode(true);
+                                newRun.AppendChild(newRunProps);
                             }
+
+                            var newChildElement =
+                                (XmlElement) childElements[ch].CloneNode(true);
+                            newRun.AppendChild(newChildElement);
+                            paragraph.InsertAfter(newRun, run);
+                            break;
                         }
                     }
-
-                    paragraph.RemoveChild(run);
                 }
+
+                paragraph.RemoveChild(run);
             }
         }
 
