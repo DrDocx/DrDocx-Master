@@ -6,7 +6,7 @@
 [subrepo]
 	remote = https://github.com/DrDocx/DrDocx-WordDocEditing
 	branch = master
-	commit = d4900cc2299cbf4be7681280d1cad1323318b0ea
-	parent = c656f3bcb2b934553a0b40f935fc5843081f79bd
+	commit = 2dc8424360a55b1667ff322a5d4cbccfd703c459
+	parent = fee16e1f6b70adcdfe1b3f2a7785234c97d4568f
 	method = merge
 	cmdver = 0.4.1
