@@ -15,7 +15,7 @@ namespace DrDocx.API
         {
             Configuration = configuration;
             using var client = new DatabaseContext();
-            client.Database.EnsureCreated();
+            client.Database.Migrate();
         }
 
         public IConfiguration Configuration { get; }
@@ -30,6 +30,7 @@ namespace DrDocx.API
                 options.AddPolicy("CorsApi",
                     builder => builder.WithOrigins("http://localhost:3000")
                         .AllowAnyHeader()
+                        .WithExposedHeaders("Content-Disposition")
                         .AllowAnyMethod());
             });
         }

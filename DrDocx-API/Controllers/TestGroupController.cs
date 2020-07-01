@@ -127,10 +127,10 @@ namespace DrDocx.API.Controllers
             return testGroup;
         }
 
-        private async Task<TestGroup> GetFullTestGroup(int id)
+        /*private async Task<TestGroup> GetFullTestGroup(int id)
         {
             throw new NotImplementedException();
-        }
+        }*/
         private bool TestGroupExists(int id)
         {
             return _context.TestGroups.Any(e => e.Id == id);
