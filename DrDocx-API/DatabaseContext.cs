@@ -103,7 +103,7 @@ namespace DrDocx.API
 
             foreach (var modifiedEntity in modifiedEntities)
             {
-                if (modifiedEntity != null) modifiedEntity.DateCreated = DateTime.UtcNow;
+                if (modifiedEntity != null) modifiedEntity.DateModified = DateTime.UtcNow;
             }
         }
     }
