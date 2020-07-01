@@ -81,7 +81,8 @@ namespace DrDocx.WordDocEditing
 				LineBreak();
 			}
 
-			PageBreak();
+			if (patient.ResultGroups.Count > 0)
+				PageBreak();
 
 			var i = 0;
 			const double chartScale = 6.464;

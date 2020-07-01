@@ -156,6 +156,7 @@ namespace DrDocx.WordDocEditing
         private void ReplaceMatchedCharRunsWithText(XmlElement paragraph, string search, string replace,
             XmlDocument xmlDoc, XmlNodeList runs, int i)
         {
+            var runPropSourceIndex = i + 1 < runs.Count ? i + 1 : i;
             var runProps =
                 (XmlElement) runs[i].SelectSingleNode("descendant::w:rPr", Nsmgr);
             var newRun = xmlDoc.CreateElement("w:r", WordNamespace);
@@ -180,7 +181,7 @@ namespace DrDocx.WordDocEditing
 
             newRun.AppendChild(newTextElement);
             var indexAfter = i - 1 >= 0 ? i - 1 : i;
-            paragraph.InsertAfter(newRun, runs[i - 1]);
+            paragraph.InsertAfter(newRun, runs[indexAfter]);
             for (int c = 0; c < search.Length; ++c)
                 paragraph.RemoveChild(runs[i + c]);
         }
