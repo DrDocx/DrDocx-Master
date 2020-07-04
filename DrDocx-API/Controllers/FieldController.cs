@@ -87,10 +87,22 @@ namespace DrDocx.API.Controllers
             if (!RecordExists.FieldGroupExists(_context, field.FieldGroupId))
                 return BadRequest("Field group that you're adding this field to could not be found");
 
-            _context.Fields.Add(field);
-            await _context.SaveChangesAsync();
+            await _context.Fields.AddAsync(field);
+            // When a new field is created, add it to existing field value groups for its field group
+            var existingValueGroups = await _context.FieldValueGroups
+                .Where(fvg => fvg.FieldGroupId == field.FieldGroupId).ToListAsync();
+            foreach (var fieldValueGroup in existingValueGroups)
+            {
+                fieldValueGroup.FieldValues.Add(new FieldValue
+                {
+                    Field = field,
+                    FieldTextValue = field.DefaultValue,
+                    ParentGroup = fieldValueGroup
+                });
+            }
 
-            return CreatedAtAction("GetField", new { id = @field.Id }, @field);
+            await _context.SaveChangesAsync();
+            return CreatedAtAction("GetField", new {id = @field.Id}, @field);
         }
 
         // DELETE: api/Field/5
