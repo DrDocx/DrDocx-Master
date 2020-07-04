@@ -69,7 +69,16 @@ namespace DrDocx.WordDocEditing
 							fieldTextValue = "";
 						}
 					}
-					patientDict.Add("{{" + fieldValue.Field.MatchText + "}}", fieldTextValue);
+
+					var fieldValueKey = "{{" + fieldValue.Field.MatchText + "}}";
+					if (patientDict.ContainsKey(fieldValueKey))
+					{
+						patientDict[fieldValueKey] = fieldTextValue;
+					}
+					else
+					{
+						patientDict.Add(fieldValueKey, fieldTextValue);
+					}
 				}
 			}
 

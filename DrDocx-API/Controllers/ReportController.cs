@@ -33,7 +33,7 @@ namespace DrDocx.API.Controllers
                 return BadRequest("The file was not properly uploaded. Please try again.");
             if (templateName == null)
                 return BadRequest("No template name was provided. Please provide one and try again.");
-            var generatedFileName = GenerateFileName(templateName, Paths.RelativeTemplatesDir);
+            var generatedFileName = GenerateFileName(templateName, Paths.RelativeTemplatesDir, Path.GetExtension(templateFile.FileName));
             if (generatedFileName == null)
                 return BadRequest("Could not generate a file name. Please check your templates directory for problems and try again");
             
@@ -61,23 +61,23 @@ namespace DrDocx.API.Controllers
         /// </summary>
         /// <param name="inputName">The name from which to generate a file name</param>
         /// <param name="directory">The directory that the file would go in, used for avoiding a duplicate name.</param>
+        /// <param name="fileExtension">The file's extension.</param>
         /// <returns>An unused file name for the template.</returns>
-        private static string GenerateFileName(string inputName, string directory)
+        private static string GenerateFileName(string inputName, string directory, string fileExtension = ".docx")
         {
-            const string fileExtension = "docx";
             const int maxFileNameLength = 32;
             var rgx = new Regex("[^a-zA-Z0-9-]");
             var cutName = inputName.Substring(0, inputName.Length > maxFileNameLength ? maxFileNameLength : inputName.Length);
             var strippedCutName = inputName.Replace(" ", "-");
             var cleanedStrippedCutName = rgx.Replace(strippedCutName, "");
-            var cleanedFileName = $"{cleanedStrippedCutName}.{fileExtension}";
+            var cleanedFileName = $"{cleanedStrippedCutName}{fileExtension}";
             var fileNameTaken = System.IO.File.Exists(Path.Combine(directory, cleanedFileName));
             if (!fileNameTaken)
                 return cleanedFileName;
             // Otherwise, add numbers to the file name until we get a free one.
             for (var appendedFileNum = 1; appendedFileNum < 256; appendedFileNum++)
             {
-                var newFileName = $"{cleanedStrippedCutName}-{appendedFileNum}.{fileExtension}";
+                var newFileName = $"{cleanedStrippedCutName}-{appendedFileNum}{fileExtension}";
                 if (!System.IO.File.Exists($"{directory}/{newFileName}"))
                     return newFileName;
             }
@@ -160,7 +160,6 @@ namespace DrDocx.API.Controllers
             var data = net.DownloadData(link);
             var content = new System.IO.MemoryStream(data);
             var contentType = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
-            var fileName = $"Patient-{patient.Name}-Report.docx";
             return File(content, contentType, Path.GetFileName(link));
         }
         
