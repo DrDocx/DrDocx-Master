@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -177,5 +178,23 @@ namespace DrDocx.API.Controllers
         {
             return _context.FieldGroups.Any(e => e.Id == id);
         }
+
+		[HttpGet("download")]
+		public async Task<IActionResult> DownloadAllFieldGroups()
+		{
+			var fieldGroupsWithFields = _context.FieldGroups.Where(fg => !fg.IsArchived);
+			fieldGroupsWithFields = fieldGroupsWithFields.Include(fg => fg.Fields);
+			String fieldGroupsWithFieldsString = JsonSerializer.Serialize(fieldGroupsWithFields);
+			var link = Path.Combine(Paths.RelativeFieldGroupsExportDir,"exportedFieldGroups.json");
+			using (var exportedFieldGroupsFile = global::System.IO.File.CreateText(link))
+			{
+				exportedFieldGroupsFile.WriteLine(fieldGroupsWithFieldsString);
+			}
+            var net = new System.Net.WebClient();
+            var data = net.DownloadData(link);
+            var content = new System.IO.MemoryStream(data);
+            var contentType = "application/json";
+            return File(content, contentType, Path.GetFileName(link));
+		}
     }
 }
