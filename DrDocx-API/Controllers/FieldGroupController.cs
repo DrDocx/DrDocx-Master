@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -179,22 +180,29 @@ namespace DrDocx.API.Controllers
             return _context.FieldGroups.Any(e => e.Id == id);
         }
 
+		// GET: api/FieldGroup/download
+		// Downloads all field groups to exportedFieldGroups.json
+		// GET: api/FieldGroup/download?fieldGroupIds=1&fieldGroupIds=2
+		// Downloads selected field groups (id 1 and 2) to exportedFieldGroups.json
 		[HttpGet("download")]
-		public async Task<IActionResult> DownloadAllFieldGroups()
+		public async Task<IActionResult> DownloadSelectedFieldGroups([FromQuery(Name="fieldGroupIds")] int[] selectedFieldGroupIds)
 		{
-			var fieldGroupsWithFields = _context.FieldGroups.Where(fg => !fg.IsArchived);
-			fieldGroupsWithFields = fieldGroupsWithFields.Include(fg => fg.Fields);
-			String fieldGroupsWithFieldsString = JsonSerializer.Serialize(fieldGroupsWithFields);
-			var link = Path.Combine(Paths.RelativeFieldGroupsExportDir,"exportedFieldGroups.json");
-			using (var exportedFieldGroupsFile = global::System.IO.File.CreateText(link))
+			var fieldGroups = _context.FieldGroups
+				.Include(fg => fg.Fields)
+				.Where(fg => !fg.IsArchived);
+			
+			if(selectedFieldGroupIds.Length > 0)
 			{
-				exportedFieldGroupsFile.WriteLine(fieldGroupsWithFieldsString);
+				fieldGroups = fieldGroups.Where(fg => selectedFieldGroupIds.Contains(fg.Id));
 			}
-            var net = new System.Net.WebClient();
-            var data = net.DownloadData(link);
-            var content = new System.IO.MemoryStream(data);
-            var contentType = "application/json";
-            return File(content, contentType, Path.GetFileName(link));
+
+			string fieldGroupsString = JsonSerializer.Serialize(fieldGroups);
+
+            byte[] content = Encoding.ASCII.GetBytes(fieldGroupsString);
+            const string contentType = "application/json";
+			const string fileName = "exportedFieldGroups.json";
+
+            return File(content, contentType, fileName);
 		}
     }
 }
