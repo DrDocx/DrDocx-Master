@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -175,6 +178,68 @@ namespace DrDocx.API.Controllers
         private bool FieldGroupExists(int id)
         {
             return _context.FieldGroups.Any(e => e.Id == id);
+        }
+
+		// GET: api/FieldGroup/download
+		// Downloads selected field groups to exportedFieldGroups.json
+		[HttpGet("download")]
+		public async Task<IActionResult> DownloadFieldGroups([FromBody] int[] fieldGroupIds)
+		{
+			var fieldGroups = _context.FieldGroups
+				.Include(fg => fg.Fields)
+				.Where(fg => !fg.IsArchived);
+			
+			if(fieldGroupIds.Length > 0)
+			{
+				fieldGroups = fieldGroups.Where(fg => fieldGroupIds.Contains(fg.Id));
+			}
+
+            var fieldGroupsList = await fieldGroups.ToListAsync();
+
+            foreach (var fieldGroup in fieldGroupsList)
+            {
+                fieldGroup.Id = 0;
+                foreach (var field in fieldGroup.Fields)
+                {
+                    field.Id = 0;
+                    field.FieldGroupId = 0;
+                }
+            }
+
+			string fieldGroupsString = JsonSerializer.Serialize(fieldGroupsList);
+
+            byte[] content = Encoding.UTF8.GetBytes(fieldGroupsString);
+            const string contentType = "application/json";
+			const string fileName = "exportedFieldGroups.dr";
+
+            return File(content, contentType, fileName);
+		}
+
+        // POST: api/FieldGroup/upload
+        // Uploads field groups from JSON file.
+        [HttpPost("upload")]
+        public async Task<IActionResult> UploadReportTemplate([FromForm] IFormFile importedFieldGroupsJson, [FromForm] string templateName)
+        {
+            string importedFieldGroupsJsonString;
+            using (var reader = new StreamReader(importedFieldGroupsJson.OpenReadStream()))
+            {
+                importedFieldGroupsJsonString = reader.ReadLine();
+            }
+            List<FieldGroup> fieldGroups = JsonSerializer.Deserialize<List<FieldGroup>>(importedFieldGroupsJsonString);
+
+            foreach (var fieldGroup in fieldGroups)
+            {
+                _context.FieldGroups.Add(fieldGroup);
+                foreach (var field in fieldGroup.Fields)
+                {
+                    field.FieldGroup = fieldGroup;
+                    _context.Fields.Add(field);
+                }
+            }
+
+            await _context.SaveChangesAsync();
+
+            return Ok();
         }
     }
 }
