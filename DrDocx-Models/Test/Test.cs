@@ -14,5 +14,6 @@ namespace DrDocx.Models
         [JsonIgnore]
         public TestGroup TestGroup { get; set; }
         public int TestGroupId { get; set; }
+        public string ScoreType { get; set; }
     }
 }
