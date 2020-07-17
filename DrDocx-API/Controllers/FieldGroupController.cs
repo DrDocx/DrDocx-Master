@@ -208,7 +208,7 @@ namespace DrDocx.API.Controllers
 
 			string fieldGroupsString = JsonSerializer.Serialize(fieldGroupsList);
 
-            byte[] content = Encoding.ASCII.GetBytes(fieldGroupsString);
+            byte[] content = Encoding.UTF8.GetBytes(fieldGroupsString);
             const string contentType = "application/json";
 			const string fileName = "exportedFieldGroups.dr";
 
@@ -227,7 +227,7 @@ namespace DrDocx.API.Controllers
             }
             List<FieldGroup> fieldGroups = JsonSerializer.Deserialize<List<FieldGroup>>(importedFieldGroupsJsonString);
 
-            foreach (FieldGroup fieldGroup in fieldGroups)
+            foreach (var fieldGroup in fieldGroups)
             {
                 _context.FieldGroups.Add(fieldGroup);
                 foreach (var field in fieldGroup.Fields)
