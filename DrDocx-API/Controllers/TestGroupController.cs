@@ -23,9 +23,19 @@ namespace DrDocx.API.Controllers
 
         // GET: api/TestGroup
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<TestGroup>>> GetTestGroups()
+        public async Task<ActionResult<IEnumerable<TestGroup>>> GetTestGroups(string includeTests, string isDefault)
         {
-            return await _context.TestGroups.ToListAsync();
+            var testGroups = _context.TestGroups.AsQueryable();
+            if (includeTests != null && includeTests == "1")
+            {
+                testGroups = testGroups.Include(tg => tg.Tests);
+            }
+
+            if (isDefault != null && isDefault == "1")
+            {
+                testGroups = testGroups.Where(fg => fg.IsDefaultGroup);
+            }
+            return await testGroups.ToListAsync();
         }
 
         // GET: api/TestGroup/5
