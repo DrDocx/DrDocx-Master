@@ -4,13 +4,15 @@ using System.Text.Json.Serialization;
 
 namespace DrDocx.Models
 {
-    public class Field : FieldBase
+    public class Field : NamedModelBase
     {
         [JsonIgnore]
         public FieldGroup FieldGroup { get; set; }
         public int FieldGroupId { get; set; }
         public string DefaultValue { get; set; } = "";
         public bool IsArchived { get; set; } = false;
+        public string MatchText { get; set; }
+        public string Type { get; set; }
     }
 
     public enum FieldType

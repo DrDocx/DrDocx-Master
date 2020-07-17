@@ -2,7 +2,7 @@ using System.Text.Json.Serialization;
 
 namespace DrDocx.Models
 {
-    public class FieldOptionValue : FieldOptionBase
+    public class FieldOptionValue : NamedModelBase
     {
         // ReSharper disable once SuggestBaseTypeForParameter
         public FieldOptionValue(FieldOption fieldOption, FieldValue parent)
