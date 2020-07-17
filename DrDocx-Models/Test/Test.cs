@@ -10,8 +10,6 @@ namespace DrDocx.Models
     {
         public int Id { get; set; }
         public string Name { get; set; }
-        public ScoreType StandardizedScoreType { get; set; }
-        public ScoreType StandardizedScoreTypeId { get; set; }
         public string Description { get; set; }
         [JsonIgnore]
         public TestGroup TestGroup { get; set; }
