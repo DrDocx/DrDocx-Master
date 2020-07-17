@@ -181,28 +181,65 @@ namespace DrDocx.API.Controllers
         }
 
 		// GET: api/FieldGroup/download
-		// Downloads all field groups to exportedFieldGroups.json
-		// GET: api/FieldGroup/download?fieldGroupIds=1&fieldGroupIds=2
-		// Downloads selected field groups (id 1 and 2) to exportedFieldGroups.json
+		// Downloads selected field groups to exportedFieldGroups.json
 		[HttpGet("download")]
-		public async Task<IActionResult> DownloadSelectedFieldGroups([FromQuery(Name="fieldGroupIds")] int[] selectedFieldGroupIds)
+		public async Task<IActionResult> DownloadFieldGroups([FromBody] int[] fieldGroupIds)
 		{
 			var fieldGroups = _context.FieldGroups
 				.Include(fg => fg.Fields)
 				.Where(fg => !fg.IsArchived);
 			
-			if(selectedFieldGroupIds.Length > 0)
+			if(fieldGroupIds.Length > 0)
 			{
-				fieldGroups = fieldGroups.Where(fg => selectedFieldGroupIds.Contains(fg.Id));
+				fieldGroups = fieldGroups.Where(fg => fieldGroupIds.Contains(fg.Id));
 			}
 
-			string fieldGroupsString = JsonSerializer.Serialize(fieldGroups);
+            var fieldGroupsList = await fieldGroups.ToListAsync();
+
+            foreach (var fieldGroup in fieldGroupsList)
+            {
+                fieldGroup.Id = 0;
+                foreach (var field in fieldGroup.Fields)
+                {
+                    field.Id = 0;
+                    field.FieldGroupId = 0;
+                }
+            }
+
+			string fieldGroupsString = JsonSerializer.Serialize(fieldGroupsList);
 
             byte[] content = Encoding.ASCII.GetBytes(fieldGroupsString);
             const string contentType = "application/json";
-			const string fileName = "exportedFieldGroups.json";
+			const string fileName = "exportedFieldGroups.dr";
 
             return File(content, contentType, fileName);
 		}
+
+        // POST: api/FieldGroup/upload
+        // Uploads field groups from JSON file.
+        [HttpPost("upload")]
+        public async Task<IActionResult> UploadReportTemplate([FromForm] IFormFile importedFieldGroupsJson, [FromForm] string templateName)
+        {
+            string importedFieldGroupsJsonString;
+            using (var reader = new StreamReader(importedFieldGroupsJson.OpenReadStream()))
+            {
+                importedFieldGroupsJsonString = reader.ReadLine();
+            }
+            List<FieldGroup> fieldGroups = JsonSerializer.Deserialize<List<FieldGroup>>(importedFieldGroupsJsonString);
+
+            foreach (FieldGroup fieldGroup in fieldGroups)
+            {
+                _context.FieldGroups.Add(fieldGroup);
+                foreach (var field in fieldGroup.Fields)
+                {
+                    field.FieldGroup = fieldGroup;
+                    _context.Fields.Add(field);
+                }
+            }
+
+            await _context.SaveChangesAsync();
+
+            return Ok();
+        }
     }
 }
