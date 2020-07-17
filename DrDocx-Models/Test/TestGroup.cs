@@ -10,6 +10,6 @@ namespace DrDocx.Models
         public string Description { get; set; }
         public bool IsDefaultGroup { get; set; }
         [JsonIgnore]
-        public List<TestGroupTest> TestGroupTests { get; } = new List<TestGroupTest>();
+        public List<Test> Tests { get; } = new List<Test>();
     }
 }

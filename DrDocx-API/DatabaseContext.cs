@@ -15,8 +15,6 @@ namespace DrDocx.API
         public DbSet<TestResult> TestResults { get; set; }
         public DbSet<TestGroup> TestGroups { get; set; }
         public DbSet<TestResultGroup> TestResultGroups { get; set; }
-        public DbSet<TestGroupTest> TestGroupTests { get; set; }
-        
         public DbSet<Field> Fields { get; set; }
         public DbSet<FieldGroup> FieldGroups { get; set; }
         public DbSet<FieldValue> FieldValues { get; set; }
@@ -37,7 +35,7 @@ namespace DrDocx.API
 
         private void ConfigureRelationships(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<TestGroupTest>()
+            /*modelBuilder.Entity<TestGroupTest>()
                 .HasKey(tgt => new { tgt.TestGroupId, tgt.TestId });
             modelBuilder.Entity<TestGroupTest>()
                 .HasOne(tgt => tgt.TestGroup)
@@ -46,7 +44,7 @@ namespace DrDocx.API
             modelBuilder.Entity<TestGroupTest>()
                 .HasOne(tgt => tgt.Test)
                 .WithMany(t => t.TestGroupTests)
-                .HasForeignKey(tgt => tgt.TestId);
+                .HasForeignKey(tgt => tgt.TestId);*/
             modelBuilder.Entity<FieldValueGroup>()
                 .HasOne(fvg => fvg.Patient)
                 .WithMany(p => p.FieldValueGroups).IsRequired();

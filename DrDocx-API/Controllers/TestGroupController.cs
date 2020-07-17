@@ -101,32 +101,7 @@ namespace DrDocx.API.Controllers
 
             return testGroup;
         }
-
-        [HttpPut("{id}/test/{testId}")]
-        public async Task<ActionResult<TestGroup>> AddTestToTestGroup(int id, int testId)
-        {
-            var testGroup = await _context.TestGroups.FindAsync(id);
-            if (testGroup == null)
-            {
-                return NotFound();
-            }
-
-            var test = await _context.Tests.FindAsync(testId);
-            if (test == null)
-            {
-                return NotFound();
-            }
-
-            var joinRecord = new TestGroupTest
-            {
-                TestGroupId = id,
-                TestId = testId
-            };
-            _context.TestGroupTests.Add(joinRecord);
-            await _context.SaveChangesAsync();
-            return testGroup;
-        }
-
+        
         /*private async Task<TestGroup> GetFullTestGroup(int id)
         {
             throw new NotImplementedException();
