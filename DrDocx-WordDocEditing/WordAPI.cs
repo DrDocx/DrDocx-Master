@@ -30,6 +30,11 @@ namespace DrDocx.WordDocEditing
 			WordDoc.Dispose();
 		}
 
+		public void Close()
+		{
+			Dispose();
+		}
+
 		private WordprocessingDocument WordDoc { get; set; }
 
 		public void GenerateReport(Patient patient)
