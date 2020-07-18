@@ -18,31 +18,21 @@ using static DrDocx.WordDocEditing.ChartAPI;
 
 namespace DrDocx.WordDocEditing
 {
-	public class WordAPI
+	public class WordAPI : IDisposable
 	{
-		public WordAPI(string templatePath, string docPath, bool readOnly = true)
+		public WordAPI(Stream docStream, bool readOnly = true)
 		{
-			if (File.Exists(docPath))
-				File.Delete(docPath);
-			File.Copy(templatePath, docPath);
-			DocPath = docPath;
-			WordDoc = WordprocessingDocument.Open(DocPath, !readOnly);
+			WordDoc = WordprocessingDocument.Open(docStream, !readOnly);
 		}
 
-		public WordAPI(string docPath, bool readOnly = true)
+		public void Dispose()
 		{
-			DocPath = docPath;
-			WordDoc = WordprocessingDocument.Open(DocPath, !readOnly);
+			WordDoc.Dispose();
 		}
 
-		public void Close()
-		{
-			WordDoc.Close();
-		}
-		private string DocPath { get; set; }
 		private WordprocessingDocument WordDoc { get; set; }
 
-		public void GenerateReport(Patient patient, string directory)
+		public void GenerateReport(Patient patient)
 		{
 			var patientNameArr = patient.Name.Split(" ");
 			var patientFirstName = string.Join(" ", patientNameArr.Take(patientNameArr.Length - 1)) ?? "";
@@ -95,13 +85,16 @@ namespace DrDocx.WordDocEditing
 
 			var i = 0;
 			const double chartScale = 6.464;
+
 			foreach (var resultGroup in patient.ResultGroups)
 			{
 				i++;
-				MakePatientPercentileChart(resultGroup,directory + patient.Name + i);
-				InsertPicturePng(directory + patient.Name + i + ".png",chartScale,chartScale*(resultGroup.Tests.Count*50)/600);
+				Stream imageStream = MakePatientPercentileChart(resultGroup);
+				InsertPicturePng(imageStream,chartScale,chartScale*(resultGroup.Tests.Count*50)/600);
+				imageStream.Dispose();
 				AddParagraph(resultGroup.TestGroupInfo.Name, bold: true, fontsize: 16, alignment: "center");
 			}
+
 		}
 
 		public void FindAndReplace(Dictionary<string, string> findReplacePairs, bool matchCase)
@@ -250,16 +243,13 @@ namespace DrDocx.WordDocEditing
 			return table;
 		}
 
-		private void InsertPicturePng(string imageFilePath, double scaleWidth, double scaleHeight)
+		private void InsertPicturePng(Stream imageStream, double scaleWidth, double scaleHeight)
 		{
 			MainDocumentPart mainPart = WordDoc.MainDocumentPart;
 
 			ImagePart imagePart = mainPart.AddImagePart(ImagePartType.Png);
 
-			using (FileStream stream = new FileStream(imageFilePath, FileMode.Open))
-			{
-				imagePart.FeedData(stream);
-			}
+			imagePart.FeedData(imageStream);
 
 			AddImageToBody(mainPart.GetIdOfPart(imagePart),scaleWidth,scaleHeight);
 		}
