@@ -155,31 +155,27 @@ namespace DrDocx.API.Controllers
             var patient = await PatientController.GetFullPatient(_context, patientId);
             var template = await _context.ReportTemplates.FindAsync(templateId);
             
-            var link = GeneratePatientReport(patient, template);
-            var net = new System.Net.WebClient();
-            var data = net.DownloadData(link);
-            var content = new System.IO.MemoryStream(data);
+            var content = GeneratePatientReport(patient, template).ToArray();
             var contentType = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
-            return File(content, contentType, Path.GetFileName(link));
-        }
-        
-        private string GeneratePatientReport(Patient patient, ReportTemplate template)
-        {
-            // Create local report directory
+
             var datePrefix = DateTime.Now.ToString("yyyy-MM-dd");
             var patientFileName = GenerateFileName($"{datePrefix}-{patient.Name}", Paths.RelativeReportsDir);
-            var patientDirName = Path.GetInvalidFileNameChars()
-                .Aggregate(patient.Name, (current, c) => current.Replace(c, '-'));
-            var reportDir = Path.Combine(Paths.RelativeReportsDir, patientDirName);
+
+            return File(content, contentType, patientFileName);
+        }
+        
+        private MemoryStream GeneratePatientReport(Patient patient, ReportTemplate template)
+        {
             var reportTemplatePath = template.FilePath;
 
-            Directory.CreateDirectory(reportDir);
-            var docPath= Path.Combine(reportDir, patientFileName);
-            var report = new WordAPI(reportTemplatePath, docPath, readOnly: false);
-            report.GenerateReport(patient, reportDir);
-            report.Close();
+            MemoryStream docStream = new MemoryStream(System.IO.File.ReadAllBytes(reportTemplatePath));
 
-            return Path.Combine(reportDir, patientFileName);
+            using (var docEditor = new WordAPI(docStream, readOnly: false))
+            {
+                docEditor.GenerateReport(patient);
+            }
+
+            return docStream;
         }
 
         private bool TemplateExists(int id)
