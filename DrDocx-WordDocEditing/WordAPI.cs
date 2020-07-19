@@ -25,6 +25,11 @@ namespace DrDocx.WordDocEditing
 			WordDoc = WordprocessingDocument.Open(docStream, !readOnly);
 		}
 
+		public WordAPI(String filePath, bool readOnly = true)
+		{
+			WordDoc = WordprocessingDocument.Open(new MemoryStream(File.ReadAllBytes(filePath)), !readOnly);
+		}
+
 		public void Dispose()
 		{
 			WordDoc.Dispose();

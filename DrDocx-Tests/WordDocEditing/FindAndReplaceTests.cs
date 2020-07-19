@@ -60,7 +60,7 @@ namespace DrDocx.Tests.WordDocEditing
             Exception failedEx = null;
             try
             {
-                WordInterface = new WordAPI(new MemoryStream(File.ReadAllBytes(TemplatePath)), true);
+                WordInterface = new WordAPI(TemplatePath, true);
                 WordInterface.FindAndReplace(FindAndReplacePairs, false);
             }
             catch (Exception e)
@@ -74,7 +74,7 @@ namespace DrDocx.Tests.WordDocEditing
         [Test]
         public void SearchTextExistsBeforeReplace()
         {
-            var templateApi = new WordAPI(new MemoryStream(File.ReadAllBytes(TemplatePath)));
+            var templateApi = new WordAPI(TemplatePath);
             foreach (var pair in FindAndReplacePairs)
                 Assert.IsTrue(templateApi.ContainsText(pair.Key, false), templatePreconditionError + TemplatePath);
             templateApi.Close();
@@ -83,7 +83,7 @@ namespace DrDocx.Tests.WordDocEditing
         [Test]
         public void ReplaceTextDoesNotExistBeforeReplace()
         {
-            var templateApi = new WordAPI(new MemoryStream(File.ReadAllBytes(TemplatePath)));
+            var templateApi = new WordAPI(TemplatePath);
             foreach (var pair in FindAndReplacePairs)
                 Assert.IsFalse(templateApi.ContainsText(pair.Value, false), templatePreconditionError + TemplatePath);
             templateApi.Close();
@@ -92,7 +92,7 @@ namespace DrDocx.Tests.WordDocEditing
         [Test]
         public void SearchTextDoesNotExistAfterReplace()
         {
-            WordInterface = new WordAPI(new MemoryStream(File.ReadAllBytes(TemplatePath)), false);
+            WordInterface = new WordAPI(TemplatePath, false);
             WordInterface.FindAndReplace(FindAndReplacePairs, false);
             foreach (var pair in FindAndReplacePairs)
                 Assert.IsFalse(WordInterface.ContainsText(pair.Key, false));
@@ -102,7 +102,7 @@ namespace DrDocx.Tests.WordDocEditing
         [Test]
         public void ReplaceTextExistsAfterReplace()
         {
-            WordInterface = new WordAPI(new MemoryStream(File.ReadAllBytes(TemplatePath)), false);
+            WordInterface = new WordAPI(TemplatePath, false);
             WordInterface.FindAndReplace(FindAndReplacePairs, false);
             foreach (var pair in FindAndReplacePairs)
                 Assert.IsTrue(WordInterface.ContainsText(pair.Value, false));
