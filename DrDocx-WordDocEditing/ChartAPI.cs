@@ -35,22 +35,26 @@ namespace DrDocx.WordDocEditing
 			return hex;
 		}
 
-		static void RotateAndSaveImage(string fileName)
+		static Stream RotateImage(Stream imgStream)
 		{
   			//create an object that we can use to examine an image file
-			Image img = Image.FromFile(fileName);
+			Image img = Image.FromStream(imgStream);
 
    			//rotate the picture by 90 degrees
 			img.RotateFlip(RotateFlipType.Rotate90FlipNone);
 
+			Stream newImageStream = new MemoryStream();
+
     		//re-save the picture as a Png
-			img.Save(fileName, System.Drawing.Imaging.ImageFormat.Png);
+			img.Save(newImageStream, System.Drawing.Imaging.ImageFormat.Png);
 
     		//tidy up after we've finished
 			img.Dispose();
+
+			return newImageStream;
 		}
 		
-		public static void MakePatientPercentileChart(TestResultGroup testResultGroup,string fileName)
+		public static Stream MakePatientPercentileChart(TestResultGroup testResultGroup)
 		{
 
 			var entries = new List<Entry>();
@@ -97,15 +101,17 @@ namespace DrDocx.WordDocEditing
 
 			chart.Draw(canvas,width,height);
 
+			Stream imageStream = new MemoryStream();
+
 			// create an image and then get the PNG (or any other) encoded data
 			using (var data = surface.Snapshot().Encode(SKEncodedImageFormat.Png, 80)) {
     			// save the data to a stream
-				using (var stream = File.OpenWrite(fileName + ".png")) {
-					data.SaveTo(stream);
-				}
+				data.SaveTo(imageStream);
 			}
 
-			RotateAndSaveImage(fileName + ".png");
+			imageStream = RotateImage(imageStream);
+
+			return imageStream;
 		}
 	}
 }

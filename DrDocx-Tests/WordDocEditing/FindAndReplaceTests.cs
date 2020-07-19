@@ -60,7 +60,7 @@ namespace DrDocx.Tests.WordDocEditing
             Exception failedEx = null;
             try
             {
-                WordInterface = new WordAPI(TemplatePath, DocPath, true);
+                WordInterface = new WordAPI(TemplatePath, true);
                 WordInterface.FindAndReplace(FindAndReplacePairs, false);
             }
             catch (Exception e)
@@ -92,7 +92,7 @@ namespace DrDocx.Tests.WordDocEditing
         [Test]
         public void SearchTextDoesNotExistAfterReplace()
         {
-            WordInterface = new WordAPI(TemplatePath, DocPath, false);
+            WordInterface = new WordAPI(TemplatePath, false);
             WordInterface.FindAndReplace(FindAndReplacePairs, false);
             foreach (var pair in FindAndReplacePairs)
                 Assert.IsFalse(WordInterface.ContainsText(pair.Key, false));
@@ -102,7 +102,7 @@ namespace DrDocx.Tests.WordDocEditing
         [Test]
         public void ReplaceTextExistsAfterReplace()
         {
-            WordInterface = new WordAPI(TemplatePath, DocPath, false);
+            WordInterface = new WordAPI(TemplatePath, false);
             WordInterface.FindAndReplace(FindAndReplacePairs, false);
             foreach (var pair in FindAndReplacePairs)
                 Assert.IsTrue(WordInterface.ContainsText(pair.Value, false));
