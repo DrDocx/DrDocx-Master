@@ -158,22 +158,6 @@ namespace DrDocx.WordDocEditing
 			WordDoc.MainDocumentPart.Document.Body.AppendChild(new Paragraph(new Run(new Text("\n"))));
 		}
 
-		public void JoinFile(Stream fileStream)
-		{
-			PageBreak();
-			var mainPart = WordDoc.MainDocumentPart;
-			const string altChunkId = "AltChunkId1";
-			var chunk = mainPart.AddAlternativeFormatImportPart(
-				AlternativeFormatImportPartType.WordprocessingML, altChunkId);
-
-			chunk.FeedData(fileStream);
-
-			var altChunk = new AltChunk { Id = altChunkId };
-
-			mainPart.Document.Body.InsertAfter(altChunk, mainPart.Document.Body.Elements<Paragraph>().Last());
-			mainPart.Document.Save();
-		}
-
 		private void DisplayTestGroup(TestResultGroup testResultGroup){
 			WordDoc.MainDocumentPart.Document.Body.Append(CreateTitleTable(testResultGroup.TestGroupInfo.Name));
 			LineBreak();
