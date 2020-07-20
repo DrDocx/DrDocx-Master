@@ -183,7 +183,7 @@ namespace DrDocx.API.Controllers
 		// GET: api/FieldGroup/download
 		// Downloads selected field groups to exportedFieldGroups.json
 		[HttpGet("download")]
-		public async Task<IActionResult> DownloadFieldGroups([FromBody] int[] fieldGroupIds)
+		public async Task<IActionResult> DownloadFieldGroups([FromQuery(Name = "fieldGroupIds")] int[] fieldGroupIds)
 		{
 			var fieldGroups = _context.FieldGroups
 				.Include(fg => fg.Fields)
