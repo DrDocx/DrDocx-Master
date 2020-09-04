@@ -5,7 +5,7 @@
         <RootNamespace>DrDocx.API</RootNamespace>
         <RuntimeIdentifier Condition=" '$(OS)' != 'Windows_NT' ">osx-x64</RuntimeIdentifier>
         <RuntimeIdentifier Condition=" '$(OS)' == 'Windows_NT' ">win-x64</RuntimeIdentifier>
-        <PublishSingleFile>true</PublishSingleFile>
+<!--        <PublishSingleFile>true</PublishSingleFile>-->
         <PublishTrimmed>true</PublishTrimmed>
         <ExcludeFoldersFromDeployment>publish/</ExcludeFoldersFromDeployment>
     </PropertyGroup>
@@ -16,7 +16,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="DocumentFormat.OpenXml" Version="2.11.2" />
+        <PackageReference Include="DocumentFormat.OpenXml" Version="2.11.3" />
         <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.5" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="3.1.5" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="3.1.5" />
